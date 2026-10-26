@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/serverAuth";
 import { errorResponse, ownsOpportunity, rest, UUID_RE } from "@/lib/db";
 import { CATEGORIES } from "@/lib/types";
 import { toRequirements } from "@/lib/mappers";
+import { audit } from "@/lib/audit";
 
 type Ctx = { params: { id: string } };
 
@@ -46,6 +47,7 @@ export async function PUT(req: Request, { params }: Ctx) {
 
     await rest("DELETE", "requirements", { query: `?opportunity_id=eq.${params.id}&user_id=eq.${auth.userId}` });
     const inserted = await rest<any[]>("POST", "requirements", { body: rows, prefer: "return=representation" });
+    await audit(auth.userId, params.id, "requirements_saved", { count: inserted.length });
     return NextResponse.json({ requirements: toRequirements(inserted) });
   } catch (e) {
     return errorResponse(e, "Requirements were NOT saved: ");

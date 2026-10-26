@@ -40,6 +40,7 @@ const NAV = [
   { href: "/dashboard/templates", label: "Templates", icon: "list" as const, match: (p: string) => p === "/dashboard/templates" },
   { href: "/dashboard/search", label: "Search", icon: "list" as const, match: (p: string) => p === "/dashboard/search" },
   { href: "/dashboard/notifications", label: "Notifications", icon: "list" as const, match: (p: string) => p === "/dashboard/notifications" },
+  { href: "/dashboard/activity", label: "Activity", icon: "list" as const, match: (p: string) => p === "/dashboard/activity" },
   { href: "/dashboard/settings", label: "Settings", icon: "list" as const, match: (p: string) => p === "/dashboard/settings" },
 ];
 

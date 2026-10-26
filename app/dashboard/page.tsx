@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/time";
 import { ReadinessBadge } from "@/components/ReadinessBadge";
 import { CountUp, LoadingBlock, Reveal } from "@/components/ui";
 import { daysUntil, deadlineTone, countdownLabel } from "@/lib/deadline";
+import { PerformanceCard } from "@/components/OpportunityExtras";
 
 type Row = Opportunity & { readiness: Readiness };
 
@@ -56,6 +57,7 @@ export default function DashboardPage() {
 
   return (
     <section>
+      <PerformanceCard />
       <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label-mono mb-3 flex items-center gap-2">

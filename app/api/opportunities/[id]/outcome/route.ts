@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/serverAuth";
 import { errorResponse, rest, UUID_RE } from "@/lib/db";
 import { OUTCOME_REASONS } from "@/lib/intelligence";
 import { toOpportunity } from "@/lib/mappers";
+import { audit } from "@/lib/audit";
 
 type Ctx = { params: { id: string } };
 
@@ -54,6 +55,7 @@ export async function PUT(req: Request, { params }: Ctx) {
       prefer: "return=representation",
     });
     if (!rows.length) return NextResponse.json({ error: "Opportunity not found." }, { status: 404 });
+    await audit(auth.userId, params.id, "outcome", { result: clearing ? null : body.result, reason: clearing ? null : reason });
     return NextResponse.json({ opportunity: toOpportunity(rows[0]) });
   } catch (e) {
     return errorResponse(e);

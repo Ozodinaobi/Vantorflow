@@ -15,6 +15,8 @@ import { ReadinessBadge } from "@/components/ReadinessBadge";
 import { BreathingLoader, LoadingBlock, Reveal } from "@/components/ui";
 import { QualificationPanel, OutcomePanel, ApprovalPanel, AssistantPanel } from "@/components/OpportunityPanels";
 import { daysUntil, deadlineTone, countdownLabel } from "@/lib/deadline";
+import { requirementsFromCsv } from "@/lib/csv";
+import { OpportunityExtras } from "@/components/OpportunityExtras";
 
 interface Detail {
   opportunity: Opportunity;
@@ -44,6 +46,10 @@ export default function OpportunityPage() {
   const [templates, setTemplates] = useState<{ id: string; name: string; kind: string; content: string }[]>([]);
   const [templateId, setTemplateId] = useState("");
   const activeTemplate = templates.find((t) => t.id === templateId) ?? null;
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkSection, setBulkSection] = useState("");
+  const [csvText, setCsvText] = useState("");
+  const [csvBusy, setCsvBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -146,6 +152,64 @@ export default function OpportunityPage() {
       );
     } catch (e) {
       setMessage({ kind: "error", text: `Mapping was NOT saved: ${errorText(e)}` });
+    }
+  }
+
+  // ---- Bulk remap selected requirements to one section ----
+  async function applyBulk() {
+    if (selected.size === 0) return;
+    setMessage(null);
+    try {
+      const r = await api<{ updated: number }>("/api/requirements/bulk", {
+        method: "PATCH",
+        body: { ids: Array.from(selected), section: bulkSection === "" ? null : bulkSection },
+      });
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              requirements: prev.requirements.map((x) =>
+                selected.has(x.id) ? { ...x, section: (bulkSection || null) as Requirement["section"] } : x
+              ),
+            }
+          : prev
+      );
+      setSelected(new Set());
+      setMessage({ kind: "ok", text: `Mapped ${r.updated} requirement${r.updated === 1 ? "" : "s"}.` });
+    } catch (e) {
+      setMessage({ kind: "error", text: `Bulk change was NOT saved: ${errorText(e)}` });
+    }
+  }
+
+  // ---- CSV paste (number,description,category) appended to the saved list ----
+  async function importCsv() {
+    if (!opp || !csvText.trim()) return;
+    const parsed = requirementsFromCsv(csvText);
+    if (parsed.requirements.length === 0) {
+      setMessage({ kind: "error", text: "No rows found. Use one requirement per line: number,description,category." });
+      return;
+    }
+    setCsvBusy(true);
+    setMessage(null);
+    try {
+      const merged = [
+        ...reqs.map((r) => ({ text: r.text, category: r.category })),
+        ...parsed.requirements.map((r) => ({ text: r.text, category: r.category })),
+      ];
+      const r = await api<{ requirements: Requirement[] }>(`/api/opportunities/${opp.id}/requirements`, {
+        method: "PUT",
+        body: { requirements: merged },
+      });
+      setData((prev) => (prev ? { ...prev, requirements: r.requirements } : prev));
+      setCsvText("");
+      setMessage({
+        kind: "ok",
+        text: `Imported ${parsed.requirements.length} from CSV${parsed.skipped ? ` (${parsed.skipped} blank rows skipped)` : ""}. Existing sections were reset: map them again.`,
+      });
+    } catch (e) {
+      setMessage({ kind: "error", text: `CSV import was NOT saved: ${errorText(e)}` });
+    } finally {
+      setCsvBusy(false);
     }
   }
 
@@ -330,6 +394,15 @@ export default function OpportunityPage() {
               <table className="tbl">
                 <thead>
                   <tr>
+                    <th className="w-10">
+                      <input
+                        type="checkbox"
+                        aria-label="Select all requirements"
+                        className="h-4 w-4 accent-emerald-500"
+                        checked={selected.size === reqs.length && reqs.length > 0}
+                        onChange={(e) => setSelected(e.target.checked ? new Set(reqs.map((x) => x.id)) : new Set())}
+                      />
+                    </th>
                     <th className="w-14">#</th>
                     <th>Requirement</th>
                     <th className="w-36">Category</th>
@@ -339,6 +412,22 @@ export default function OpportunityPage() {
                 <tbody>
                   {reqs.map((r) => (
                     <tr key={r.id} className="transition-colors hover:bg-white/[0.02]">
+                      <td>
+                        <input
+                          type="checkbox"
+                          aria-label={`Select requirement ${r.number}`}
+                          className="h-4 w-4 accent-emerald-500"
+                          checked={selected.has(r.id)}
+                          onChange={(e) =>
+                            setSelected((prev) => {
+                              const next = new Set(prev);
+                              if (e.target.checked) next.add(r.id);
+                              else next.delete(r.id);
+                              return next;
+                            })
+                          }
+                        />
+                      </td>
                       <td className="tabular-nums text-white/50">{r.number}</td>
                       <td>{r.text}</td>
                       <td className="text-white/60">{r.category}</td>
@@ -359,11 +448,46 @@ export default function OpportunityPage() {
                   ))}
                 </tbody>
               </table>
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-white/5 bg-black/30 p-3">
+                <span className="text-sm text-white/60">{selected.size} selected</span>
+                <select
+                  aria-label="Bulk response section"
+                  className="input !min-h-[44px] !py-2 !text-sm"
+                  value={bulkSection}
+                  onChange={(e) => setBulkSection(e.target.value)}
+                >
+                  <option value="">Not mapped</option>
+                  {SECTIONS.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <button type="button" className="btn-secondary" disabled={selected.size === 0} onClick={applyBulk}>
+                  Apply to selected
+                </button>
+              </div>
               <p className="mt-4 text-sm text-white/60">
                 Coverage: <span className="font-serif text-lg text-bone">{mappedCount}</span> of {reqs.length} requirements mapped
               </p>
             </div>
           )}
+        </div>
+      </Reveal>
+
+      <Reveal>
+        <div className="card space-y-4">
+          <p className="label-mono">Bulk import</p>
+          <h2 className="font-serif text-2xl">Paste requirements as CSV</h2>
+          <p className="text-sm text-white/50">One per line: number,description,category (category: Technical, Commercial, Compliance, Delivery, Other). Header row optional.</p>
+          <textarea
+            aria-label="CSV of requirements"
+            className="input min-h-[120px] font-mono text-xs"
+            placeholder={"1,Provide ISO 9001 certificate,Compliance\n2,Deliver within 12 weeks,Delivery"}
+            value={csvText}
+            onChange={(e) => setCsvText(e.target.value)}
+          />
+          <button type="button" className="btn-secondary" disabled={csvBusy || !csvText.trim()} onClick={importCsv}>
+            {csvBusy ? "Importing..." : "Import CSV"}
+          </button>
         </div>
       </Reveal>
 
@@ -447,6 +571,7 @@ export default function OpportunityPage() {
       <QualificationPanel oppId={opp.id} onMessage={setMessage} />
       <OutcomePanel opp={opp} onSaved={() => load()} onMessage={setMessage} />
       <ApprovalPanel oppId={opp.id} onMessage={setMessage} />
+      <OpportunityExtras oppId={opp.id} onMessage={setMessage} />
       <SharePanel oppId={opp.id} />
       <AssistantPanel oppId={opp.id} />
     </section>
