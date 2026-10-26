@@ -37,6 +37,8 @@ export default function OpportunityPage() {
   const [review, setReview] = useState<ExtractResult | null>(null);
   const [savingReqs, setSavingReqs] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [companies, setCompanies] = useState<{ id: string; name: string; kind: string }[]>([]);
+  const [companyId, setCompanyId] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -56,6 +58,13 @@ export default function OpportunityPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Contractor registry for the "Submitting as" dropdown. Empty list if the companies table is not set up yet.
+  useEffect(() => {
+    api<{ companies: { id: string; name: string; kind: string }[] }>("/api/companies")
+      .then((r) => setCompanies(r.companies ?? []))
+      .catch(() => setCompanies([]));
+  }, []);
 
   const opp = data?.opportunity ?? null;
   const rfq = data?.rfq ?? null;
@@ -140,7 +149,7 @@ export default function OpportunityPage() {
       }));
       const gen = await api<{ drafts: { section: string; draft: string }[] }>("/api/generate", {
         method: "POST",
-        body: { title: opp.title, buyer: opp.buyer, sections },
+        body: { title: opp.title, buyer: opp.buyer, sections, companyId: companyId || undefined },
       });
       const saved = await api<{ drafts: ResponseSection[] }>(`/api/opportunities/${opp.id}/drafts`, {
         method: "PUT",
@@ -336,6 +345,19 @@ export default function OpportunityPage() {
 
       <Reveal>
         <div className="card space-y-6">
+          <label className="block text-sm">
+            <span className="mb-1.5 block text-white/60">Submitting as</span>
+            <select
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50"
+            >
+              <option value="">No contractor (generic voice)</option>
+              {companies.map((c) => (
+                <option key={c.id} value={c.id}>{c.name} ({c.kind})</option>
+              ))}
+            </select>
+          </label>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label-mono mb-3">Drafting</p>

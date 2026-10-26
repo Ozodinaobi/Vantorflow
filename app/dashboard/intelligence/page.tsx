@@ -7,7 +7,7 @@ import { BreathingLoader, LoadingBlock, Reveal } from "@/components/ui";
 interface Intel {
   stages: { stage: string; count: number }[];
   categories: { category: string; count: number }[];
-  bottlenecks: { stage: string; count: number; avgDays: number | null }[];
+  bottlenecks: { stage: string; count: number; avg_days: number | null }[];
   totals: { opportunities: number; open: number; won: number; lost: number; rate: number | null };
   trend: { month: string; won: number; lost: number }[];
 }
@@ -87,7 +87,7 @@ export default function IntelligencePage() {
               {data.bottlenecks.map((b) => (
                 <div key={b.stage} className="flex justify-between text-sm">
                   <span>{b.stage}</span>
-                  <span className="tabular-nums text-white/50">{b.avgDays === null ? "none open" : `${b.avgDays} days (${b.count})`}</span>
+                  <span className="tabular-nums text-white/50">{b.avg_days === null ? "none open" : `${b.avg_days} days (${b.count})`}</span>
                 </div>
               ))}
             </div>

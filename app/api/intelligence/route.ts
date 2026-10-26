@@ -11,7 +11,7 @@ export async function GET() {
   try {
     const [opps, reqs] = await Promise.all([
       rest<any[]>("GET", "opportunities", {
-        query: `?user_id=eq.${auth.userId}&select=id,status,updated_at,deadline,outcome_result,outcome_reason,outcome_at`,
+        query: `?user_id=eq.${auth.userId}&select=id,status,updated_at,deadline_date,outcome_result,outcome_reason,outcome_at`,
       }),
       rest<any[]>("GET", "requirements", {
         query: `?user_id=eq.${auth.userId}&select=opportunity_id,category`,

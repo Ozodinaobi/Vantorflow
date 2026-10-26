@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/serverAuth";
 import { callGemini } from "@/lib/gemini";
 import { SECTIONS } from "@/lib/types";
-import { rest } from "@/lib/db";
+import { rest, UUID_RE } from "@/lib/db";
 import { matchLibrary } from "@/lib/library";
 
 interface GroupIn {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
 
-  let body: { title?: unknown; buyer?: unknown; sections?: unknown };
+  let body: { title?: unknown; buyer?: unknown; sections?: unknown; companyId?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -34,6 +34,22 @@ export async function POST(req: Request) {
 
   // Only accept the five known section names.
   const groups = (body.sections as GroupIn[]).filter((g) => (SECTIONS as readonly string[]).includes(g.section));
+
+  // The contractor/company the response is written for (optional). Looked up in the user's own vf_companies rows.
+  // Best effort: if the companies table is missing or the id is not theirs, drafting runs without it.
+  let contractor: { name: string; kind: string; contact: string | null; notes: string | null } | null = null;
+  if (typeof body.companyId === "string" && UUID_RE.test(body.companyId)) {
+    try {
+      const rows = await rest<any[]>("GET", "vf_companies", {
+        query: `?id=eq.${body.companyId}&user_id=eq.${auth.userId}&select=name,kind,contact,notes&limit=1`,
+      });
+      if (rows[0]) {
+        contractor = { name: rows[0].name, kind: rows[0].kind, contact: rows[0].contact ?? null, notes: rows[0].notes ?? null };
+      }
+    } catch {
+      contractor = null;
+    }
+  }
 
   // Approved answers from the library that overlap these requirements. Best effort: if the
   // library table is not set up yet, drafting still runs with no library context.
@@ -57,7 +73,7 @@ export async function POST(req: Request) {
         drafts.push({ section: group.section, draft: "" });
         continue;
       }
-      const draft = await callGemini(buildSectionPrompt(title, buyer, group, library));
+      const draft = await callGemini(buildSectionPrompt(title, buyer, group, library, contractor));
       drafts.push({ section: group.section, draft });
     }
     return NextResponse.json({ drafts });
@@ -72,8 +88,19 @@ function buildSectionPrompt(
   title: string,
   buyer: string,
   group: GroupIn,
-  library: { question: string; answer: string }[] = []
+  library: { question: string; answer: string }[] = [],
+  contractor: { name: string; kind: string; contact: string | null; notes: string | null } | null = null
 ): string {
+  // The contractor the bid is submitted under (trusted context from the user's registry).
+  const contractorLines = contractor
+    ? [
+        "",
+        `Submitting organisation: ${contractor.name} (${contractor.kind})`,
+        ...(contractor.contact ? [`Contact: ${contractor.contact}`] : []),
+        ...(contractor.notes ? [`Notes about this organisation: ${contractor.notes}`] : []),
+        "Write the response in the voice of this organisation. Do not invent its certifications, past clients or staff.",
+      ]
+    : [];
   const reqLines = group.requirements.map((r) => `${r.number}. (${r.category}) ${r.text}`).join("\n");
   // Approved answers from the answer library, passed as trusted context. Only the relevant ones are included.
   const libLines = library.length
@@ -87,6 +114,7 @@ function buildSectionPrompt(
     `You are writing the "${group.section}" section of a formal bid response.`,
     `Opportunity: ${title}`,
     `Buyer: ${buyer}`,
+    ...contractorLines,
     "",
     "Address every requirement listed below. Refer to each one by its number (for example: Requirement 3) so an evaluator can trace it.",
     "Write in clear, professional English.",

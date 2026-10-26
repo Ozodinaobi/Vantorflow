@@ -1,5 +1,6 @@
 // PUT /api/opportunities/[id]/outcome { result: "Won" | "Lost", reason, notes }
 // Records the win/loss outcome, and moves the stage to Outcome.
+// PUT with { result: null } clears the outcome columns (stage is left as it is).
 // Records the win/loss outcome on the opportunity row itself (legacy table, new columns from the FEATURES MIGRATION).
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/serverAuth";
@@ -20,26 +21,36 @@ export async function PUT(req: Request, { params }: Ctx) {
   } catch {
     return NextResponse.json({ error: "Request body must be JSON." }, { status: 400 });
   }
-  if (body?.result !== "Won" && body?.result !== "Lost") {
-    return NextResponse.json({ error: "Result must be Won or Lost." }, { status: 400 });
+  // result must be Won or Lost to record an outcome, or null to clear it (test data, mistakes).
+  const clearing = body?.result === null || body?.result === undefined || body?.result === "";
+  if (!clearing && body?.result !== "Won" && body?.result !== "Lost") {
+    return NextResponse.json({ error: "Result must be Won, Lost, or null to clear." }, { status: 400 });
   }
-  const reason = body?.reason ? String(body.reason) : null;
+  const reason = !clearing && body?.reason ? String(body.reason) : null;
   if (reason && !(OUTCOME_REASONS as readonly string[]).includes(reason)) {
     return NextResponse.json({ error: "Pick a reason from the list." }, { status: 400 });
   }
-  const notes = typeof body?.notes === "string" ? body.notes.slice(0, 2000) : null;
+  const notes = !clearing && typeof body?.notes === "string" ? body.notes.slice(0, 2000) : null;
 
   try {
     const rows = await rest<any[]>("PATCH", "opportunities", {
       query: `?id=eq.${params.id}&user_id=eq.${auth.userId}`,
-      body: {
-        outcome_result: body.result,
-        outcome_reason: reason,
-        outcome_notes: notes,
-        outcome_at: new Date().toISOString(),
-        status: "Outcome",
-        updated_at: new Date().toISOString(),
-      },
+      body: clearing
+        ? {
+            outcome_result: null,
+            outcome_reason: null,
+            outcome_notes: null,
+            outcome_at: null,
+            updated_at: new Date().toISOString(),
+          }
+        : {
+            outcome_result: body.result,
+            outcome_reason: reason,
+            outcome_notes: notes,
+            outcome_at: new Date().toISOString(),
+            status: "Outcome",
+            updated_at: new Date().toISOString(),
+          },
       prefer: "return=representation",
     });
     if (!rows.length) return NextResponse.json({ error: "Opportunity not found." }, { status: 404 });
