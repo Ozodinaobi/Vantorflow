@@ -1,3 +1,4 @@
+import CommandSearch from "@/components/CommandSearch";
 "use client";
 
 import { ReactNode, useCallback, useEffect, useState } from "react";
@@ -36,6 +37,7 @@ const NAV = [
   { href: "/dashboard/intelligence", label: "Intelligence", icon: "list" as const, match: (p: string) => p === "/dashboard/intelligence" },
   { href: "/dashboard/team", label: "Team", icon: "list" as const, match: (p: string) => p === "/dashboard/team" },
   { href: "/dashboard/templates", label: "Templates", icon: "list" as const, match: (p: string) => p === "/dashboard/templates" },
+  { href: "/dashboard/search", label: "Search", icon: "list" as const, match: (p: string) => p === "/dashboard/search" },
   { href: "/dashboard/notifications", label: "Notifications", icon: "list" as const, match: (p: string) => p === "/dashboard/notifications" },
   { href: "/dashboard/settings", label: "Settings", icon: "list" as const, match: (p: string) => p === "/dashboard/settings" },
 ];
@@ -145,6 +147,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-x-hidden">
       <GlowOrbs className="fixed" />
+      <CommandSearch />
 
       {/* ---------- Desktop / tablet sidebar ---------- */}
       <aside
