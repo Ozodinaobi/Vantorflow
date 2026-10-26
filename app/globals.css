@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Base ---------- */
+@layer base {
+  html {
+    background: #050505;
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    @apply min-h-screen bg-ink font-sans text-bone antialiased;
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: rgba(16, 185, 129, 0.35);
+    color: #ffffff;
+  }
+  /* Visible keyboard focus everywhere. Mouse clicks do not show it. */
+  :focus-visible {
+    outline: 2px solid #10b981;
+    outline-offset: 3px;
+    border-radius: 9999px;
+  }
+  h1, h2, h3 {
+    @apply font-serif;
+  }
+}
+
+/* ---------- Components ---------- */
+@layer components {
+  /* Glass surface: rgba(255,255,255,0.02), blur 12px, 1px border rgba(255,255,255,0.1). */
+  .glass {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Morphing and breathing background glow. Blur is large, so keep it inside an overflow-hidden parent. */
+  .glow-orb {
+    position: absolute;
+    border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%;
+    background: rgba(16, 185, 129, 0.1);
+    filter: blur(100px);
+    pointer-events: none;
+    animation: morph 8s ease-in-out infinite alternate, breathe 6s ease-in-out infinite;
+    will-change: transform, border-radius;
+  }
+
+  /* Shimmer border: a 1px gradient sweep behind the card edge. */
+  .shimmer-border {
+    position: relative;
+    isolation: isolate;
+  }
+  .shimmer-border::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(16, 185, 129, 0.3) 50%,
+      transparent 80%
+    );
+    background-size: 200% 100%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: shimmer 4s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Spotlight: radial glow follows the cursor. JS sets --mx and --my. */
+  .spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+  .spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      600px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(16, 185, 129, 0.15),
+      transparent 40%
+    );
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .spotlight:hover::before {
+    opacity: 1;
+  }
+
+  /* Pill buttons. Primary is solid white with a continuous emerald pulse glow. */
+  .btn-primary {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
+    animation: glow-pulse 4.8s ease-in-out infinite;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.02);
+    background: #f2fdf8;
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .btn-primary:disabled {
+    @apply cursor-not-allowed opacity-50;
+    animation: none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-6 py-2.5 text-sm font-semibold text-bone backdrop-blur-md transition-colors duration-500;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    @apply border-white/25 bg-white/[0.06];
+  }
+  .btn-secondary:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
+  /* Form inputs: dark glass, 44px touch height, 16px font on mobile to stop iOS zoom. */
+  .input {
+    @apply min-h-[44px] w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-base text-bone placeholder:text-white/25 transition-colors duration-300 sm:text-sm;
+  }
+  .input:focus {
+    @apply border-emerald-500/50 bg-white/[0.05] outline-none;
+  }
+  .input option {
+    @apply bg-[#0b0b0b] text-bone;
+  }
+
+  .card {
+    @apply glass rounded-3xl p-6 sm:p-8;
+  }
+
+  /* Technical label: Space Grotesk, 10px, uppercase, 0.2em tracking. */
+  .label-mono {
+    @apply font-grotesk text-[10px] font-medium uppercase tracking-[0.2em] text-white/40;
+  }
+
+  /* Text link with a 1px emerald underline that grows from 0 to 100 percent on hover. */
+  .link-u {
+    @apply relative inline-flex min-h-[44px] items-center text-bone/70 transition-colors duration-300 hover:text-bone;
+  }
+  .link-u::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 10px;
+    height: 1px;
+    width: 100%;
+    background: #10b981;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .link-u:hover::after {
+    transform: scaleX(1);
+  }
+
+  /* Gradient-text for the CTA headline: white shifts into emerald and back. */
+  .text-gradient-shift {
+    background: linear-gradient(90deg, #ffffff 0%, #10b981 50%, #ffffff 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-x 6s ease-in-out infinite;
+  }
+
+  /* Scroll reveal: fade and rise with the house curve. Toggled by the Reveal component. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Breathing state for in-progress AI work (extraction, drafting). */
+  .breathing-panel {
+    animation: breathe 5s ease-in-out infinite;
+  }
+
+  /* Tables: 1px rgba(255,255,255,0.05) rows, label-mono headers. */
+  .tbl {
+    @apply w-full min-w-[560px] border-separate border-spacing-0 text-left text-sm;
+  }
+  .tbl th {
+    @apply label-mono border-b border-white/5 px-3 py-3 font-normal;
+  }
+  .tbl td {
+    @apply border-b border-white/5 px-3 py-3 align-top text-bone/80;
+  }
+  .tbl tr:last-child td {
+    @apply border-b-0;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Gradient keyframes used by .text-gradient-shift (kept here so the Tailwind config stays short). */
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+/* ---------- Reduced motion: no breathing, morphing, shimmer, count-up or scroll motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Keep the content visible: reveals and loaders still show a static state. */
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .glow-orb {
+    animation: none;
+  }
+}

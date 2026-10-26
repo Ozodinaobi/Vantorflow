@@ -1,0 +1,9 @@
+# dependencies and build output
+node_modules
+.next
+out
+next-env.d.ts
+
+# secrets: never commit real keys
+.env*.local
+.env
