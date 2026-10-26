@@ -2,6 +2,8 @@
 // POST /api/opportunities: create an opportunity and its RFQ text together (rolled back if the RFQ save fails).
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/serverAuth";
+import { notify } from "@/lib/notify";
+import { audit } from "@/lib/audit";
 import { errorResponse, rest } from "@/lib/db";
 import { computeReadiness } from "@/lib/readiness";
 import { toOpportunity, toDraft, toRequirements } from "@/lib/mappers";
@@ -95,6 +97,8 @@ export async function POST(req: Request) {
       throw e;
     }
     const opp = toOpportunity(oppRow);
+    await notify({ userId: auth.userId, title: `New opportunity: ${opp.title ?? "untitled"}`, kind: "created", dedupeKey: `created:${opp.id}` });
+    await audit(auth.userId, opp.id, "create", { title: opp.title });
     return NextResponse.json({ opportunity: opp }, { status: 201 });
   } catch (e) {
     return errorResponse(e, "Could not create the opportunity: ");

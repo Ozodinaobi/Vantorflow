@@ -1,3 +1,5 @@
+import { notify } from "@/lib/notify";
+import { audit } from "@/lib/audit";
 // GET  /api/opportunities/[id]/approval: the latest approval request for this opportunity, or null.
 // POST /api/opportunities/[id]/approval: request approval { note }. Opens a new request.
 // PATCH /api/opportunities/[id]/approval: decide the open request { decision: "Approved" | "Rejected", signature, note }.
@@ -48,6 +50,8 @@ export async function POST(req: Request, { params }: Ctx) {
       body: { user_id: auth.userId, opportunity_id: params.id, status: "Requested", request_note: note },
       prefer: "return=representation",
     });
+    await notify({ userId: auth.userId, title: "Approval requested", body: note, kind: "approval", dedupeKey: `approval-req:${row.id}` });
+    await audit(auth.userId, params.id, "approval_requested", { note });
     return NextResponse.json({ approval: row }, { status: 201 });
   } catch (e) {
     return errorResponse(e, "Approval was NOT requested: ");
@@ -87,6 +91,8 @@ export async function PATCH(req: Request, { params }: Ctx) {
       },
       prefer: "return=representation",
     });
+    await notify({ userId: auth.userId, title: `Approval ${body.decision.toLowerCase()}`, body: decisionNote, kind: "approval", dedupeKey: `approval-dec:${current.id}` });
+    await audit(auth.userId, params.id, "approval_decided", { decision: body.decision });
     return NextResponse.json({ approval: row });
   } catch (e) {
     return errorResponse(e, "Decision was NOT saved: ");

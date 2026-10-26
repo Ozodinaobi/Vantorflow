@@ -34,10 +34,42 @@ const NAV = [
   { href: "/dashboard/companies", label: "Companies", icon: "list" as const, match: (p: string) => p === "/dashboard/companies" },
   { href: "/dashboard/insights", label: "Insights", icon: "list" as const, match: (p: string) => p === "/dashboard/insights" },
   { href: "/dashboard/intelligence", label: "Intelligence", icon: "list" as const, match: (p: string) => p === "/dashboard/intelligence" },
+  { href: "/dashboard/team", label: "Team", icon: "list" as const, match: (p: string) => p === "/dashboard/team" },
+  { href: "/dashboard/notifications", label: "Notifications", icon: "list" as const, match: (p: string) => p === "/dashboard/notifications" },
   { href: "/dashboard/settings", label: "Settings", icon: "list" as const, match: (p: string) => p === "/dashboard/settings" },
 ];
 
 // Animated hamburger: three bars that fold into an X while open.
+// Bell with unread count. Polls lightly; the count comes from /api/notifications.
+function BellLink() {
+  const [unread, setUnread] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    const pull = () =>
+      api<{ unread: number }>("/api/notifications")
+        .then((d) => alive && setUnread(d.unread))
+        .catch(() => {});
+    pull();
+    const t = setInterval(pull, 60000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, []);
+  return (
+    <Link href="/dashboard/notifications" className="relative flex min-h-[44px] min-w-[44px] items-center justify-center" aria-label={`Notifications, ${unread} unread`}>
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0" />
+      </svg>
+      {unread > 0 && (
+        <span className="absolute right-1 top-1 min-w-[18px] rounded-full bg-emerald-500 px-1 text-center text-[10px] font-semibold leading-[18px] text-black">
+          {unread > 99 ? "99+" : unread}
+        </span>
+      )}
+    </Link>
+  );
+}
+
 function Hamburger({ open, onClick }: { open: boolean; onClick: () => void }) {
   return (
     <button
@@ -125,6 +157,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <span className={`font-serif text-lg tracking-tight ${collapsed ? "hidden" : "hidden lg:inline"}`}>Vantorflow</span>
         </div>
         <nav className="mt-4 flex flex-1 flex-col gap-1 px-3">
+          <div className="mb-2 flex justify-center lg:justify-start lg:px-3"><BellLink /></div>
           {NAV.map((item) => {
             const active = item.match(pathname);
             return (
@@ -178,7 +211,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <LogoMark size={28} />
             <span className="font-serif text-lg tracking-tight">Vantorflow</span>
           </Link>
-          <Hamburger open={drawerOpen} onClick={() => setDrawerOpen((o) => !o)} />
+          <div className="flex items-center gap-2">
+            <BellLink />
+            <Hamburger open={drawerOpen} onClick={() => setDrawerOpen((o) => !o)} />
+          </div>
         </div>
       </header>
 
