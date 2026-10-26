@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/serverAuth";
 import { callGemini } from "@/lib/gemini";
 import { SECTIONS } from "@/lib/types";
+import { rest } from "@/lib/db";
+import { matchLibrary } from "@/lib/library";
 
 interface GroupIn {
   section: string;
@@ -33,6 +35,19 @@ export async function POST(req: Request) {
   // Only accept the five known section names.
   const groups = (body.sections as GroupIn[]).filter((g) => (SECTIONS as readonly string[]).includes(g.section));
 
+  // Approved answers from the library that overlap these requirements. Best effort: if the
+  // library table is not set up yet, drafting still runs with no library context.
+  let library: { question: string; answer: string }[] = [];
+  try {
+    const rows = await rest<any[]>("GET", "vf_answer_library", {
+      query: `?user_id=eq.${auth.userId}&select=question,answer&limit=500`,
+    });
+    const allReqText = groups.flatMap((g) => g.requirements.map((r) => r.text));
+    library = matchLibrary(rows, allReqText);
+  } catch {
+    library = [];
+  }
+
   try {
     const drafts: { section: string; draft: string }[] = [];
     // Run sections one after another to stay gentle on the Gemini rate limit.
@@ -42,7 +57,7 @@ export async function POST(req: Request) {
         drafts.push({ section: group.section, draft: "" });
         continue;
       }
-      const draft = await callGemini(buildSectionPrompt(title, buyer, group));
+      const draft = await callGemini(buildSectionPrompt(title, buyer, group, library));
       drafts.push({ section: group.section, draft });
     }
     return NextResponse.json({ drafts });
@@ -53,8 +68,21 @@ export async function POST(req: Request) {
 }
 
 // One prompt per section. The model must reference each requirement by number so it can be traced.
-function buildSectionPrompt(title: string, buyer: string, group: GroupIn): string {
+function buildSectionPrompt(
+  title: string,
+  buyer: string,
+  group: GroupIn,
+  library: { question: string; answer: string }[] = []
+): string {
   const reqLines = group.requirements.map((r) => `${r.number}. (${r.category}) ${r.text}`).join("\n");
+  // Approved answers from the answer library, passed as trusted context. Only the relevant ones are included.
+  const libLines = library.length
+    ? [
+        "",
+        "Approved answers from our library (use these where relevant, and do not contradict them):",
+        ...library.map((a, i) => `${i + 1}. Q: ${a.question}\n   A: ${a.answer}`),
+      ]
+    : [];
   return [
     `You are writing the "${group.section}" section of a formal bid response.`,
     `Opportunity: ${title}`,
@@ -68,5 +96,6 @@ function buildSectionPrompt(title: string, buyer: string, group: GroupIn): strin
     "",
     "Requirements:",
     reqLines,
+    ...libLines,
   ].join("\n");
 }

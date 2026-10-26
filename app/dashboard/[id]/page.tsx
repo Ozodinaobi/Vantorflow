@@ -11,6 +11,8 @@ import { buildDocx, downloadBlob } from "@/lib/docx";
 import { Pipeline } from "@/components/Pipeline";
 import { ReadinessBadge } from "@/components/ReadinessBadge";
 import { BreathingLoader, LoadingBlock, Reveal } from "@/components/ui";
+import { QualificationPanel, OutcomePanel, ApprovalPanel, AssistantPanel } from "@/components/OpportunityPanels";
+import { daysUntil, deadlineTone, countdownLabel } from "@/lib/deadline";
 
 interface Detail {
   opportunity: Opportunity;
@@ -192,6 +194,9 @@ export default function OpportunityPage() {
             <p className="mt-4 text-sm text-white/50">
               Buyer: {opp.buyer} · Deadline: {formatDate(opp.deadline)} · Last updated: {formatDateTime(opp.updated_at)}
             </p>
+            <span className={`mt-3 inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-wider ${
+              ["overdue","urgent"].includes(deadlineTone(daysUntil(opp.deadline))) ? "border-red-500/40 text-red-300" : deadlineTone(daysUntil(opp.deadline)) === "soon" ? "border-emerald-500/40 text-emerald-300" : "border-white/10 text-white/50"
+            }`}>{countdownLabel(daysUntil(opp.deadline))}</span>
           </div>
           <ReadinessBadge readiness={readiness} />
         </div>
@@ -376,6 +381,11 @@ export default function OpportunityPage() {
           </div>
         </div>
       </Reveal>
+
+      <QualificationPanel oppId={opp.id} onMessage={setMessage} />
+      <OutcomePanel opp={opp} onSaved={() => load()} onMessage={setMessage} />
+      <ApprovalPanel oppId={opp.id} onMessage={setMessage} />
+      <AssistantPanel oppId={opp.id} />
     </section>
   );
 }

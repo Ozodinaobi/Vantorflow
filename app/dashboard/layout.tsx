@@ -29,6 +29,11 @@ function Icon({ name, className = "h-5 w-5" }: { name: keyof typeof ICONS; class
 const NAV = [
   { href: "/dashboard", label: "Opportunities", icon: "list" as const, match: (p: string) => p === "/dashboard" || (p.startsWith("/dashboard/") && p !== "/dashboard/new") },
   { href: "/dashboard/new", label: "New RFQ", icon: "plus" as const, match: (p: string) => p === "/dashboard/new" },
+  { href: "/dashboard/board", label: "Board", icon: "list" as const, match: (p: string) => p === "/dashboard/board" },
+  { href: "/dashboard/library", label: "Answer library", icon: "list" as const, match: (p: string) => p === "/dashboard/library" },
+  { href: "/dashboard/companies", label: "Companies", icon: "list" as const, match: (p: string) => p === "/dashboard/companies" },
+  { href: "/dashboard/insights", label: "Insights", icon: "list" as const, match: (p: string) => p === "/dashboard/insights" },
+  { href: "/dashboard/intelligence", label: "Intelligence", icon: "list" as const, match: (p: string) => p === "/dashboard/intelligence" },
 ];
 
 // Animated hamburger: three bars that fold into an X while open.
@@ -235,7 +240,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         className="fixed inset-x-0 bottom-0 z-30 border-t border-white/5 bg-ink/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
       >
         <ul className="mx-auto grid max-w-md grid-cols-2 px-3">
-          {NAV.map((item) => {
+          {NAV.slice(0, 2).map((item) => {
             const active = item.match(pathname);
             return (
               <li key={item.href}>
