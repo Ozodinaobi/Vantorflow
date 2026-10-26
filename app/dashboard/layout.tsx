@@ -34,6 +34,7 @@ const NAV = [
   { href: "/dashboard/companies", label: "Companies", icon: "list" as const, match: (p: string) => p === "/dashboard/companies" },
   { href: "/dashboard/insights", label: "Insights", icon: "list" as const, match: (p: string) => p === "/dashboard/insights" },
   { href: "/dashboard/intelligence", label: "Intelligence", icon: "list" as const, match: (p: string) => p === "/dashboard/intelligence" },
+  { href: "/dashboard/settings", label: "Settings", icon: "list" as const, match: (p: string) => p === "/dashboard/settings" },
 ];
 
 // Animated hamburger: three bars that fold into an X while open.

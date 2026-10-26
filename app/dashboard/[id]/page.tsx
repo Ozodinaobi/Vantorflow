@@ -8,6 +8,7 @@ import { ExtractResult, Opportunity, Requirement, RfqRecord, ResponseSection, SE
 import { computeReadiness } from "@/lib/readiness";
 import { formatDate, formatDateTime } from "@/lib/time";
 import { buildDocx, downloadBlob } from "@/lib/docx";
+import { buildPdf } from "@/lib/pdf";
 import { Pipeline } from "@/components/Pipeline";
 import { ReadinessBadge } from "@/components/ReadinessBadge";
 import { BreathingLoader, LoadingBlock, Reveal } from "@/components/ui";
@@ -173,6 +174,18 @@ export default function OpportunityPage() {
       downloadBlob(blob, `${safeName}-response.docx`);
     } catch (e) {
       setMessage({ kind: "error", text: `Could not build the document: ${errorText(e)}` });
+    }
+  }
+
+  // ---- Build and download the PDF (same content as the .docx) ----
+  async function downloadPdf() {
+    if (!opp) return;
+    try {
+      const blob = await buildPdf(opp, drafts, reqs);
+      const safeName = opp.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "response";
+      downloadBlob(blob, `${safeName}-response.pdf`);
+    } catch (e) {
+      setMessage({ kind: "error", text: `Could not build the PDF: ${errorText(e)}` });
     }
   }
 
@@ -370,6 +383,9 @@ export default function OpportunityPage() {
               </button>
               <button type="button" className="btn-secondary" disabled={drafts.length === 0} onClick={downloadDocument}>
                 Download .docx
+              </button>
+              <button type="button" className="btn-secondary" disabled={drafts.length === 0} onClick={downloadPdf}>
+                Download PDF
               </button>
             </div>
           </div>
