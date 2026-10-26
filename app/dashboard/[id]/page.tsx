@@ -9,6 +9,7 @@ import { computeReadiness } from "@/lib/readiness";
 import { formatDate, formatDateTime } from "@/lib/time";
 import { buildDocx, downloadBlob } from "@/lib/docx";
 import { buildPdf } from "@/lib/pdf";
+import SharePanel from "@/components/SharePanel";
 import { Pipeline } from "@/components/Pipeline";
 import { ReadinessBadge } from "@/components/ReadinessBadge";
 import { BreathingLoader, LoadingBlock, Reveal } from "@/components/ui";
@@ -423,6 +424,7 @@ export default function OpportunityPage() {
       <QualificationPanel oppId={opp.id} onMessage={setMessage} />
       <OutcomePanel opp={opp} onSaved={() => load()} onMessage={setMessage} />
       <ApprovalPanel oppId={opp.id} onMessage={setMessage} />
+      <SharePanel oppId={opp.id} />
       <AssistantPanel oppId={opp.id} />
     </section>
   );
