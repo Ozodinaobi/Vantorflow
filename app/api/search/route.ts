@@ -5,7 +5,7 @@ import { errorResponse, rest } from "@/lib/db";
 
 // Escape the characters PostgREST and ilike treat specially so user input stays literal.
 function pattern(q: string): string {
-  return `*${q.replace(/[%_*,()]/g, " ").trim()}*`;
+  return `%${q.replace(/[%_*,()]/g, " ").trim()}%`;
 }
 
 export async function GET(req: Request) {
