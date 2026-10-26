@@ -23,10 +23,10 @@ export function SetupScreen({ missing, onRecheck }: { missing: string[]; onReche
   return (
     <div className="card space-y-4">
       <h1 className="text-xl font-bold">One-time database setup</h1>
-      <p className="text-sm text-slate-700">
+      <p className="text-sm text-bone/70">
         Vantorflow needs its tables in your Supabase database. Missing: {missing.join(", ") || "all tables"}.
       </p>
-      <ol className="list-decimal space-y-2 pl-5 text-sm text-slate-700">
+      <ol className="list-decimal space-y-2 pl-5 text-sm text-bone/70">
         <li>Tap the copy button below.</li>
         <li>
           Open your Supabase project, then SQL Editor, then New query. Paste and press Run.
