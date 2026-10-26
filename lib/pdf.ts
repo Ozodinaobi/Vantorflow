@@ -2,6 +2,7 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { SECTIONS, Opportunity, Requirement, ResponseSection } from "./types";
 import { formatDate } from "./time";
+import { splitWrapper } from "./templates";
 
 const PAGE_W = 595;
 const PAGE_H = 842;
@@ -28,7 +29,7 @@ function wrap(text: string, font: { widthOfTextAtSize: (t: string, s: number) =>
   return out;
 }
 
-export async function buildPdf(opp: Opportunity, drafts: ResponseSection[], reqs: Requirement[]): Promise<Blob> {
+export async function buildPdf(opp: Opportunity, drafts: ResponseSection[], reqs: Requirement[], template?: { content: string } | null): Promise<Blob> {
   const pdf = await PDFDocument.create();
   const serif = await pdf.embedFont(StandardFonts.TimesRoman);
   const serifBold = await pdf.embedFont(StandardFonts.TimesRomanBold);

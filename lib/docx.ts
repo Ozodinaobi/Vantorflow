@@ -2,13 +2,19 @@
 import { Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
 import { SECTIONS, Opportunity, Requirement, ResponseSection } from "./types";
 import { formatDate } from "./time";
+import { splitWrapper, TemplateVars } from "./templates";
 
 export async function buildDocx(
   opp: Opportunity,
   drafts: ResponseSection[],
-  reqs: Requirement[]
+  reqs: Requirement[],
+  template?: { content: string } | null
 ): Promise<Blob> {
   const children: Paragraph[] = [];
+
+  // Optional letterhead from a template: lines before {{content}} go at the top
+  const wrap = template ? splitWrapper(template.content, { title: opp.title, buyer: opp.buyer, deadline: formatDate(opp.deadline) }) : null;
+  for (const line of wrap?.header ?? []) children.push(new Paragraph({ text: line }));
 
   // Cover details
   children.push(new Paragraph({ text: opp.title, heading: HeadingLevel.TITLE }));
@@ -40,6 +46,7 @@ export async function buildDocx(
     );
   }
 
+  for (const line of wrap?.footer ?? []) children.push(new Paragraph({ text: line }));
   const doc = new Document({ sections: [{ children }] });
   return Packer.toBlob(doc);
 }

@@ -41,6 +41,9 @@ export default function OpportunityPage() {
   const [generating, setGenerating] = useState(false);
   const [companies, setCompanies] = useState<{ id: string; name: string; kind: string }[]>([]);
   const [companyId, setCompanyId] = useState("");
+  const [templates, setTemplates] = useState<{ id: string; name: string; kind: string; content: string }[]>([]);
+  const [templateId, setTemplateId] = useState("");
+  const activeTemplate = templates.find((t) => t.id === templateId) ?? null;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -62,6 +65,13 @@ export default function OpportunityPage() {
   }, [load]);
 
   // Contractor registry for the "Submitting as" dropdown. Empty list if the companies table is not set up yet.
+  // Document templates for the wrapper dropdown. Empty list if none exist yet.
+  useEffect(() => {
+    api<{ templates: { id: string; name: string; kind: string; content: string }[] }>("/api/templates")
+      .then((r) => setTemplates(r.templates ?? []))
+      .catch(() => setTemplates([]));
+  }, []);
+
   useEffect(() => {
     api<{ companies: { id: string; name: string; kind: string }[] }>("/api/companies")
       .then((r) => setCompanies(r.companies ?? []))
@@ -170,7 +180,7 @@ export default function OpportunityPage() {
   async function downloadDocument() {
     if (!opp) return;
     try {
-      const blob = await buildDocx(opp, drafts, reqs);
+      const blob = await buildDocx(opp, drafts, reqs, activeTemplate);
       const safeName = opp.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "response";
       downloadBlob(blob, `${safeName}-response.docx`);
     } catch (e) {
@@ -182,7 +192,7 @@ export default function OpportunityPage() {
   async function downloadPdf() {
     if (!opp) return;
     try {
-      const blob = await buildPdf(opp, drafts, reqs);
+      const blob = await buildPdf(opp, drafts, reqs, activeTemplate);
       const safeName = opp.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "response";
       downloadBlob(blob, `${safeName}-response.pdf`);
     } catch (e) {
@@ -369,6 +379,19 @@ export default function OpportunityPage() {
               <option value="">No contractor (generic voice)</option>
               {companies.map((c) => (
                 <option key={c.id} value={c.id}>{c.name} ({c.kind})</option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1.5 block text-white/60">Document template</span>
+            <select
+              value={templateId}
+              onChange={(e) => setTemplateId(e.target.value)}
+              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50"
+            >
+              <option value="">Plain document (no template)</option>
+              {templates.map((t) => (
+                <option key={t.id} value={t.id}>{t.name} ({t.kind})</option>
               ))}
             </select>
           </label>

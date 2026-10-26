@@ -35,6 +35,7 @@ const NAV = [
   { href: "/dashboard/insights", label: "Insights", icon: "list" as const, match: (p: string) => p === "/dashboard/insights" },
   { href: "/dashboard/intelligence", label: "Intelligence", icon: "list" as const, match: (p: string) => p === "/dashboard/intelligence" },
   { href: "/dashboard/team", label: "Team", icon: "list" as const, match: (p: string) => p === "/dashboard/team" },
+  { href: "/dashboard/templates", label: "Templates", icon: "list" as const, match: (p: string) => p === "/dashboard/templates" },
   { href: "/dashboard/notifications", label: "Notifications", icon: "list" as const, match: (p: string) => p === "/dashboard/notifications" },
   { href: "/dashboard/settings", label: "Settings", icon: "list" as const, match: (p: string) => p === "/dashboard/settings" },
 ];
