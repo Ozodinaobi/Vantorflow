@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 // Root layout: wraps every page. Keep it simple.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark bg-ink" style={{ colorScheme: "dark" }}>
-      <body className="min-h-screen bg-ink font-sans text-bone antialiased">{children}</body>
+    <html lang="en" className="dark bg-slate-50" style={{ colorScheme: "dark" }}>
+      <body className="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">{children}</body>
     </html>
   );
 }

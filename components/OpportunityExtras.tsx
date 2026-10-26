@@ -12,8 +12,8 @@ const SETUP_NOTE = "Coming online after setup. Run the features migration to tur
 function Shell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Reveal>
-      <div className="glass mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
-        <h2 className="font-serif text-xl text-bone">{title}</h2>
+      <div className="glass mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+        <h2 className="font-sans text-xl text-slate-900">{title}</h2>
         <div className="mt-4">{children}</div>
       </div>
     </Reveal>
@@ -41,19 +41,19 @@ export function HistoryTab({ oppId }: { oppId: string }) {
       {events === null ? (
         <BreathingLoader label="Loading history" />
       ) : setupRequired ? (
-        <p className="text-sm text-white/45">{SETUP_NOTE}</p>
+        <p className="text-sm text-slate-500">{SETUP_NOTE}</p>
       ) : error ? (
-        <p className="text-sm text-red-300">{error}</p>
+        <p className="text-sm text-red-700">{error}</p>
       ) : events.length === 0 ? (
-        <p className="text-sm text-white/45">No history yet. Changes to this opportunity will appear here.</p>
+        <p className="text-sm text-slate-500">No history yet. Changes to this opportunity will appear here.</p>
       ) : (
         <ol className="space-y-3">
           {events.map((ev) => (
-            <li key={ev.id} className="flex flex-col gap-1 border-l border-emerald-500/30 pl-4 text-sm">
-              <span className="text-bone">{String(ev.action).replace(/_/g, " ")}</span>
-              <span className="text-xs text-white/40">{formatDateTime(ev.created_at)}</span>
+            <li key={ev.id} className="flex flex-col gap-1 border-l border-blue-200 pl-4 text-sm">
+              <span className="text-slate-900">{String(ev.action).replace(/_/g, " ")}</span>
+              <span className="text-xs text-slate-500">{formatDateTime(ev.created_at)}</span>
               {ev.detail && Object.keys(ev.detail).length > 0 && (
-                <span className="break-words text-xs text-white/50">{JSON.stringify(ev.detail)}</span>
+                <span className="break-words text-xs text-slate-500">{JSON.stringify(ev.detail)}</span>
               )}
             </li>
           ))}
@@ -87,30 +87,30 @@ export function PerformanceCard() {
   return (
     <Shell title="Vantorflow Performance">
       {error ? (
-        <p className="text-sm text-red-300">{error}</p>
+        <p className="text-sm text-red-700">{error}</p>
       ) : !data ? (
         <BreathingLoader label="Loading performance" />
       ) : (
-        <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.10] to-transparent p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-emerald-300/80">Vantorflow Performance</p>
+        <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-600/[0.10] to-transparent p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-blue-700/80">Vantorflow Performance</p>
           <div className="mt-3 grid grid-cols-3 gap-3 text-center">
             <div>
-              <p className="font-serif text-3xl text-bone">{data.winRate ?? 0}%</p>
-              <p className="text-xs text-white/45">win rate</p>
+              <p className="font-sans text-3xl text-slate-900">{data.winRate ?? 0}%</p>
+              <p className="text-xs text-slate-500">win rate</p>
             </div>
             <div>
-              <p className="font-serif text-3xl text-bone">{data.bidsRun ?? 0}</p>
-              <p className="text-xs text-white/45">bids run</p>
+              <p className="font-sans text-3xl text-slate-900">{data.bidsRun ?? 0}</p>
+              <p className="text-xs text-slate-500">bids run</p>
             </div>
             <div>
-              <p className="font-serif text-3xl text-bone">{data.avgReadiness ?? 0}%</p>
-              <p className="text-xs text-white/45">avg readiness</p>
+              <p className="font-sans text-3xl text-slate-900">{data.avgReadiness ?? 0}%</p>
+              <p className="text-xs text-slate-500">avg readiness</p>
             </div>
           </div>
           <button
             type="button"
             onClick={copyText}
-            className="mt-4 min-h-11 rounded-lg border border-emerald-500/40 px-4 text-sm text-emerald-200 hover:bg-emerald-500/10"
+            className="mt-4 min-h-11 rounded-lg border border-blue-200 px-4 text-sm text-blue-700 hover:bg-blue-50"
           >
             {copied ? "Copied" : "Copy summary"}
           </button>
@@ -183,23 +183,23 @@ export function AttachmentsPanel({ oppId, onMessage }: { oppId: string; onMessag
       {rows === null ? (
         <BreathingLoader label="Loading attachments" />
       ) : !ready ? (
-        <p className="text-sm text-white/45">Storage pending. {SETUP_NOTE}</p>
+        <p className="text-sm text-slate-500">Storage pending. {SETUP_NOTE}</p>
       ) : (
         <>
-          <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-emerald-500/40 px-4 text-sm text-emerald-200 hover:bg-emerald-500/10">
+          <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-blue-200 px-4 text-sm text-blue-700 hover:bg-blue-50">
             {busy ? "Uploading..." : "Upload file (max 10MB)"}
             <input type="file" className="hidden" onChange={upload} disabled={busy} />
           </label>
           {rows.length === 0 ? (
-            <p className="mt-4 text-sm text-white/45">No files yet.</p>
+            <p className="mt-4 text-sm text-slate-500">No files yet.</p>
           ) : (
             <ul className="mt-4 space-y-2">
               {rows.map((r) => (
-                <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm">
-                  <span className="break-all text-bone">{r.name}</span>
-                  <span className="flex items-center gap-3 text-xs text-white/40">
+                <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                  <span className="break-all text-slate-900">{r.name}</span>
+                  <span className="flex items-center gap-3 text-xs text-slate-500">
                     {Math.round((r.size ?? 0) / 1024)} KB
-                    <button type="button" onClick={() => download(r.id, r.name)} className="text-emerald-300 hover:underline">
+                    <button type="button" onClick={() => download(r.id, r.name)} className="text-blue-700 hover:underline">
                       Download
                     </button>
                   </span>
@@ -267,18 +267,18 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
         <form onSubmit={save} className="space-y-4">
           {criteria.map((c) => (
             <div key={c.key} className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-center">
-              <span className="text-sm text-bone">{c.label}</span>
-              <label className="flex items-center gap-2 text-xs text-white/50">
+              <span className="text-sm text-slate-900">{c.label}</span>
+              <label className="flex items-center gap-2 text-xs text-slate-500">
                 Score
-                <select value={c.score} onChange={(e) => update(c.key, "score", Number(e.target.value))} className="min-h-11 rounded-lg border border-white/10 bg-black/40 px-2 text-bone">
+                <select value={c.score} onChange={(e) => update(c.key, "score", Number(e.target.value))} className="min-h-11 rounded-lg border border-slate-200 bg-slate-100 px-2 text-slate-900">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <option key={n} value={n}>{n}</option>
                   ))}
                 </select>
               </label>
-              <label className="flex items-center gap-2 text-xs text-white/50">
+              <label className="flex items-center gap-2 text-xs text-slate-500">
                 Weight
-                <select value={c.weight} onChange={(e) => update(c.key, "weight", Number(e.target.value))} className="min-h-11 rounded-lg border border-white/10 bg-black/40 px-2 text-bone">
+                <select value={c.weight} onChange={(e) => update(c.key, "weight", Number(e.target.value))} className="min-h-11 rounded-lg border border-slate-200 bg-slate-100 px-2 text-slate-900">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <option key={n} value={n}>{n}</option>
                   ))}
@@ -287,11 +287,11 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
             </div>
           ))}
           <div className="flex flex-wrap items-center gap-4">
-            <button type="submit" disabled={saving} className="min-h-11 rounded-lg bg-emerald-500 px-5 text-sm font-medium text-black disabled:opacity-50">
+            <button type="submit" disabled={saving} className="min-h-11 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:opacity-50">
               {saving ? "Saving..." : "Score it"}
             </button>
             {result && (
-              <span className={`rounded-full border px-3 py-1 text-sm ${result.suggestion === "GO" ? "border-emerald-500/40 text-emerald-300" : "border-red-500/40 text-red-300"}`}>
+              <span className={`rounded-full border px-3 py-1 text-sm ${result.suggestion === "GO" ? "border-blue-200 text-blue-700" : "border-red-200 text-red-700"}`}>
                 {result.percent}% {result.suggestion === "GO" ? "suggests GO" : "suggests NO-GO"}
               </span>
             )}
@@ -306,7 +306,7 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
 function renderBody(body: string) {
   return body.split(/(@[\w.+-]+@[\w-]+\.[\w.-]+)/g).map((part, i) =>
     part.startsWith("@") ? (
-      <span key={i} className="rounded bg-emerald-500/15 px-1 text-emerald-300">
+      <span key={i} className="rounded bg-blue-50 px-1 text-blue-700">
         {part}
       </span>
     ) : (
@@ -354,22 +354,22 @@ export function CommentsPanel({ oppId, onMessage }: { oppId: string; onMessage: 
           onChange={(e) => setText(e.target.value)}
           placeholder="Write a comment. Mention a teammate as @name@example.com"
           maxLength={2000}
-          className="min-h-11 flex-1 rounded-lg border border-white/10 bg-black/40 px-3 text-sm text-bone placeholder:text-white/30"
+          className="min-h-11 flex-1 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm text-slate-900 placeholder:text-slate-500"
         />
-        <button type="submit" disabled={posting || !text.trim()} className="min-h-11 rounded-lg bg-emerald-500 px-5 text-sm font-medium text-black disabled:opacity-40">
+        <button type="submit" disabled={posting || !text.trim()} className="min-h-11 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:opacity-40">
           {posting ? "Posting..." : "Post"}
         </button>
       </form>
       {rows === null ? (
         <BreathingLoader label="Loading comments" />
       ) : rows.length === 0 ? (
-        <p className="mt-4 text-sm text-white/45">No comments yet.</p>
+        <p className="mt-4 text-sm text-slate-500">No comments yet.</p>
       ) : (
         <ul className="mt-4 space-y-3">
           {rows.map((c) => (
-            <li key={c.id} className="rounded-lg border border-white/10 px-3 py-2">
-              <p className="whitespace-pre-wrap break-words text-sm text-bone/85">{renderBody(c.body)}</p>
-              <p className="mt-1 text-xs text-white/35">{formatDateTime(c.created_at)}</p>
+            <li key={c.id} className="rounded-lg border border-slate-200 px-3 py-2">
+              <p className="whitespace-pre-wrap break-words text-sm text-slate-700">{renderBody(c.body)}</p>
+              <p className="mt-1 text-xs text-slate-500">{formatDateTime(c.created_at)}</p>
             </li>
           ))}
         </ul>
@@ -411,20 +411,20 @@ export function ChecklistPanel({ oppId, onMessage }: { oppId: string; onMessage:
       {lists === null ? (
         <BreathingLoader label="Loading checklists" />
       ) : setupRequired ? (
-        <p className="text-sm text-white/45">{SETUP_NOTE}</p>
+        <p className="text-sm text-slate-500">{SETUP_NOTE}</p>
       ) : lists.length === 0 ? (
-        <p className="text-sm text-white/45">No checklists yet.</p>
+        <p className="text-sm text-slate-500">No checklists yet.</p>
       ) : (
         <div className="space-y-6">
           {lists.map((l) => (
             <div key={l.id}>
-              <p className="text-sm font-medium text-bone">{l.title}</p>
+              <p className="text-sm font-medium text-slate-900">{l.title}</p>
               <ul className="mt-2 space-y-2">
                 {l.items.map((it: any, i: number) => (
                   <li key={i}>
-                    <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-bone/80">
-                      <input type="checkbox" checked={!!it.done} onChange={() => toggle(l, i)} className="h-5 w-5 accent-emerald-500" />
-                      <span className={it.done ? "text-white/35 line-through" : ""}>{it.text}</span>
+                    <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-slate-700">
+                      <input type="checkbox" checked={!!it.done} onChange={() => toggle(l, i)} className="h-5 w-5 accent-blue-600" />
+                      <span className={it.done ? "text-slate-500 line-through" : ""}>{it.text}</span>
                     </label>
                   </li>
                 ))}

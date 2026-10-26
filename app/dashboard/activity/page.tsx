@@ -32,24 +32,24 @@ export default function ActivityPage() {
 
   return (
     <section>
-      <h1 className="font-serif text-3xl text-bone">Activity</h1>
-      <p className="mt-2 text-sm text-white/45">Everything that changed across your opportunities, newest first.</p>
-      {error && <p className="mt-6 text-sm text-red-300">{error}</p>}
+      <h1 className="font-sans text-3xl text-slate-900">Activity</h1>
+      <p className="mt-2 text-sm text-slate-500">Everything that changed across your opportunities, newest first.</p>
+      {error && <p className="mt-6 text-sm text-red-700">{error}</p>}
       {!error && events.length === 0 && (
-        <p className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm text-white/45">No activity yet. Create an opportunity to start the feed.</p>
+        <p className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">No activity yet. Create an opportunity to start the feed.</p>
       )}
       <div className="mt-8 space-y-8">
         {Object.entries(groups).map(([day, evs]) => (
           <Reveal key={day}>
-            <h2 className="mb-3 text-xs uppercase tracking-[0.2em] text-emerald-300/80">{day}</h2>
+            <h2 className="mb-3 text-xs uppercase tracking-[0.2em] text-blue-700/80">{day}</h2>
             <ul className="space-y-2">
               {evs.map((ev) => (
-                <li key={ev.id} className="glass rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
-                  <p className="text-sm text-bone">
+                <li key={ev.id} className="glass rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <p className="text-sm text-slate-900">
                     <span className="capitalize">{ev.action.replace(/_/g, " ")}</span>
-                    {ev.opportunity_title && <span className="text-white/55"> on {ev.opportunity_title}</span>}
+                    {ev.opportunity_title && <span className="text-slate-500"> on {ev.opportunity_title}</span>}
                   </p>
-                  <p className="mt-1 text-xs text-white/35">{formatDateTime(ev.created_at)}</p>
+                  <p className="mt-1 text-xs text-slate-500">{formatDateTime(ev.created_at)}</p>
                 </li>
               ))}
             </ul>

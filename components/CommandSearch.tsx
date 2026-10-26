@@ -13,6 +13,8 @@ export default function CommandSearch() {
   const [hits, setHits] = useState<Hit[]>([]);
 
   useEffect(() => {
+    const onOpen = () => setOpen(true);
+    document.addEventListener("vf:open-search", onOpen);
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -22,7 +24,10 @@ export default function CommandSearch() {
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("vf:open-search", onOpen);
+      window.removeEventListener("keydown", onKey);
+    };
   }, []);
 
   useEffect(() => {
@@ -38,21 +43,21 @@ export default function CommandSearch() {
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[60] hidden items-start justify-center bg-black/70 p-6 pt-24 backdrop-blur-sm md:flex" onClick={() => setOpen(false)}>
-      <div className="glass w-full max-w-xl rounded-3xl p-4" role="dialog" aria-label="Search" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[60] flex items-start justify-center bg-slate-900/40 p-4 pt-24 sm:p-6" onClick={() => setOpen(false)}>
+      <div className="card w-full max-w-xl p-4" role="dialog" aria-label="Search" onClick={(e) => e.stopPropagation()}>
         <input autoFocus className="input w-full" placeholder="Search opportunities, requirements, answers, companies" value={q} onChange={(e) => setQ(e.target.value)} />
         <ul className="mt-3 max-h-[50vh] space-y-1 overflow-y-auto">
           {hits.map((h) => (
             <li key={`${h.type}-${h.id}`}>
-              <Link href={h.href} onClick={() => setOpen(false)} className="block rounded-xl px-3 py-2 hover:bg-white/5">
+              <Link href={h.href} onClick={() => setOpen(false)} className="block rounded-xl px-3 py-2 hover:bg-slate-50">
                 <p className="truncate text-sm">{h.title}</p>
-                <p className="truncate text-xs text-white/40">{h.type} {h.subtitle ? "· " + h.subtitle : ""}</p>
+                <p className="truncate text-xs text-slate-500">{h.type} {h.subtitle ? "· " + h.subtitle : ""}</p>
               </Link>
             </li>
           ))}
         </ul>
-        {q.trim().length >= 2 && hits.length === 0 && <p className="px-3 py-2 text-sm text-white/40">No matches.</p>}
-        <p className="mt-3 text-[11px] text-white/30">Ctrl/Cmd+K to toggle · Esc to close</p>
+        {q.trim().length >= 2 && hits.length === 0 && <p className="px-3 py-2 text-sm text-slate-500">No matches.</p>}
+        <p className="mt-3 text-[11px] text-slate-500">Ctrl/Cmd+K or / to open · Esc to close</p>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, errorText } from "@/lib/api";
-import { BreathingLoader, GlowOrbs, LogoMark } from "@/components/ui";
+import { BreathingLoader, LogoMark } from "@/components/ui";
 
 // Email + password sign up. The server creates the account already confirmed and signs you in.
 export default function SignupPage() {
@@ -33,31 +33,32 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
-      <GlowOrbs />
-      <div className="card animate-fade-rise relative w-full max-w-sm">
-        <div className="mb-8 flex items-center gap-3">
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex items-center justify-center gap-2.5">
           <LogoMark size={36} />
-          <span className="font-serif text-xl">Vantorflow</span>
+          <span className="text-xl font-semibold text-slate-900">Vantorflow</span>
         </div>
-        <p className="label-mono mb-3">Get started</p>
-        <h1 className="font-serif text-4xl font-medium leading-[0.95] tracking-tighter">Create your account</h1>
-        <form onSubmit={onSubmit} className="mt-8 space-y-5">
+        <div className="card">
+        <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
+        <p className="mt-1 text-sm text-slate-600">Start your bid workspace.</p>
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <label className="block text-sm">
-            <span className="label-mono mb-2 block">Email</span>
+            <span className="mb-1.5 block font-medium text-slate-700">Email</span>
             <input className="input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
           <label className="block text-sm">
-            <span className="label-mono mb-2 block">Password (6+ characters)</span>
+            <span className="mb-1.5 block font-medium text-slate-700">Password (6+ characters)</span>
             <input className="input" type="password" autoComplete="new-password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
           </label>
-          {error && <p role="alert" className="rounded-2xl border border-red-500/20 bg-red-500/[0.06] p-3 text-sm text-red-300">{error}</p>}
+          {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
           <button type="submit" disabled={busy} className="btn-primary w-full">
             {busy ? <BreathingLoader label="Creating account" /> : "Sign up"}
           </button>
         </form>
-        <p className="mt-6 text-center text-sm text-white/50">
-          Already have an account? <Link href="/login" className="link-u font-medium text-bone">Log in</Link>
+        </div>
+        <p className="mt-6 text-center text-sm text-slate-600">
+          Already have an account? <Link href="/login" className="font-medium text-blue-700 hover:underline">Log in</Link>
         </p>
       </div>
     </main>

@@ -68,15 +68,15 @@ export default function TemplatesPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label-mono mb-3">Templates</p>
-          <h1 className="font-serif text-4xl tracking-tight">Document templates</h1>
-          <p className="mt-2 text-sm text-white/50">Letterheads and proposal wrappers applied to every generated document.</p>
+          <h1 className="font-sans text-4xl tracking-tight">Document templates</h1>
+          <p className="mt-2 text-sm text-slate-500">Letterheads and proposal wrappers applied to every generated document.</p>
         </div>
         <button type="button" className="btn-primary" onClick={() => setEditing({ kind: "proposal", name: "", content: "" })}>
           New template
         </button>
       </div>
 
-      {message && <p className={`text-sm ${message.kind === "ok" ? "text-emerald-300" : "text-red-300"}`}>{message.text}</p>}
+      {message && <p className={`text-sm ${message.kind === "ok" ? "text-blue-700" : "text-red-700"}`}>{message.text}</p>}
 
       {editing && (
         <Reveal>
@@ -89,7 +89,7 @@ export default function TemplatesPage() {
               </select>
             </div>
             <textarea className="input min-h-[220px] font-mono text-sm" aria-label="Template content" placeholder={`ACME Ltd\nRe: {{title}} for {{buyer}}\n\n{{content}}\n\nSubmitted {{date}}`} value={editing.content ?? ""} onChange={(e) => setEditing({ ...editing, content: e.target.value })} />
-            <p className="text-xs text-white/40">Placeholders: {PLACEHOLDERS}</p>
+            <p className="text-xs text-slate-500">Placeholders: {PLACEHOLDERS}</p>
             <div className="flex gap-3">
               <button type="submit" className="btn-primary" disabled={busy}>{busy ? "Saving" : "Save template"}</button>
               <button type="button" className="btn-secondary" onClick={() => setEditing(null)}>Cancel</button>
@@ -101,14 +101,14 @@ export default function TemplatesPage() {
       {items === null ? (
         <BreathingLoader label="Loading templates" />
       ) : items.length === 0 ? (
-        <div className="glass rounded-3xl p-8 text-center text-sm text-white/50">No templates yet. Add a letterhead or proposal wrapper.</div>
+        <div className="glass rounded-3xl p-8 text-center text-sm text-slate-500">No templates yet. Add a letterhead or proposal wrapper.</div>
       ) : (
         <ul className="space-y-3">
           {items.map((t) => (
             <li key={t.id} className="glass flex flex-col gap-3 rounded-2xl p-5 sm:flex-row sm:items-center">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{t.name}</p>
-                <p className="text-xs uppercase tracking-[0.2em] text-white/40">{t.kind}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{t.kind}</p>
               </div>
               <div className="flex gap-3">
                 <button type="button" className="btn-secondary" onClick={() => setEditing(t)}>Edit</button>

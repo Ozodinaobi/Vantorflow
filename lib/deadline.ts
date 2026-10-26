@@ -22,7 +22,7 @@ export function daysUntil(deadline: string | null | undefined, now: Date = new D
 
 export type DeadlineTone = "overdue" | "urgent" | "soon" | "later" | "none";
 
-// Colour rules: 2 days or fewer (or overdue) is red, up to 7 days is emerald breathing, later is quiet.
+// Colour rules: 2 days or fewer (or overdue) is red, up to 7 days is emerald, later is quiet.
 export function deadlineTone(days: number | null): DeadlineTone {
   if (days === null) return "none";
   if (days < 0 || days <= 2) return days < 0 ? "overdue" : "urgent";
@@ -30,10 +30,11 @@ export function deadlineTone(days: number | null): DeadlineTone {
   return "later";
 }
 
+// Relative wording: "in 5 days", "tomorrow", "due today", "overdue by 3 days".
 export function countdownLabel(days: number | null): string {
   if (days === null) return "No deadline";
-  if (days < 0) return `Overdue ${Math.abs(days)}d`;
+  if (days < 0) return `Overdue by ${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"}`;
   if (days === 0) return "Due today";
-  if (days === 1) return "1 day left";
-  return `${days} days left`;
+  if (days === 1) return "Due tomorrow";
+  return `In ${days} days`;
 }

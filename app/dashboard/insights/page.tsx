@@ -46,16 +46,16 @@ export default function InsightsPage() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Analysis</p>
-        <h1 className="font-serif text-4xl font-medium tracking-tighter sm:text-5xl">Insights</h1>
-        <p className="mt-3 text-sm text-white/50">Won and lost opportunities, with the reasons recorded at close.</p>
+        <h1 className="font-sans text-4xl font-medium tracking-tighter sm:text-5xl">Insights</h1>
+        <p className="mt-3 text-sm text-slate-500">Won and lost opportunities, with the reasons recorded at close.</p>
       </div>
 
-      {error && <p role="alert" className="rounded-2xl border border-red-500/20 bg-red-500/[0.06] p-4 text-sm text-red-300">{error}</p>}
+      {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
 
       {decided.length === 0 ? (
         <div className="glass rounded-3xl border-dashed p-10 text-center">
-          <p className="font-serif text-2xl">No outcomes recorded yet</p>
-          <p className="mt-2 text-sm text-white/50">
+          <p className="font-sans text-2xl">No outcomes recorded yet</p>
+          <p className="mt-2 text-sm text-slate-500">
             Mark an opportunity as Won or Lost on its page and the breakdown will appear here.
           </p>
           <Link href="/dashboard" className="btn-secondary mt-6">Go to opportunities</Link>
@@ -66,15 +66,15 @@ export default function InsightsPage() {
             <div className="grid grid-cols-3 gap-4">
               <div className="card text-center">
                 <p className="label-mono !text-[9px]">Won</p>
-                <p className="mt-2 font-serif text-3xl tabular-nums text-emerald-300">{won}</p>
+                <p className="mt-2 font-sans text-3xl tabular-nums text-blue-700">{won}</p>
               </div>
               <div className="card text-center">
                 <p className="label-mono !text-[9px]">Lost</p>
-                <p className="mt-2 font-serif text-3xl tabular-nums">{lost}</p>
+                <p className="mt-2 font-sans text-3xl tabular-nums">{lost}</p>
               </div>
               <div className="card text-center">
                 <p className="label-mono !text-[9px]">Win rate</p>
-                <p className="mt-2 font-serif text-3xl tabular-nums">{rate === null ? "n/a" : `${rate}%`}</p>
+                <p className="mt-2 font-sans text-3xl tabular-nums">{rate === null ? "n/a" : `${rate}%`}</p>
               </div>
             </div>
           </Reveal>
@@ -88,13 +88,13 @@ export default function InsightsPage() {
                   <div key={reason} className="space-y-2">
                     <div className="flex justify-between gap-4 text-sm">
                       <span className="min-w-0 break-words">{reason}</span>
-                      <span className="shrink-0 tabular-nums text-white/50">
+                      <span className="shrink-0 tabular-nums text-slate-500">
                         {c.won} won · {c.lost} lost
                       </span>
                     </div>
-                    <div className="flex h-2 overflow-hidden rounded-full bg-white/[0.05]">
-                      <div className="bg-emerald-400" style={{ width: `${(c.won / total) * 100}%` }} />
-                      <div className="bg-white/30" style={{ width: `${(c.lost / total) * 100}%` }} />
+                    <div className="flex h-2 overflow-hidden rounded-full bg-slate-50">
+                      <div className="bg-blue-600" style={{ width: `${(c.won / total) * 100}%` }} />
+                      <div className="bg-slate-50" style={{ width: `${(c.lost / total) * 100}%` }} />
                     </div>
                   </div>
                 );
@@ -105,11 +105,11 @@ export default function InsightsPage() {
           <Reveal>
             <div className="card">
               <p className="label-mono mb-4">Decided opportunities</p>
-              <ul className="divide-y divide-white/5">
+              <ul className="divide-y divide-slate-200">
                 {decided.map((r) => (
                   <li key={r.id} className="flex items-center justify-between gap-4 py-3 text-sm">
                     <Link href={`/dashboard/${r.id}`} className="min-w-0 truncate hover:underline">{r.title}</Link>
-                    <span className={`shrink-0 ${r.outcome_result === "Won" ? "text-emerald-300" : "text-white/50"}`}>
+                    <span className={`shrink-0 ${r.outcome_result === "Won" ? "text-blue-700" : "text-slate-500"}`}>
                       {r.outcome_result}
                     </span>
                   </li>

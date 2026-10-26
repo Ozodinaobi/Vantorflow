@@ -33,26 +33,26 @@ function SearchInner() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Search</p>
-        <h1 className="font-serif text-4xl tracking-tight">Find anything</h1>
+        <h1 className="font-sans text-4xl tracking-tight">Find anything</h1>
       </div>
       <form onSubmit={(e) => { e.preventDefault(); router.push(`/dashboard/search?q=${encodeURIComponent(q.trim())}`); }} className="glass flex gap-3 rounded-2xl p-3">
         <input className="input flex-1" aria-label="Search" placeholder="Opportunities, requirements, answers, companies" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
         <button type="submit" className="btn-primary">Search</button>
       </form>
 
-      {error && <p className="text-sm text-red-300">{error}</p>}
+      {error && <p className="text-sm text-red-700">{error}</p>}
       {hits === null && (params.get("q") ?? "").trim().length >= 2 && <BreathingLoader label="Searching" />}
-      {(params.get("q") ?? "").trim().length < 2 && <p className="text-sm text-white/40">Type at least two characters.</p>}
-      {hits && hits.length === 0 && <div className="glass rounded-3xl p-8 text-center text-sm text-white/50">Nothing matched “{params.get("q")}”.</div>}
+      {(params.get("q") ?? "").trim().length < 2 && <p className="text-sm text-slate-500">Type at least two characters.</p>}
+      {hits && hits.length === 0 && <div className="glass rounded-3xl p-8 text-center text-sm text-slate-500">Nothing matched “{params.get("q")}”.</div>}
       {hits && hits.length > 0 && (
         <Reveal>
           <ul className="space-y-3">
             {hits.map((h) => (
               <li key={`${h.type}-${h.id}`}>
-                <Link href={h.href} className="glass block rounded-2xl p-4 transition hover:border-emerald-500/40">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-400/80">{LABEL[h.type] ?? h.type}</p>
+                <Link href={h.href} className="glass block rounded-2xl p-4 transition hover:border-blue-200">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-blue-700/80">{LABEL[h.type] ?? h.type}</p>
                   <p className="mt-1 truncate font-medium">{h.title}</p>
-                  {h.subtitle && <p className="mt-1 truncate text-sm text-white/50">{h.subtitle}</p>}
+                  {h.subtitle && <p className="mt-1 truncate text-sm text-slate-500">{h.subtitle}</p>}
                 </Link>
               </li>
             ))}

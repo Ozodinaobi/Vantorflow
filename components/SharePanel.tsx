@@ -65,8 +65,8 @@ export default function SharePanel({ oppId, setupRequired }: { oppId: string; se
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label-mono mb-3">Client portal</p>
-          <h2 className="font-serif text-2xl">Share a read-only proposal</h2>
-          <p className="mt-2 text-sm text-white/50">Anyone with the link can view sections and status. They cannot edit.</p>
+          <h2 className="font-sans text-2xl">Share a read-only proposal</h2>
+          <p className="mt-2 text-sm text-slate-500">Anyone with the link can view sections and status. They cannot edit.</p>
         </div>
         <button type="button" className="btn-primary" disabled={busy || setupRequired} onClick={create}>
           {busy ? "Creating" : "Create share link"}
@@ -74,22 +74,22 @@ export default function SharePanel({ oppId, setupRequired }: { oppId: string; se
       </div>
 
       {setupRequired && (
-        <p className="mt-4 text-sm text-amber-200/80">Share links come online after the features migration is run once.</p>
+        <p className="mt-4 text-sm text-amber-700/80">Share links come online after the features migration is run once.</p>
       )}
       {message && (
-        <p className={`mt-4 text-sm ${message.kind === "ok" ? "text-emerald-300" : "text-red-300"}`}>{message.text}</p>
+        <p className={`mt-4 text-sm ${message.kind === "ok" ? "text-blue-700" : "text-red-700"}`}>{message.text}</p>
       )}
 
       <div className="mt-5 space-y-3">
         {links === null && <LoadingBlock label="Loading share links" />}
         {links !== null && active.length === 0 && (
-          <p className="text-sm text-white/40">No active share links.</p>
+          <p className="text-sm text-slate-500">No active share links.</p>
         )}
         {active.map((l) => {
           const url = `${origin}/share/${l.token}`;
           return (
-            <div key={l.token} className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/30 p-4 sm:flex-row sm:items-center">
-              <code className="min-w-0 flex-1 break-all text-xs text-emerald-300">{url}</code>
+            <div key={l.token} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-100 p-4 sm:flex-row sm:items-center">
+              <code className="min-w-0 flex-1 break-all text-xs text-blue-700">{url}</code>
               <div className="flex gap-2">
                 <button type="button" className="btn-secondary" onClick={() => navigator.clipboard?.writeText(url)}>
                   Copy

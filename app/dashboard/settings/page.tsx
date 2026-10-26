@@ -1,12 +1,69 @@
 "use client";
 
-import { useState } from "react";
-import { Reveal } from "@/components/ui";
+import { FormEvent, useEffect, useState } from "react";
+import { api, errorText } from "@/lib/api";
+import { Skeleton } from "@/components/ui";
 
-// Settings: the email-in ingest URL (copyable) and the email-digest placeholder.
+type Profile = { email: string; name: string; created_at: string | null };
+
+// Settings: profile (display name, email), password change, and the email-in ingest address.
 export default function SettingsPage() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [name, setName] = useState("");
+  const [nameMsg, setNameMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [savingName, setSavingName] = useState(false);
+
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [savingPw, setSavingPw] = useState(false);
+
   const [copied, setCopied] = useState(false);
   const ingestUrl = typeof window !== "undefined" ? `${window.location.origin}/api/email-in` : "/api/email-in";
+
+  useEffect(() => {
+    api<Profile>("/api/account")
+      .then((p) => {
+        setProfile(p);
+        setName(p.name);
+      })
+      .catch((e) => setNameMsg({ ok: false, text: `Could not load your profile: ${errorText(e)}` }));
+  }, []);
+
+  async function saveName(e: FormEvent) {
+    e.preventDefault();
+    setSavingName(true);
+    setNameMsg(null);
+    try {
+      const res = await api<{ name: string }>("/api/account", { method: "PATCH", body: { name } });
+      setProfile((p) => (p ? { ...p, name: res.name } : p));
+      setNameMsg({ ok: true, text: "Profile saved." });
+    } catch (err) {
+      setNameMsg({ ok: false, text: errorText(err) });
+    } finally {
+      setSavingName(false);
+    }
+  }
+
+  async function changePassword(e: FormEvent) {
+    e.preventDefault();
+    setPwMsg(null);
+    if (next.length < 8) return setPwMsg({ ok: false, text: "The new password must be at least 8 characters." });
+    if (next !== confirm) return setPwMsg({ ok: false, text: "The new passwords do not match." });
+    setSavingPw(true);
+    try {
+      await api("/api/account", { method: "PATCH", body: { current_password: current, new_password: next } });
+      setPwMsg({ ok: true, text: "Password changed. Use the new one next time you sign in." });
+      setCurrent("");
+      setNext("");
+      setConfirm("");
+    } catch (err) {
+      setPwMsg({ ok: false, text: errorText(err) });
+    } finally {
+      setSavingPw(false);
+    }
+  }
 
   async function copy() {
     try {
@@ -19,44 +76,78 @@ export default function SettingsPage() {
   }
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-6">
       <div>
-        <p className="label-mono mb-3">Settings</p>
-        <h1 className="font-serif text-4xl tracking-tight">Settings</h1>
+        <p className="label-mono mb-1">Settings</p>
+        <h1 className="text-2xl font-semibold sm:text-3xl">Settings</h1>
       </div>
 
-      <Reveal>
-        <div className="glass rounded-3xl p-6 sm:p-8">
-          <p className="label-mono mb-3">Email in</p>
-          <h2 className="font-serif text-2xl">Forward RFQs by email</h2>
-          <p className="mt-2 text-sm text-white/50">
-            Forwarded RFQ emails will become opportunities automatically. The mailbox is not connected yet, so this is
-            the ingest address to use once it is. Setup steps are in EMAIL_IN_SETUP.md in the repo.
-          </p>
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <code className="min-w-0 flex-1 break-all rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-emerald-300">
-              {ingestUrl}
-            </code>
-            <button type="button" className="btn-secondary" onClick={copy}>
-              {copied ? "Copied" : "Copy URL"}
-            </button>
+      <div className="card">
+        <h2 className="text-lg font-semibold">Profile</h2>
+        {!profile ? (
+          <div className="mt-4 space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
           </div>
-          <p className="mt-3 text-xs text-white/40">
-            Requests need the x-vf-ingest-secret header. The secret lives in the server environment, not on this page.
-          </p>
-        </div>
-      </Reveal>
+        ) : (
+          <form onSubmit={saveName} className="mt-4 space-y-4">
+            <div>
+              <label htmlFor="pf-email" className="label-mono mb-1 block">Email</label>
+              <input id="pf-email" className="input w-full" value={profile.email} disabled readOnly />
+              <p className="mt-1 text-xs text-slate-500">Your sign-in email. It cannot be changed here.</p>
+            </div>
+            <div>
+              <label htmlFor="pf-name" className="label-mono mb-1 block">Display name</label>
+              <input id="pf-name" className="input w-full" value={name} maxLength={120} onChange={(e) => setName(e.target.value)} />
+            </div>
+            {nameMsg && (
+              <p role="status" className={`text-sm ${nameMsg.ok ? "text-slate-600" : "text-red-700"}`}>{nameMsg.text}</p>
+            )}
+            <button type="submit" className="btn-primary" disabled={savingName}>
+              {savingName ? "Saving..." : "Save profile"}
+            </button>
+          </form>
+        )}
+      </div>
 
-      <Reveal>
-        <div className="glass rounded-3xl p-6 sm:p-8">
-          <p className="label-mono mb-3">Notifications</p>
-          <h2 className="font-serif text-2xl">Email digest</h2>
-          <p className="mt-2 text-sm text-white/50">
-            Email digests (deadline reminders and approval alerts) are coming with the email provider. In-app
-            notifications already work from the bell icon.
-          </p>
+      <div className="card">
+        <h2 className="text-lg font-semibold">Change password</h2>
+        <form onSubmit={changePassword} className="mt-4 space-y-4">
+          <div>
+            <label htmlFor="pw-current" className="label-mono mb-1 block">Current password</label>
+            <input id="pw-current" type="password" autoComplete="current-password" className="input w-full" value={current} onChange={(e) => setCurrent(e.target.value)} />
+          </div>
+          <div>
+            <label htmlFor="pw-new" className="label-mono mb-1 block">New password</label>
+            <input id="pw-new" type="password" autoComplete="new-password" className="input w-full" value={next} onChange={(e) => setNext(e.target.value)} />
+            <p className="mt-1 text-xs text-slate-500">At least 8 characters.</p>
+          </div>
+          <div>
+            <label htmlFor="pw-confirm" className="label-mono mb-1 block">Confirm new password</label>
+            <input id="pw-confirm" type="password" autoComplete="new-password" className="input w-full" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          </div>
+          {pwMsg && <p role="status" className={`text-sm ${pwMsg.ok ? "text-slate-600" : "text-red-700"}`}>{pwMsg.text}</p>}
+          <button type="submit" className="btn-primary" disabled={savingPw || !current || !next || !confirm}>
+            {savingPw ? "Changing..." : "Change password"}
+          </button>
+        </form>
+      </div>
+
+      <div className="card">
+        <h2 className="text-lg font-semibold">Email in</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          Forwarded RFQ emails become opportunities automatically once the mailbox is connected. Use this ingest address then.
+          Setup steps are in EMAIL_IN_SETUP.md in the repo.
+        </p>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <code className="min-w-0 flex-1 break-all rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
+            {ingestUrl}
+          </code>
+          <button type="button" className="btn-secondary" onClick={copy}>
+            {copied ? "Copied" : "Copy address"}
+          </button>
         </div>
-      </Reveal>
+      </div>
     </section>
   );
 }

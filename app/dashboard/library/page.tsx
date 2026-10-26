@@ -70,43 +70,43 @@ export default function LibraryPage() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Reusable</p>
-        <h1 className="font-serif text-4xl font-medium tracking-tighter sm:text-5xl">Answer library</h1>
-        <p className="mt-3 max-w-2xl text-sm text-white/50">
+        <h1 className="font-sans text-4xl font-medium tracking-tighter sm:text-5xl">Answer library</h1>
+        <p className="mt-3 max-w-2xl text-sm text-slate-500">
           Save answers you have already approved. When a draft is written, matching answers are passed to Gemini as context.
         </p>
       </div>
 
       {setupRequired && (
-        <p role="status" className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-white/60">
+        <p role="status" className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
           The answer library is coming online after setup. Run the FEATURES MIGRATION SQL once in Supabase, then reload.
         </p>
       )}
-      {error && <p role="alert" className="rounded-2xl border border-red-500/20 bg-red-500/[0.06] p-4 text-sm text-red-300">{error}</p>}
-      {ok && <p role="status" className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4 text-sm text-emerald-200">{ok}</p>}
+      {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
+      {ok && <p role="status" className="rounded-2xl border border-blue-200 bg-blue-600/[0.06] p-4 text-sm text-blue-700">{ok}</p>}
 
       <Reveal>
         <form onSubmit={save} className="card space-y-4">
           <p className="label-mono">New entry</p>
           <label className="block text-sm">
-            <span className="mb-1.5 block text-white/60">Question</span>
+            <span className="mb-1.5 block text-slate-500">Question</span>
             <input
               required
               maxLength={500}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="e.g. Describe your quality management system"
-              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
             />
           </label>
           <label className="block text-sm">
-            <span className="mb-1.5 block text-white/60">Approved answer</span>
+            <span className="mb-1.5 block text-slate-500">Approved answer</span>
             <textarea
               required
               maxLength={5000}
               rows={5}
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
             />
           </label>
           <button type="submit" disabled={saving || setupRequired} className="btn-primary">
@@ -117,8 +117,8 @@ export default function LibraryPage() {
 
       {entries.length === 0 && !setupRequired && (
         <div className="glass rounded-3xl border-dashed p-10 text-center">
-          <p className="font-serif text-2xl">No saved answers yet</p>
-          <p className="mt-2 text-sm text-white/50">Save the answers you reuse most, like certifications or insurance.</p>
+          <p className="font-sans text-2xl">No saved answers yet</p>
+          <p className="mt-2 text-sm text-slate-500">Save the answers you reuse most, like certifications or insurance.</p>
         </div>
       )}
 
@@ -127,12 +127,12 @@ export default function LibraryPage() {
           <Reveal key={x.id}>
             <article className="glass rounded-3xl p-5 sm:p-6">
               <div className="flex items-start justify-between gap-4">
-                <h2 className="font-serif text-lg leading-snug">{x.question}</h2>
-                <button type="button" onClick={() => remove(x.id)} className="link-u shrink-0 text-xs text-white/40">
+                <h2 className="font-sans text-lg leading-snug">{x.question}</h2>
+                <button type="button" onClick={() => remove(x.id)} className="link-u shrink-0 text-xs text-slate-500">
                   Delete
                 </button>
               </div>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-white/70">{x.answer}</p>
+              <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{x.answer}</p>
             </article>
           </Reveal>
         ))}

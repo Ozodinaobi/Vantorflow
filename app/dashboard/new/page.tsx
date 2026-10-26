@@ -44,7 +44,7 @@ export default function NewRfqPage() {
     <section className="max-w-3xl">
       <div className="mb-10">
         <p className="label-mono mb-3">Intake</p>
-        <h1 className="font-serif text-4xl font-medium leading-[0.95] tracking-tighter sm:text-5xl">New RFQ intake</h1>
+        <h1 className="font-sans text-4xl font-medium leading-[0.95] tracking-tighter sm:text-5xl">New RFQ intake</h1>
       </div>
       <Reveal>
         <form onSubmit={onSubmit} className="card space-y-6">
@@ -75,9 +75,9 @@ export default function NewRfqPage() {
               onChange={(e) => setRfqText(e.target.value)}
               placeholder="Paste the full RFQ or tender text here."
             />
-            <span className="mt-2 block text-xs text-white/35">{rfqText.length.toLocaleString("en-GB")} characters</span>
+            <span className="mt-2 block text-xs text-slate-500">{rfqText.length.toLocaleString("en-GB")} characters</span>
           </label>
-          {error && <p role="alert" className="rounded-2xl border border-red-500/20 bg-red-500/[0.06] p-4 text-sm text-red-300">{error}</p>}
+          {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
           <div className="flex gap-3">
             <button type="submit" disabled={busy} className="btn-primary">
               {busy ? <BreathingLoader label="Saving" /> : "Create opportunity"}

@@ -30,12 +30,12 @@ export default async function SharePage({ params }: { params: { token: string } 
 
   if (error || !proposal) {
     return (
-      <main className="min-h-screen bg-[#050505] px-6 py-24 text-[#EBEBEB]">
-        <div className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-white/[0.02] p-8 text-center backdrop-blur-xl">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-400">Vantorflow</p>
-          <h1 className="mt-4 font-serif text-3xl">Link not available</h1>
-          <p className="mt-3 text-sm text-white/60">{error}</p>
-          <Link href="/" className="mt-6 inline-block text-sm text-emerald-300 underline">Back to Vantorflow</Link>
+      <main className="min-h-screen bg-slate-50 px-6 py-24 text-slate-900">
+        <div className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-slate-50 p-8 text-center backdrop-blur-xl">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-700">Vantorflow</p>
+          <h1 className="mt-4 font-sans text-3xl">Link not available</h1>
+          <p className="mt-3 text-sm text-slate-500">{error}</p>
+          <Link href="/" className="mt-6 inline-block text-sm text-blue-700 underline">Back to Vantorflow</Link>
         </div>
       </main>
     );
@@ -44,57 +44,57 @@ export default async function SharePage({ params }: { params: { token: string } 
   const r = proposal.readiness;
   const pct = r.total ? Math.round((r.mapped / r.total) * 100) : 0;
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050505] px-4 py-10 text-[#EBEBEB] sm:px-6">
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 px-4 py-10 text-slate-900 sm:px-6">
       <div className="mx-auto max-w-3xl space-y-8">
-        <header className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-xl sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-400">Proposal, read only</p>
-          <h1 className="mt-3 font-serif text-3xl leading-tight sm:text-4xl">{proposal.title}</h1>
-          <p className="mt-2 text-sm text-white/60">Buyer: {proposal.buyer}</p>
-          {proposal.deadline && <p className="text-sm text-white/60">Deadline: {proposal.deadline}</p>}
+        <header className="rounded-3xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-700">Proposal, read only</p>
+          <h1 className="mt-3 font-sans text-3xl leading-tight sm:text-4xl">{proposal.title}</h1>
+          <p className="mt-2 text-sm text-slate-500">Buyer: {proposal.buyer}</p>
+          {proposal.deadline && <p className="text-sm text-slate-500">Deadline: {proposal.deadline}</p>}
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label="Stage" value={proposal.status} />
             <Stat label="Readiness" value={`${r.score}%`} />
             <Stat label="Requirements mapped" value={`${pct}%`} />
             <Stat label="Sections drafted" value={`${r.drafted} of ${r.sectionCount}`} />
           </div>
-          <p className="mt-4 text-xs text-white/40">{readinessTone(r.score)}</p>
+          <p className="mt-4 text-xs text-slate-500">{readinessTone(r.score)}</p>
         </header>
 
         <section className="space-y-4">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">Sections</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sections</p>
           {proposal.sections.map((s) => (
-            <article key={s.section} className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-xl">
-              <h2 className="font-serif text-2xl">{s.section}</h2>
+            <article key={s.section} className="rounded-3xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl">
+              <h2 className="font-sans text-2xl">{s.section}</h2>
               {s.draft.trim() ? (
-                <div className="mt-3 space-y-3 text-sm leading-relaxed text-white/80">
+                <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-700">
                   {s.draft.split(/\n\s*\n/).map((p, i) => (
                     <p key={i} className="whitespace-pre-line break-words">{p.trim()}</p>
                   ))}
                 </div>
               ) : (
-                <p className="mt-3 text-sm italic text-white/40">Not drafted yet.</p>
+                <p className="mt-3 text-sm italic text-slate-500">Not drafted yet.</p>
               )}
             </article>
           ))}
         </section>
 
-        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-xl">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">Requirements</p>
+        <section className="rounded-3xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Requirements</p>
           {proposal.requirements.length === 0 ? (
-            <p className="mt-3 text-sm text-white/40">No requirements yet.</p>
+            <p className="mt-3 text-sm text-slate-500">No requirements yet.</p>
           ) : (
             <ul className="mt-3 space-y-2 text-sm">
               {proposal.requirements.map((q) => (
-                <li key={q.number} className="break-words border-b border-white/5 pb-2">
-                  <span className="text-emerald-300">{q.number}.</span> {q.text}{" "}
-                  <span className="text-white/40">({q.category}{q.section ? `, ${q.section}` : ", not mapped"})</span>
+                <li key={q.number} className="break-words border-b border-slate-200 pb-2">
+                  <span className="text-blue-700">{q.number}.</span> {q.text}{" "}
+                  <span className="text-slate-500">({q.category}{q.section ? `, ${q.section}` : ", not mapped"})</span>
                 </li>
               ))}
             </ul>
           )}
         </section>
 
-        <p className="text-center text-xs text-white/35">This link expires {new Date(proposal.expiresAt).toLocaleDateString("en-GB", { timeZone: "Africa/Lagos" })} (Lagos time).</p>
+        <p className="text-center text-xs text-slate-500">This link expires {new Date(proposal.expiresAt).toLocaleDateString("en-GB", { timeZone: "Africa/Lagos" })} (Lagos time).</p>
       </div>
     </main>
   );
@@ -102,9 +102,9 @@ export default async function SharePage({ params }: { params: { token: string } 
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">{label}</p>
-      <p className="mt-1 font-serif text-xl">{value}</p>
+    <div className="rounded-2xl border border-slate-200 bg-slate-100 p-4">
+      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">{label}</p>
+      <p className="mt-1 font-sans text-xl">{value}</p>
     </div>
   );
 }

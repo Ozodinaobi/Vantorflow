@@ -71,22 +71,22 @@ export default function BoardPage() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Pipeline</p>
-        <h1 className="font-serif text-4xl font-medium tracking-tighter sm:text-5xl">Board</h1>
-        <p className="mt-3 text-sm text-white/50">
+        <h1 className="font-sans text-4xl font-medium tracking-tighter sm:text-5xl">Board</h1>
+        <p className="mt-3 text-sm text-slate-500">
           Drag a card to another stage on desktop, or use the move buttons on mobile. Every move is saved.
         </p>
       </div>
 
       {error && (
-        <p role="alert" className="rounded-2xl border border-red-500/20 bg-red-500/[0.06] p-4 text-sm text-red-300">
+        <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error}
         </p>
       )}
 
       {rows && rows.length === 0 && (
         <div className="glass rounded-3xl border-dashed p-10 text-center">
-          <p className="font-serif text-2xl">Nothing on the board yet</p>
-          <p className="mt-2 text-sm text-white/50">Add an RFQ and its opportunity will appear in the Intake column.</p>
+          <p className="font-sans text-2xl">Nothing on the board yet</p>
+          <p className="mt-2 text-sm text-slate-500">Add an RFQ and its opportunity will appear in the Intake column.</p>
           <Link href="/dashboard/new" className="btn-primary mt-6">Add an RFQ</Link>
         </div>
       )}
@@ -104,15 +104,15 @@ export default function BoardPage() {
                     columnRefs.current[stage] = el;
                   }}
                   className={`glass flex min-h-[200px] flex-col rounded-3xl p-3 transition-colors duration-500 ${
-                    hot ? "border-emerald-400/60 bg-emerald-500/[0.05]" : ""
+                    hot ? "border-blue-200 bg-blue-600/[0.05]" : ""
                   }`}
                 >
                   <div className="mb-3 flex items-center justify-between px-2">
                     <p className="label-mono !text-[10px]">{stage}</p>
-                    <span className="text-xs tabular-nums text-white/40">{cards.length}</span>
+                    <span className="text-xs tabular-nums text-slate-500">{cards.length}</span>
                   </div>
                   <div className="flex flex-1 flex-col gap-3">
-                    {cards.length === 0 && <p className="px-2 py-6 text-center text-xs text-white/30">Empty</p>}
+                    {cards.length === 0 && <p className="px-2 py-6 text-center text-xs text-slate-500">Empty</p>}
                     {cards.map((opp) => (
                       <BoardCard
                         key={opp.id}
@@ -155,32 +155,32 @@ function BoardCard({
   const idx = STAGES.indexOf(stage);
   const toneClass =
     tone === "overdue" || tone === "urgent"
-      ? "border-red-500/40 text-red-300"
+      ? "border-red-200 text-red-700"
       : tone === "soon"
-      ? "border-emerald-500/40 text-emerald-300 animate-glow-pulse"
-      : "border-white/10 text-white/50";
+      ? "border-blue-200 text-blue-700 "
+      : "border-slate-200 text-slate-500";
   return (
     <div
       onPointerDown={onPointerDown}
-      className={`glass touch-pan-y rounded-2xl border border-white/10 p-4 transition-opacity duration-300 ${
+      className={`glass touch-pan-y rounded-2xl border border-slate-200 p-4 transition-opacity duration-300 ${
         dragging ? "opacity-50" : ""
-      } ${saving ? "animate-pulse" : ""}`}
+      } ${saving ? "opacity-60" : ""}`}
     >
-      <Link href={`/dashboard/${opp.id}`} className="font-serif text-base leading-snug hover:underline">
+      <Link href={`/dashboard/${opp.id}`} className="font-sans text-base leading-snug hover:underline">
         {opp.title}
       </Link>
-      <p className="mt-1 truncate text-xs text-white/40">{opp.buyer || "no buyer"}</p>
+      <p className="mt-1 truncate text-xs text-slate-500">{opp.buyer || "no buyer"}</p>
       <span className={`mt-3 inline-block rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-wider ${toneClass}`}>
         {countdownLabel(days)}
       </span>
-      <p className="mt-1 text-[11px] text-white/35">{formatDate(opp.deadline)}</p>
+      <p className="mt-1 text-[11px] text-slate-500">{formatDate(opp.deadline)}</p>
       <div className="mt-3 flex items-center justify-between gap-2">
         <button
           type="button"
           aria-label="Move to previous stage"
           disabled={idx === 0 || saving}
           onClick={() => onMove(STAGES[idx - 1])}
-          className="min-h-[36px] min-w-[36px] rounded-full border border-white/10 text-sm disabled:opacity-30"
+          className="min-h-[36px] min-w-[36px] rounded-full border border-slate-200 text-sm disabled:opacity-30"
         >
           ‹
         </button>
@@ -190,7 +190,7 @@ function BoardCard({
           aria-label="Move to next stage"
           disabled={idx === STAGES.length - 1 || saving}
           onClick={() => onMove(STAGES[idx + 1])}
-          className="min-h-[36px] min-w-[36px] rounded-full border border-white/10 text-sm disabled:opacity-30"
+          className="min-h-[36px] min-w-[36px] rounded-full border border-slate-200 text-sm disabled:opacity-30"
         >
           ›
         </button>

@@ -48,8 +48,8 @@ export default function NotificationsPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label-mono mb-3">Notifications</p>
-          <h1 className="font-serif text-4xl tracking-tight">Notification center</h1>
-          <p className="mt-2 text-sm text-white/50">{unread} unread. Email digests are coming; they are not sent yet.</p>
+          <h1 className="font-sans text-4xl tracking-tight">Notification center</h1>
+          <p className="mt-2 text-sm text-slate-500">{unread} unread. Email digests are coming; they are not sent yet.</p>
         </div>
         {unread > 0 && (
           <button type="button" className="btn-secondary" onClick={markAll}>
@@ -57,11 +57,11 @@ export default function NotificationsPage() {
           </button>
         )}
       </div>
-      {error && <p className="text-sm text-red-300">{error}</p>}
+      {error && <p className="text-sm text-red-700">{error}</p>}
       {notes === null ? (
         <BreathingLoader label="Loading notifications" />
       ) : notes.length === 0 ? (
-        <div className="glass rounded-3xl p-8 text-center text-sm text-white/50">
+        <div className="glass rounded-3xl p-8 text-center text-sm text-slate-500">
           Nothing yet. Deadlines, stage changes and approvals will appear here.
         </div>
       ) : (
@@ -71,16 +71,16 @@ export default function NotificationsPage() {
               <li className={`glass flex flex-col gap-2 rounded-2xl p-5 sm:flex-row sm:items-start ${n.read ? "opacity-60" : ""}`}>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{n.title}</p>
-                  {n.body && <p className="mt-1 text-sm text-white/55">{n.body}</p>}
-                  <p className="mt-2 text-xs text-white/35">{formatDateTime(n.created_at)}</p>
+                  {n.body && <p className="mt-1 text-sm text-slate-500">{n.body}</p>}
+                  <p className="mt-2 text-xs text-slate-500">{formatDateTime(n.created_at)}</p>
                 </div>
                 <div className="flex gap-3 self-start">
                   {!n.read && (
-                    <button type="button" className="min-h-[44px] text-sm text-emerald-300" onClick={() => markOne(n.id)}>
+                    <button type="button" className="min-h-[44px] text-sm text-blue-700" onClick={() => markOne(n.id)}>
                       Mark read
                     </button>
                   )}
-                  <Link href="/dashboard" className="min-h-[44px] text-sm text-white/40">Dashboard</Link>
+                  <Link href="/dashboard" className="min-h-[44px] text-sm text-slate-500">Dashboard</Link>
                 </div>
               </li>
             </Reveal>

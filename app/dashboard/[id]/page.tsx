@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { api, errorText } from "@/lib/api";
 import { ExtractResult, Opportunity, Requirement, RfqRecord, ResponseSection, SECTIONS, Section, Stage } from "@/lib/types";
 import { computeReadiness } from "@/lib/readiness";
@@ -12,9 +12,10 @@ import { buildPdf } from "@/lib/pdf";
 import SharePanel from "@/components/SharePanel";
 import { Pipeline } from "@/components/Pipeline";
 import { ReadinessBadge } from "@/components/ReadinessBadge";
-import { BreathingLoader, LoadingBlock, Reveal } from "@/components/ui";
+import { LoadingBlock } from "@/components/ui";
 import { QualificationPanel, OutcomePanel, ApprovalPanel, AssistantPanel } from "@/components/OpportunityPanels";
 import { daysUntil, deadlineTone, countdownLabel } from "@/lib/deadline";
+import { categoryConfidence, CONFIDENCE_LABEL } from "@/lib/confidence";
 import { requirementsFromCsv } from "@/lib/csv";
 import { OpportunityExtras } from "@/components/OpportunityExtras";
 
@@ -30,6 +31,8 @@ interface Detail {
 export default function OpportunityPage() {
   const params = useParams<{ id: string }>();
   const oppId = params.id;
+  const router = useRouter();
+  const [duplicating, setDuplicating] = useState(false);
 
   const [data, setData] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -253,6 +256,40 @@ export default function OpportunityPage() {
   }
 
   // ---- Build and download the PDF (same content as the .docx) ----
+  // ---- Duplicate: creates a clean copy (no requirements, drafts or outcome) and opens it ----
+  async function duplicate() {
+    setDuplicating(true);
+    setMessage(null);
+    try {
+      const d = await api<{ opportunity: { id: string } }>(`/api/opportunities/${opp?.id}/duplicate`, { method: "POST" });
+      router.push(`/dashboard/${d.opportunity.id}`);
+    } catch (e) {
+      setMessage({ kind: "error", text: `Could not duplicate: ${errorText(e)}` });
+      setDuplicating(false);
+    }
+  }
+
+  // ---- Summary PDF: one-page opportunity summary (title, buyer, deadline, value, stage, readiness, requirement counts) ----
+  async function downloadSummary() {
+    if (!opp) return;
+    try {
+      const { buildSummaryPdf } = await import("@/lib/summaryPdf");
+      const blob = await buildSummaryPdf({
+        title: opp.title,
+        buyer: opp.buyer,
+        deadline: formatDate(opp.deadline),
+        value: opp.value,
+        stage: opp.status,
+        readiness: `${readiness.score}%`,
+        requirements: reqs.length,
+        mapped: mappedCount,
+      });
+      downloadBlob(blob, `${(opp.title || "opportunity").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-summary.pdf`);
+    } catch (e) {
+      setMessage({ kind: "error", text: `Could not build the summary PDF: ${errorText(e)}` });
+    }
+  }
+
   async function downloadPdf() {
     if (!opp) return;
     try {
@@ -271,8 +308,8 @@ export default function OpportunityPage() {
   if (notFound || !opp) {
     return (
       <div className="glass rounded-3xl p-8">
-        <p className="font-serif text-2xl">Opportunity not found.</p>
-        {message && <p className="mt-2 text-sm text-red-300">{message.text}</p>}
+        <p className="font-sans text-2xl">Opportunity not found.</p>
+        {message && <p className="mt-2 text-sm text-red-700">{message.text}</p>}
         <Link href="/dashboard" className="btn-secondary mt-6">Back to opportunities</Link>
       </div>
     );
@@ -281,21 +318,31 @@ export default function OpportunityPage() {
   const busyLabel = (on: boolean, idle: string, active: string) => (on ? active : idle);
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-6">
       <div>
-        <Link href="/dashboard" className="link-u !min-h-[44px] text-sm">Back to opportunities</Link>
-        <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
+        <Link href="/dashboard/opportunities" className="link-u !min-h-[44px] text-sm">Back to opportunities</Link>
+        <div className="mt-4 flex flex-wrap items-start justify-between gap-6">
           <div className="min-w-0">
-            <p className="label-mono mb-3">Opportunity</p>
-            <h1 className="font-serif text-4xl font-medium leading-[0.95] tracking-tighter sm:text-5xl">{opp.title}</h1>
-            <p className="mt-4 text-sm text-white/50">
+            <p className="label-mono mb-1">Opportunity</p>
+            <h1 className="text-2xl font-semibold sm:text-3xl">{opp.title}</h1>
+            <p className="mt-4 text-sm text-slate-500">
               Buyer: {opp.buyer} · Deadline: {formatDate(opp.deadline)} · Last updated: {formatDateTime(opp.updated_at)}
             </p>
             <span className={`mt-3 inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-wider ${
-              ["overdue","urgent"].includes(deadlineTone(daysUntil(opp.deadline))) ? "border-red-500/40 text-red-300" : deadlineTone(daysUntil(opp.deadline)) === "soon" ? "border-emerald-500/40 text-emerald-300" : "border-white/10 text-white/50"
+              ["overdue","urgent"].includes(deadlineTone(daysUntil(opp.deadline))) ? "border-red-200 text-red-700" : deadlineTone(daysUntil(opp.deadline)) === "soon" ? "border-blue-200 text-blue-700" : "border-slate-200 text-slate-500"
             }`}>{countdownLabel(daysUntil(opp.deadline))}</span>
           </div>
-          <ReadinessBadge readiness={readiness} />
+          <div className="flex flex-col items-end gap-3">
+            <ReadinessBadge readiness={readiness} />
+            <div className="flex flex-wrap justify-end gap-2">
+              <button type="button" className="btn-secondary" disabled={duplicating} onClick={duplicate}>
+                {duplicating ? "Duplicating" : "Duplicate"}
+              </button>
+              <button type="button" className="btn-secondary" onClick={downloadSummary}>
+                Summary PDF
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -304,47 +351,47 @@ export default function OpportunityPage() {
           role="status"
           className={`rounded-2xl border p-4 text-sm ${
             message.kind === "ok"
-              ? "border-emerald-500/20 bg-emerald-500/[0.06] text-emerald-200"
-              : "border-red-500/20 bg-red-500/[0.06] text-red-300"
+              ? "border-blue-200 bg-blue-600/[0.06] text-blue-700"
+              : "border-red-200 bg-red-50 text-red-700"
           }`}
         >
           {message.text}
         </p>
       )}
 
-      <Reveal>
+      <div>
         <div className="card">
           <p className="label-mono mb-4">Stage</p>
           <Pipeline current={opp.status} onChange={changeStage} />
         </div>
-      </Reveal>
+      </div>
 
-      <Reveal>
+      <div>
         <div className="card">
           <p className="label-mono mb-3">RFQ text</p>
-          <h2 className="mb-3 font-serif text-2xl">Source document</h2>
+          <h2 className="mb-3 font-sans text-2xl">Source document</h2>
           {rfq ? (
             <details className="group">
               <summary className="link-u cursor-pointer text-sm">
                 Show the RFQ text ({rfq.rfq_text.length.toLocaleString("en-GB")} characters)
               </summary>
-              <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-2xl border border-white/5 bg-black/40 p-4 font-mono text-xs leading-relaxed text-bone/70">
+              <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-2xl border border-slate-200 bg-slate-100 p-4 font-mono text-xs leading-relaxed text-slate-700">
                 {rfq.rfq_text}
               </pre>
             </details>
           ) : (
-            <p className="text-sm text-red-300">No RFQ text is linked to this opportunity.</p>
+            <p className="text-sm text-red-700">No RFQ text is linked to this opportunity.</p>
           )}
         </div>
-      </Reveal>
+      </div>
 
-      <Reveal>
+      <div>
         <div className="card space-y-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label-mono mb-3">Extraction</p>
-              <h2 className="font-serif text-3xl tracking-tight">Requirements</h2>
-              <p className="mt-2 text-sm text-white/50">
+              <h2 className="font-sans text-3xl tracking-tight">Requirements</h2>
+              <p className="mt-2 text-sm text-slate-500">
                 {reqs.length} requirement{reqs.length === 1 ? "" : "s"} saved · {mappedCount} mapped to a section
               </p>
             </div>
@@ -354,25 +401,25 @@ export default function OpportunityPage() {
           </div>
 
           {extracting && (
-            <div className="breathing-panel flex items-center gap-4 rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.03] p-5">
-              <BreathingLoader label="Reading the RFQ and extracting requirements" />
+            <div className=" flex items-center gap-4 rounded-2xl border border-blue-200 bg-blue-600/[0.03] p-5">
+              <p className="text-sm text-slate-600">Reading the RFQ and extracting requirements…</p>
             </div>
           )}
 
           {review && (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-              <p className="font-serif text-xl">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="font-sans text-xl">
                 Review: Gemini found {review.requirements.length} requirements. Saving replaces the current list.
               </p>
-              <div className="mt-3 space-y-1 text-sm text-white/60">
+              <div className="mt-3 space-y-1 text-sm text-slate-500">
                 <p>Buyer: {review.buyer ?? "not stated"}</p>
                 <p>Deadline: {review.deadline ?? "not stated"}</p>
                 <p>Scope: {review.scope ?? "not stated"}</p>
               </div>
-              <ol className="mt-4 max-h-80 list-decimal space-y-2 overflow-auto pl-5 text-sm text-bone/80">
+              <ol className="mt-4 max-h-80 list-decimal space-y-2 overflow-auto pl-5 text-sm text-slate-700">
                 {review.requirements.map((r) => (
                   <li key={r.number}>
-                    <span className="label-mono mr-1 !text-[9px] !text-emerald-400/80">[{r.category}]</span> {r.text}
+                    <span className="label-mono mr-1 !text-[9px] !text-blue-700/80">[{r.category}]</span> {r.text}
                   </li>
                 ))}
               </ol>
@@ -388,7 +435,7 @@ export default function OpportunityPage() {
           )}
 
           {reqs.length === 0 ? (
-            <p className="text-sm text-white/45">No requirements saved yet. Extract them from the RFQ text above.</p>
+            <p className="text-sm text-slate-500">No requirements saved yet. Extract them from the RFQ text above.</p>
           ) : (
             <div className="-mx-2 overflow-x-auto px-2">
               <table className="tbl">
@@ -398,7 +445,7 @@ export default function OpportunityPage() {
                       <input
                         type="checkbox"
                         aria-label="Select all requirements"
-                        className="h-4 w-4 accent-emerald-500"
+                        className="h-4 w-4 accent-blue-600"
                         checked={selected.size === reqs.length && reqs.length > 0}
                         onChange={(e) => setSelected(e.target.checked ? new Set(reqs.map((x) => x.id)) : new Set())}
                       />
@@ -411,12 +458,12 @@ export default function OpportunityPage() {
                 </thead>
                 <tbody>
                   {reqs.map((r) => (
-                    <tr key={r.id} className="transition-colors hover:bg-white/[0.02]">
+                    <tr key={r.id} className="transition-colors hover:bg-slate-50">
                       <td>
                         <input
                           type="checkbox"
                           aria-label={`Select requirement ${r.number}`}
-                          className="h-4 w-4 accent-emerald-500"
+                          className="h-4 w-4 accent-blue-600"
                           checked={selected.has(r.id)}
                           onChange={(e) =>
                             setSelected((prev) => {
@@ -428,9 +475,21 @@ export default function OpportunityPage() {
                           }
                         />
                       </td>
-                      <td className="tabular-nums text-white/50">{r.number}</td>
+                      <td className="tabular-nums text-slate-500">{r.number}</td>
                       <td>{r.text}</td>
-                      <td className="text-white/60">{r.category}</td>
+                      <td className="text-slate-500">
+                        {r.category}
+                        {(() => {
+                          const c = categoryConfidence(r.text, r.category);
+                          return (
+                            <span className={`ml-2 inline-flex rounded-full border px-2 py-0.5 text-xs ${
+                              c.level === "high" ? "border-emerald-200 text-emerald-700" : c.level === "medium" ? "border-blue-200 text-blue-700" : "border-amber-200 text-amber-700"
+                            }`} title={`${c.matches} category keyword match${c.matches === 1 ? "" : "es"} in the text`}>
+                              {CONFIDENCE_LABEL[c.level]}
+                            </span>
+                          );
+                        })()}
+                      </td>
                       <td>
                         <select
                           aria-label={`Response section for requirement ${r.number}`}
@@ -448,8 +507,8 @@ export default function OpportunityPage() {
                   ))}
                 </tbody>
               </table>
-              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-white/5 bg-black/30 p-3">
-                <span className="text-sm text-white/60">{selected.size} selected</span>
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-slate-100 p-3">
+                <span className="text-sm text-slate-500">{selected.size} selected</span>
                 <select
                   aria-label="Bulk response section"
                   className="input !min-h-[44px] !py-2 !text-sm"
@@ -465,19 +524,19 @@ export default function OpportunityPage() {
                   Apply to selected
                 </button>
               </div>
-              <p className="mt-4 text-sm text-white/60">
-                Coverage: <span className="font-serif text-lg text-bone">{mappedCount}</span> of {reqs.length} requirements mapped
+              <p className="mt-4 text-sm text-slate-500">
+                Coverage: <span className="font-sans text-lg text-slate-900">{mappedCount}</span> of {reqs.length} requirements mapped
               </p>
             </div>
           )}
         </div>
-      </Reveal>
+      </div>
 
-      <Reveal>
+      <div>
         <div className="card space-y-4">
           <p className="label-mono">Bulk import</p>
-          <h2 className="font-serif text-2xl">Paste requirements as CSV</h2>
-          <p className="text-sm text-white/50">One per line: number,description,category (category: Technical, Commercial, Compliance, Delivery, Other). Header row optional.</p>
+          <h2 className="font-sans text-2xl">Paste requirements as CSV</h2>
+          <p className="text-sm text-slate-500">One per line: number,description,category (category: Technical, Commercial, Compliance, Delivery, Other). Header row optional.</p>
           <textarea
             aria-label="CSV of requirements"
             className="input min-h-[120px] font-mono text-xs"
@@ -489,16 +548,16 @@ export default function OpportunityPage() {
             {csvBusy ? "Importing..." : "Import CSV"}
           </button>
         </div>
-      </Reveal>
+      </div>
 
-      <Reveal>
+      <div>
         <div className="card space-y-6">
           <label className="block text-sm">
-            <span className="mb-1.5 block text-white/60">Submitting as</span>
+            <span className="mb-1.5 block text-slate-500">Submitting as</span>
             <select
               value={companyId}
               onChange={(e) => setCompanyId(e.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
             >
               <option value="">No contractor (generic voice)</option>
               {companies.map((c) => (
@@ -507,11 +566,11 @@ export default function OpportunityPage() {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1.5 block text-white/60">Document template</span>
+            <span className="mb-1.5 block text-slate-500">Document template</span>
             <select
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
             >
               <option value="">Plain document (no template)</option>
               {templates.map((t) => (
@@ -522,8 +581,8 @@ export default function OpportunityPage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label-mono mb-3">Drafting</p>
-              <h2 className="font-serif text-3xl tracking-tight">Response sections</h2>
-              <p className="mt-2 text-sm text-white/50">{draftedCount} of {SECTIONS.length} sections drafted</p>
+              <h2 className="font-sans text-3xl tracking-tight">Response sections</h2>
+              <p className="mt-2 text-sm text-slate-500">{draftedCount} of {SECTIONS.length} sections drafted</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <button type="button" className="btn-primary" disabled={generating || mappedCount === 0} onClick={runGenerate}>
@@ -539,34 +598,34 @@ export default function OpportunityPage() {
           </div>
 
           {generating && (
-            <div className="breathing-panel flex items-center gap-4 rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.03] p-5">
-              <BreathingLoader label="Drafting each section from its mapped requirements" />
+            <div className=" flex items-center gap-4 rounded-2xl border border-blue-200 bg-blue-600/[0.03] p-5">
+              <p className="text-sm text-slate-600">Drafting each section from its mapped requirements…</p>
             </div>
           )}
 
-          {mappedCount === 0 && <p className="text-sm text-white/45">Map at least one requirement to a section before generating drafts.</p>}
+          {mappedCount === 0 && <p className="text-sm text-slate-500">Map at least one requirement to a section before generating drafts.</p>}
 
           <div className="grid gap-4 md:grid-cols-2">
             {SECTIONS.map((s: Section) => {
               const d = drafts.find((x) => x.section === s);
               const mapped = reqs.filter((r) => r.section === s).length;
               return (
-                <div key={s} className="shimmer-border glass rounded-3xl p-6">
+                <div key={s} className=" glass rounded-3xl p-6">
                   <div className="flex items-baseline justify-between gap-3">
-                    <h3 className="font-serif text-xl">{s}</h3>
+                    <h3 className="font-sans text-xl">{s}</h3>
                     <span className="label-mono !text-[9px]">{mapped} mapped</span>
                   </div>
                   {d?.draft?.trim() ? (
-                    <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-bone/75">{d.draft}</div>
+                    <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{d.draft}</div>
                   ) : (
-                    <p className="mt-4 text-sm italic text-white/35">Not drafted yet.</p>
+                    <p className="mt-4 text-sm italic text-slate-500">Not drafted yet.</p>
                   )}
                 </div>
               );
             })}
           </div>
         </div>
-      </Reveal>
+      </div>
 
       <QualificationPanel oppId={opp.id} onMessage={setMessage} />
       <OutcomePanel opp={opp} onSaved={() => load()} onMessage={setMessage} />

@@ -62,8 +62,8 @@ export default function TeamPage() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Team</p>
-        <h1 className="font-serif text-4xl tracking-tight">Your team</h1>
-        <p className="mt-2 text-sm text-white/50">Invite bidders and approvers. Roles: owner, bidder, approver.</p>
+        <h1 className="font-sans text-4xl tracking-tight">Your team</h1>
+        <p className="mt-2 text-sm text-slate-500">Invite bidders and approvers. Roles: owner, bidder, approver.</p>
       </div>
 
       <Reveal>
@@ -88,9 +88,9 @@ export default function TeamPage() {
               {busy ? "Inviting" : "Invite"}
             </button>
           </div>
-          <p className="mt-3 text-xs text-white/40">Invite emails ship with notifications. For now the invite is saved as pending.</p>
+          <p className="mt-3 text-xs text-slate-500">Invite emails ship with notifications. For now the invite is saved as pending.</p>
           {message && (
-            <p className={`mt-3 text-sm ${message.kind === "ok" ? "text-emerald-300" : "text-red-300"}`}>{message.text}</p>
+            <p className={`mt-3 text-sm ${message.kind === "ok" ? "text-blue-700" : "text-red-700"}`}>{message.text}</p>
           )}
         </form>
       </Reveal>
@@ -98,14 +98,14 @@ export default function TeamPage() {
       {members === null ? (
         <BreathingLoader label="Loading team" />
       ) : members.length === 0 ? (
-        <div className="glass rounded-3xl p-8 text-center text-sm text-white/50">No team members yet. Invite someone above.</div>
+        <div className="glass rounded-3xl p-8 text-center text-sm text-slate-500">No team members yet. Invite someone above.</div>
       ) : (
         <ul className="space-y-3">
           {members.map((m) => (
             <li key={m.id} className="glass flex flex-col gap-3 rounded-2xl p-5 sm:flex-row sm:items-center">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{m.member_email}</p>
-                <p className="text-xs uppercase tracking-[0.2em] text-white/40">{m.role} · {m.status}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{m.role} · {m.status}</p>
               </div>
               <button type="button" className="btn-secondary self-start sm:self-auto" onClick={() => remove(m.id)}>
                 Remove

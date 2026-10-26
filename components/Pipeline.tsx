@@ -18,10 +18,10 @@ export function Pipeline({ current, disabled, onChange }: PipelineProps) {
         const isActive = i === currentIndex;
         const isDone = i < currentIndex;
         const tone = isActive
-          ? "border-white bg-white text-black animate-glow-pulse"
+          ? "border-slate-200 bg-blue-600 text-white "
           : isDone
-          ? "border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-300"
-          : "border-white/10 bg-white/[0.02] text-bone/60 hover:border-white/25 hover:text-bone";
+          ? "border-blue-200 bg-blue-600/[0.06] text-blue-700"
+          : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-200 hover:text-slate-900";
         return (
           <li key={stage}>
             <button

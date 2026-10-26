@@ -73,16 +73,16 @@ export async function rest<T = unknown>(
 
 // Auth admin calls (GoTrue) with the service key.
 export async function authCall(
-  method: "POST",
+  method: "GET" | "POST" | "PUT",
   path: string,
-  body: unknown
+  body?: unknown
 ): Promise<{ ok: boolean; status: number; data: any }> {
   if (!isConfigured()) throw notConfigured();
   const key = serviceKey();
   const res = await fetch(`${baseUrl()}/auth/v1${path}`, {
     method,
     headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: body === undefined ? undefined : JSON.stringify(body),
     cache: "no-store",
   });
   const text = await res.text();

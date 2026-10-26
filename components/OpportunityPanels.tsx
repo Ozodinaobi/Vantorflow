@@ -11,9 +11,9 @@ import type { Opportunity } from "@/lib/types";
 type Msg = { kind: "ok" | "error"; text: string } | null;
 
 const VERDICT_CLASS: Record<Verdict, string> = {
-  Qualified: "border-emerald-500/40 bg-emerald-500/[0.08] text-emerald-300",
-  Review: "border-white/20 bg-white/[0.04] text-bone",
-  Declined: "border-red-500/40 bg-red-500/[0.06] text-red-300",
+  Qualified: "border-blue-200 bg-blue-600/[0.08] text-blue-700",
+  Review: "border-slate-200 bg-slate-50 text-slate-900",
+  Declined: "border-red-200 bg-red-50 text-red-700",
 };
 
 // ---------- Qualification: 7 scored fields (1 to 5) + notes; verdict is computed on the server ----------
@@ -70,8 +70,8 @@ export function QualificationPanel({ oppId, onMessage }: { oppId: string; onMess
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="label-mono mb-3">Bid / no-bid</p>
-            <h2 className="font-serif text-3xl tracking-tight">Qualification</h2>
-            <p className="mt-2 text-sm text-white/50">Score each factor 1 (weak) to 5 (strong). The verdict is worked out from your scores.</p>
+            <h2 className="font-sans text-3xl tracking-tight">Qualification</h2>
+            <p className="mt-2 text-sm text-slate-500">Score each factor 1 (weak) to 5 (strong). The verdict is worked out from your scores.</p>
           </div>
           {verdict && (
             <span className={`rounded-full border px-4 py-2 text-xs uppercase tracking-wider ${VERDICT_CLASS[verdict.verdict]}`}>
@@ -82,7 +82,7 @@ export function QualificationPanel({ oppId, onMessage }: { oppId: string; onMess
 
         {loading && <BreathingLoader label="Loading qualification" />}
         {setupRequired && (
-          <p role="status" className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-white/60">
+          <p role="status" className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
             Qualification is coming online after setup. Run the FEATURES MIGRATION SQL once in Supabase, then reload.
           </p>
         )}
@@ -92,7 +92,7 @@ export function QualificationPanel({ oppId, onMessage }: { oppId: string; onMess
             {QUAL_FIELDS.map((f) => (
               <fieldset key={f.key} className="space-y-2">
                 <legend className="text-sm">{f.label}</legend>
-                <p className="text-xs text-white/40">{f.hint}</p>
+                <p className="text-xs text-slate-500">{f.hint}</p>
                 <div className="grid grid-cols-5 gap-2" role="radiogroup" aria-label={f.label}>
                   {[1, 2, 3, 4, 5].map((n) => {
                     const on = scores[f.key] === n;
@@ -104,7 +104,7 @@ export function QualificationPanel({ oppId, onMessage }: { oppId: string; onMess
                         aria-checked={on}
                         onClick={() => setScores((s) => ({ ...s, [f.key]: n }))}
                         className={`min-h-[44px] rounded-2xl border text-sm tabular-nums transition-colors duration-300 ${
-                          on ? "border-emerald-400 bg-emerald-500/15 text-emerald-200" : "border-white/10 bg-white/[0.02] text-bone/60 hover:border-white/25"
+                          on ? "border-blue-600 bg-blue-50 text-blue-700" : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-200"
                         }`}
                       >
                         {n}
@@ -116,25 +116,25 @@ export function QualificationPanel({ oppId, onMessage }: { oppId: string; onMess
             ))}
 
             <label className="block text-sm">
-              <span className="mb-1.5 block text-white/60">Notes</span>
+              <span className="mb-1.5 block text-slate-500">Notes</span>
               <textarea
                 rows={3}
                 maxLength={2000}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
               />
             </label>
 
             {preview && (
-              <p className="text-sm text-white/60">
-                Current scores give <span className="text-bone">{preview.verdict}</span>: {preview.reason}
+              <p className="text-sm text-slate-500">
+                Current scores give <span className="text-slate-900">{preview.verdict}</span>: {preview.reason}
               </p>
             )}
             <button type="submit" disabled={saving || !complete} className="btn-primary">
               {saving ? "Saving" : "Save qualification"}
             </button>
-            {!complete && <p className="text-xs text-white/40">Score all seven factors to save.</p>}
+            {!complete && <p className="text-xs text-slate-500">Score all seven factors to save.</p>}
           </form>
         )}
       </div>
@@ -172,9 +172,9 @@ export function OutcomePanel({ opp, onSaved, onMessage }: { opp: Opportunity; on
       <form onSubmit={save} className="card space-y-5">
         <div>
           <p className="label-mono mb-3">Outcome</p>
-          <h2 className="font-serif text-3xl tracking-tight">Won or lost?</h2>
+          <h2 className="font-sans text-3xl tracking-tight">Won or lost?</h2>
           {opp.outcome_result && (
-            <p className="mt-2 text-sm text-white/50">
+            <p className="mt-2 text-sm text-slate-500">
               Recorded as {opp.outcome_result} {opp.outcome_at ? `on ${formatDateTime(opp.outcome_at)}` : ""}
             </p>
           )}
@@ -187,7 +187,7 @@ export function OutcomePanel({ opp, onSaved, onMessage }: { opp: Opportunity; on
               aria-pressed={result === r}
               onClick={() => setResult(r)}
               className={`min-h-[44px] rounded-2xl border text-sm transition-colors ${
-                result === r ? (r === "Won" ? "border-emerald-400 bg-emerald-500/15 text-emerald-200" : "border-white bg-white text-black") : "border-white/10 text-bone/60"
+                result === r ? (r === "Won" ? "border-blue-600 bg-blue-50 text-blue-700" : "border-slate-200 bg-blue-600 text-white") : "border-slate-200 text-slate-700"
               }`}
             >
               {r}
@@ -195,8 +195,8 @@ export function OutcomePanel({ opp, onSaved, onMessage }: { opp: Opportunity; on
           ))}
         </div>
         <label className="block text-sm">
-          <span className="mb-1.5 block text-white/60">Reason</span>
-          <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50">
+          <span className="mb-1.5 block text-slate-500">Reason</span>
+          <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200">
             <option value="">Choose a reason</option>
             {OUTCOME_REASONS.map((r) => (
               <option key={r}>{r}</option>
@@ -204,8 +204,8 @@ export function OutcomePanel({ opp, onSaved, onMessage }: { opp: Opportunity; on
           </select>
         </label>
         <label className="block text-sm">
-          <span className="mb-1.5 block text-white/60">Notes</span>
-          <textarea rows={2} maxLength={2000} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50" />
+          <span className="mb-1.5 block text-slate-500">Notes</span>
+          <textarea rows={2} maxLength={2000} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200" />
         </label>
         <button type="submit" disabled={saving || !result} className="btn-primary">{saving ? "Saving" : "Save outcome"}</button>
       </form>
@@ -270,7 +270,7 @@ export function ApprovalPanel({ oppId, onMessage }: { oppId: string; onMessage: 
 
   const status: string = approval?.status ?? "None";
   const statusClass =
-    status === "Approved" ? "border-emerald-500/40 text-emerald-300" : status === "Rejected" ? "border-red-500/40 text-red-300" : status === "Requested" ? "border-white/30 text-bone" : "border-white/10 text-white/40";
+    status === "Approved" ? "border-blue-200 text-blue-700" : status === "Rejected" ? "border-red-200 text-red-700" : status === "Requested" ? "border-slate-200 text-slate-900" : "border-slate-200 text-slate-500";
 
   return (
     <Reveal>
@@ -278,14 +278,14 @@ export function ApprovalPanel({ oppId, onMessage }: { oppId: string; onMessage: 
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="label-mono mb-3">Sign-off</p>
-            <h2 className="font-serif text-3xl tracking-tight">Approvals</h2>
+            <h2 className="font-sans text-3xl tracking-tight">Approvals</h2>
           </div>
           <span className={`rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-wider ${statusClass}`}>{status === "None" ? "Not requested" : status}</span>
         </div>
 
         {loading && <BreathingLoader label="Loading approvals" />}
         {setupRequired && (
-          <p role="status" className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-white/60">
+          <p role="status" className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
             Approvals are coming online after setup. Run the FEATURES MIGRATION SQL once in Supabase, then reload.
           </p>
         )}
@@ -293,10 +293,10 @@ export function ApprovalPanel({ oppId, onMessage }: { oppId: string; onMessage: 
         {!loading && !setupRequired && (
           <>
             {approval?.requested_note && (
-              <p className="text-sm text-white/60">Request note: {approval.requested_note}</p>
+              <p className="text-sm text-slate-500">Request note: {approval.requested_note}</p>
             )}
             {approval?.decided_at && (
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-slate-500">
                 {approval.status} by {approval.signature} on {formatDateTime(approval.decided_at)}
                 {approval.decision_note ? ` · ${approval.decision_note}` : ""}
               </p>
@@ -305,8 +305,8 @@ export function ApprovalPanel({ oppId, onMessage }: { oppId: string; onMessage: 
             {status !== "Requested" && (
               <form onSubmit={request} className="space-y-3">
                 <label className="block text-sm">
-                  <span className="mb-1.5 block text-white/60">Request approval: note</span>
-                  <textarea rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50" />
+                  <span className="mb-1.5 block text-slate-500">Request approval: note</span>
+                  <textarea rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200" />
                 </label>
                 <button type="submit" disabled={busy} className="btn-secondary">Request approval</button>
               </form>
@@ -315,8 +315,8 @@ export function ApprovalPanel({ oppId, onMessage }: { oppId: string; onMessage: 
             {status === "Requested" && (
               <div className="space-y-3">
                 <label className="block text-sm">
-                  <span className="mb-1.5 block text-white/60">Signature (type your full name)</span>
-                  <input value={signature} onChange={(e) => setSignature(e.target.value)} maxLength={120} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-emerald-500/50" />
+                  <span className="mb-1.5 block text-slate-500">Signature (type your full name)</span>
+                  <input value={signature} onChange={(e) => setSignature(e.target.value)} maxLength={120} className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200" />
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button type="button" disabled={busy} onClick={() => decide("Approved")} className="btn-primary">Approve</button>
@@ -364,26 +364,26 @@ export function AssistantPanel({ oppId }: { oppId: string }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open the assistant"
-        className="fixed bottom-24 right-4 z-40 flex h-14 items-center gap-2 rounded-full border border-emerald-500/40 bg-ink/90 px-5 text-sm backdrop-blur-xl animate-glow-pulse md:bottom-8 md:right-8"
+        className="fixed bottom-24 right-4 z-40 flex h-14 items-center gap-2 rounded-full border border-blue-200 bg-slate-50/90 px-5 text-sm backdrop-blur-xl  md:bottom-8 md:right-8"
       >
-        <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+        <span className="h-2 w-2 rounded-full bg-blue-600" aria-hidden="true" />
         Assistant
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} aria-hidden="true" />
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setOpen(false)} aria-hidden="true" />
           <aside
             role="dialog"
             aria-modal="true"
             aria-label="Assistant"
-            className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-white/10 bg-ink/90 p-6 backdrop-blur-2xl sm:max-w-md"
+            className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-slate-200 bg-slate-50/90 p-6 backdrop-blur-2xl sm:max-w-md"
           >
             <div className="flex items-center justify-between">
-              <p className="font-serif text-2xl">Assistant</p>
-              <button type="button" onClick={() => setOpen(false)} className="min-h-[44px] rounded-full border border-white/10 px-4 text-sm">Close</button>
+              <p className="font-sans text-2xl">Assistant</p>
+              <button type="button" onClick={() => setOpen(false)} className="min-h-[44px] rounded-full border border-slate-200 px-4 text-sm">Close</button>
             </div>
-            <p className="mt-2 text-xs text-white/40">Answers use this opportunity&apos;s requirements, sections, readiness and stage.</p>
+            <p className="mt-2 text-xs text-slate-500">Answers use this opportunity&apos;s requirements, sections, readiness and stage.</p>
 
             <div className="mt-6 flex flex-col gap-2">
               {PROMPTS.map((p) => (
@@ -392,7 +392,7 @@ export function AssistantPanel({ oppId }: { oppId: string }) {
                   type="button"
                   disabled={busy !== null}
                   onClick={() => ask(p.key, p.label)}
-                  className="min-h-[44px] rounded-2xl border border-white/10 px-4 text-left text-sm transition-colors hover:border-white/25 disabled:opacity-50"
+                  className="min-h-[44px] rounded-2xl border border-slate-200 px-4 text-left text-sm transition-colors hover:border-slate-200 disabled:opacity-50"
                 >
                   {p.label}
                 </button>
@@ -401,25 +401,25 @@ export function AssistantPanel({ oppId }: { oppId: string }) {
 
             <div className="mt-6 flex-1 overflow-y-auto">
               {busy && <BreathingLoader label="Reading the opportunity" />}
-              {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
+              {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
               {answer && (
                 <div className="space-y-3">
                   <p className="label-mono">{answer.q}</p>
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/80">{answer.text}</p>
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{answer.text}</p>
                 </div>
               )}
             </div>
 
             <div className="mt-4">
-              <label className="block text-xs text-white/40" htmlFor="assistant-free">Free text</label>
+              <label className="block text-xs text-slate-500" htmlFor="assistant-free">Free text</label>
               <input
                 id="assistant-free"
                 disabled
                 aria-describedby="assistant-free-note"
                 placeholder="Unavailable"
-                className="mt-2 w-full cursor-not-allowed rounded-2xl border border-white/5 bg-white/[0.02] px-4 py-3 text-sm text-white/30"
+                className="mt-2 w-full cursor-not-allowed rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500"
               />
-              <p id="assistant-free-note" className="mt-2 text-xs text-white/35">Free text is unavailable. Use the guided questions above.</p>
+              <p id="assistant-free-note" className="mt-2 text-xs text-slate-500">Free text is unavailable. Use the guided questions above.</p>
             </div>
           </aside>
         </div>
