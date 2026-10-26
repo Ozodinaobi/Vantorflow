@@ -1,5 +1,6 @@
-import CommandSearch from "@/components/CommandSearch";
 "use client";
+
+import CommandSearch from "@/components/CommandSearch";
 
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
