@@ -259,6 +259,33 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
     }
   }
 
+  const [price, setPrice] = useState({ bidPrice: "", competitorAverage: "", marginPct: "", minMarginPct: "15" });
+  const [priceResult, setPriceResult] = useState<{ score: number; reasons: string[] } | null>(null);
+  const [pricing, setPricing] = useState(false);
+
+  async function checkPrice(e: FormEvent) {
+    e.preventDefault();
+    setPricing(true);
+    try {
+      const d = await api<any>(`/api/opportunities/${oppId}/price-check`, {
+        method: "POST",
+        body: {
+          bidPrice: Number(price.bidPrice) || 0,
+          competitorAverage: Number(price.competitorAverage) || 0,
+          marginPct: Number(price.marginPct) || 0,
+          minMarginPct: Number(price.minMarginPct) || 15,
+        },
+      });
+      setPriceResult(d);
+      setCriteria((prev) => (prev ? prev.map((c) => (c.key === "pricing" ? { ...c, score: d.score } : c)) : prev));
+      onMessage({ kind: "ok", text: `Pricing scored ${d.score} of 5 from your numbers. Save the matrix to apply it.` });
+    } catch (err) {
+      onMessage({ kind: "error", text: errorText(err) });
+    } finally {
+      setPricing(false);
+    }
+  }
+
   return (
     <Shell title="Go / No-Go matrix">
       {!criteria ? (
@@ -278,6 +305,25 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
               </label>
             </div>
           ))}
+          <div className="rounded-xl border border-slate-200 p-3">
+            <p className="mb-2 text-xs text-slate-500">Pricing from real numbers (optional). Fills the pricing score.</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {([["bidPrice", "Our bid"], ["competitorAverage", "Competitor avg"], ["marginPct", "Our margin %"], ["minMarginPct", "Min margin %"]] as const).map(([k, label]) => (
+                <label key={k} className="text-xs text-slate-500">
+                  {label}
+                  <input type="number" min="0" inputMode="decimal" value={price[k]} onChange={(e) => setPrice({ ...price, [k]: e.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-slate-100 px-2 text-slate-900" />
+                </label>
+              ))}
+            </div>
+            <button type="button" onClick={checkPrice} disabled={pricing} className="mt-3 min-h-11 rounded-xl border border-emerald-500/40 px-4 text-sm text-emerald-600 disabled:opacity-50">
+              {pricing ? "Checking..." : "Check price"}
+            </button>
+            {priceResult && (
+              <ul className="mt-2 list-disc pl-5 text-xs text-slate-600">
+                {priceResult.reasons.map((r) => <li key={r}>{r}</li>)}
+              </ul>
+            )}
+          </div>
           <div className="flex flex-wrap items-center gap-4">
             <button type="submit" disabled={saving} className="min-h-11 rounded-xl bg-emerald-500 px-5 text-sm font-medium text-[#050505] disabled:opacity-50">
               {saving ? "Saving..." : "Score it"}

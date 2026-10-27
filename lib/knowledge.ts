@@ -125,5 +125,28 @@ export function checkPrice(bidPrice: number, competitorAverage: number, floor: n
   return { flags };
 }
 
+
+// Pricing score from real numbers. Inputs: our bid price, the competitor average (same currency),
+// our margin % on that bid, and the minimum margin we accept. Returns 1 to 5 and the reasons.
+export interface PricingInput { bidPrice: number; competitorAverage: number; marginPct: number; minMarginPct: number }
+export function scorePricing(input: PricingInput): { score: number; reasons: string[] } {
+  const reasons: string[] = [];
+  let score = 5;
+  const { bidPrice, competitorAverage, marginPct, minMarginPct } = input;
+  if (bidPrice > 0 && competitorAverage > 0) {
+    const diff = (bidPrice - competitorAverage) / competitorAverage;
+    if (diff <= -0.2) { score -= 2; reasons.push("More than 20% below the competitor average."); }
+    else if (diff < -0.1) { reasons.push("10 to 20% below the competitor average. Competitive."); }
+    else if (diff >= 0.15) { score -= 2; reasons.push("More than 15% above the competitor average."); }
+    else if (diff > 0.05) { score -= 1; reasons.push("5 to 15% above the competitor average."); }
+    else reasons.push("Within 5% of the competitor average.");
+  } else {
+    reasons.push("No competitor average entered, so the price position is not scored.");
+  }
+  if (marginPct < minMarginPct) { score -= 2; reasons.push(`Margin ${marginPct}% is below your minimum ${minMarginPct}%.`); }
+  else reasons.push(`Margin ${marginPct}% meets your minimum ${minMarginPct}%.`);
+  return { score: Math.max(1, Math.min(5, score)), reasons };
+}
+
 // Compliance matrix columns (Proposit + Responsive): status is fully / partially / not compliant.
 export const COMPLIANCE_COLUMNS = ["Requirement ID", "Requirement text (verbatim)", "Source (section/page)", "Type (mandatory/scored/admin)", "Status (fully/partially/not compliant)", "Response location", "Owner", "Evidence", "Notes"] as const;

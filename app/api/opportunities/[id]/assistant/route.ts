@@ -78,13 +78,22 @@ export async function POST(req: Request, { params }: Ctx) {
         : "(no requirements extracted yet)",
     ].join("\n");
 
+    const goRows = await rest<any[]>("GET", "vf_qualifications", {
+      query: `?opportunity_id=eq.${params.id}&user_id=eq.${auth.userId}&select=go_no_go_score,criterion_scores,verdict&limit=1`,
+    }).catch(() => [] as any[]);
+    const go = goRows[0];
+    const goLine = go && go.go_no_go_score !== null && go.go_no_go_score !== undefined
+      ? `Go/No-Go score: ${go.go_no_go_score}% (saved). Verdict: ${go.verdict ?? "n/a"}.`
+      : "Go/No-Go: not scored yet.";
+    const fullContext = `${context}\n${goLine}\nBid rules: a Go/No-Go below 65% is a NO-BID. Price more than 20% below the competitor average invites questions on capability. More than 15% above needs clear differentiation. Every mandatory requirement must be fully met.`;
+
     const prompt = [
       "You are Vantorflow's bid assistant for an internal tender team. Answer using ONLY the context below.",
       "Be concise: plain text, short numbered lines, no markdown headings, no bold. Maximum 180 words.",
       "If the context does not contain the answer, say what is missing rather than guessing.",
       "",
       "CONTEXT:",
-      context,
+      fullContext,
       "",
       `QUESTION: ${question}`,
     ].join("\n");
