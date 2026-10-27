@@ -37,7 +37,7 @@ export function SetupScreen({ missing, onRecheck }: { missing: string[]; onReche
         {copied ? "Copied" : "Copy the setup SQL"}
       </button>
       {copyError && <p className="text-sm text-amber-700">Copy was blocked. Select the text below and copy it by hand.</p>}
-      <textarea readOnly className="input h-48 font-mono text-xs" value={SCHEMA_SQL} onFocus={(e) => e.currentTarget.select()} />
+      <textarea readOnly className="input h-48 font-sans text-xs" value={SCHEMA_SQL} onFocus={(e) => e.currentTarget.select()} />
       <button type="button" className="btn-secondary w-full" onClick={onRecheck}>
         I have run it
       </button>

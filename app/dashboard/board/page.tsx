@@ -71,21 +71,22 @@ export default function BoardPage() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Pipeline</p>
-        <h1 className="font-sans text-4xl font-medium tracking-tighter sm:text-5xl">Board</h1>
+        <p className="label-mono">Pipeline</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Board</h1>
         <p className="mt-3 text-sm text-slate-500">
           Drag a card to another stage on desktop, or use the move buttons on mobile. Every move is saved.
         </p>
       </div>
 
       {error && (
-        <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error}
         </p>
       )}
 
       {rows && rows.length === 0 && (
-        <div className="glass rounded-3xl border-dashed p-10 text-center">
-          <p className="font-sans text-2xl">Nothing on the board yet</p>
+        <div className="glass rounded-xl border-dashed p-10 text-center">
+          <p className="font-serif text-2xl">Nothing on the board yet</p>
           <p className="mt-2 text-sm text-slate-500">Add an RFQ and its opportunity will appear in the Intake column.</p>
           <Link href="/dashboard/new" className="btn-primary mt-6">Add an RFQ</Link>
         </div>
@@ -103,8 +104,8 @@ export default function BoardPage() {
                   ref={(el) => {
                     columnRefs.current[stage] = el;
                   }}
-                  className={`glass flex min-h-[200px] flex-col rounded-3xl p-3 transition-colors duration-500 ${
-                    hot ? "border-blue-200 bg-blue-600/[0.05]" : ""
+                  className={`glass flex min-h-[200px] flex-col rounded-xl p-3 transition-colors duration-500 ${
+                    hot ? "border-emerald-500/30 bg-emerald-500/[0.05]" : ""
                   }`}
                 >
                   <div className="mb-3 flex items-center justify-between px-2">
@@ -157,16 +158,16 @@ function BoardCard({
     tone === "overdue" || tone === "urgent"
       ? "border-red-200 text-red-700"
       : tone === "soon"
-      ? "border-blue-200 text-blue-700 "
+      ? "border-emerald-500/30 text-emerald-400 "
       : "border-slate-200 text-slate-500";
   return (
     <div
       onPointerDown={onPointerDown}
-      className={`glass touch-pan-y rounded-2xl border border-slate-200 p-4 transition-opacity duration-300 ${
+      className={`glass touch-pan-y rounded-xl border border-slate-200 p-4 transition-opacity duration-300 ${
         dragging ? "opacity-50" : ""
       } ${saving ? "opacity-60" : ""}`}
     >
-      <Link href={`/dashboard/${opp.id}`} className="font-sans text-base leading-snug hover:underline">
+      <Link href={`/dashboard/${opp.id}`} className="font-serif text-base leading-snug hover:underline">
         {opp.title}
       </Link>
       <p className="mt-1 truncate text-xs text-slate-500">{opp.buyer || "no buyer"}</p>

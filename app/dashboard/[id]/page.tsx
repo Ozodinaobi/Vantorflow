@@ -307,8 +307,8 @@ export default function OpportunityPage() {
   if (loading) return <LoadingBlock label="Loading opportunity" />;
   if (notFound || !opp) {
     return (
-      <div className="glass rounded-3xl p-8">
-        <p className="font-sans text-2xl">Opportunity not found.</p>
+      <div className="glass rounded-xl p-8">
+        <p className="font-serif text-2xl">Opportunity not found.</p>
         {message && <p className="mt-2 text-sm text-red-700">{message.text}</p>}
         <Link href="/dashboard" className="btn-secondary mt-6">Back to opportunities</Link>
       </div>
@@ -329,7 +329,7 @@ export default function OpportunityPage() {
               Buyer: {opp.buyer} · Deadline: {formatDate(opp.deadline)} · Last updated: {formatDateTime(opp.updated_at)}
             </p>
             <span className={`mt-3 inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-wider ${
-              ["overdue","urgent"].includes(deadlineTone(daysUntil(opp.deadline))) ? "border-red-200 text-red-700" : deadlineTone(daysUntil(opp.deadline)) === "soon" ? "border-blue-200 text-blue-700" : "border-slate-200 text-slate-500"
+              ["overdue","urgent"].includes(deadlineTone(daysUntil(opp.deadline))) ? "border-red-200 text-red-700" : deadlineTone(daysUntil(opp.deadline)) === "soon" ? "border-emerald-500/30 text-emerald-400" : "border-slate-200 text-slate-500"
             }`}>{countdownLabel(daysUntil(opp.deadline))}</span>
           </div>
           <div className="flex flex-col items-end gap-3">
@@ -349,9 +349,9 @@ export default function OpportunityPage() {
       {message && (
         <p
           role="status"
-          className={`rounded-2xl border p-4 text-sm ${
+          className={`rounded-xl border p-4 text-sm ${
             message.kind === "ok"
-              ? "border-blue-200 bg-blue-600/[0.06] text-blue-700"
+              ? "border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-400"
               : "border-red-200 bg-red-50 text-red-700"
           }`}
         >
@@ -369,13 +369,13 @@ export default function OpportunityPage() {
       <div>
         <div className="card">
           <p className="label-mono mb-3">RFQ text</p>
-          <h2 className="mb-3 font-sans text-2xl">Source document</h2>
+          <h2 className="mb-3 font-serif text-2xl">Source document</h2>
           {rfq ? (
             <details className="group">
               <summary className="link-u cursor-pointer text-sm">
                 Show the RFQ text ({rfq.rfq_text.length.toLocaleString("en-GB")} characters)
               </summary>
-              <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-2xl border border-slate-200 bg-slate-100 p-4 font-mono text-xs leading-relaxed text-slate-700">
+              <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-100 p-4 font-sans text-xs leading-relaxed text-slate-700">
                 {rfq.rfq_text}
               </pre>
             </details>
@@ -390,7 +390,7 @@ export default function OpportunityPage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label-mono mb-3">Extraction</p>
-              <h2 className="font-sans text-3xl tracking-tight">Requirements</h2>
+              <h2 className="font-serif text-3xl tracking-tight">Requirements</h2>
               <p className="mt-2 text-sm text-slate-500">
                 {reqs.length} requirement{reqs.length === 1 ? "" : "s"} saved · {mappedCount} mapped to a section
               </p>
@@ -401,14 +401,14 @@ export default function OpportunityPage() {
           </div>
 
           {extracting && (
-            <div className=" flex items-center gap-4 rounded-2xl border border-blue-200 bg-blue-600/[0.03] p-5">
+            <div className=" flex items-center gap-4 rounded-xl border border-emerald-500/30 bg-emerald-500/[0.03] p-5">
               <p className="text-sm text-slate-600">Reading the RFQ and extracting requirements…</p>
             </div>
           )}
 
           {review && (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <p className="font-sans text-xl">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+              <p className="font-serif text-xl">
                 Review: {review.requirements.length} requirements found. Saving replaces the current list.
               </p>
               <div className="mt-3 space-y-1 text-sm text-slate-500">
@@ -419,7 +419,7 @@ export default function OpportunityPage() {
               <ol className="mt-4 max-h-80 list-decimal space-y-2 overflow-auto pl-5 text-sm text-slate-700">
                 {review.requirements.map((r) => (
                   <li key={r.number}>
-                    <span className="label-mono mr-1 !text-[9px] !text-blue-700/80">[{r.category}]</span> {r.text}
+                    <span className="label-mono mr-1 !text-[9px] !text-emerald-400/80">[{r.category}]</span> {r.text}
                   </li>
                 ))}
               </ol>
@@ -483,7 +483,7 @@ export default function OpportunityPage() {
                           const c = categoryConfidence(r.text, r.category);
                           return (
                             <span className={`ml-2 inline-flex rounded-full border px-2 py-0.5 text-xs ${
-                              c.level === "high" ? "border-emerald-200 text-emerald-700" : c.level === "medium" ? "border-blue-200 text-blue-700" : "border-amber-200 text-amber-700"
+                              c.level === "high" ? "border-emerald-200 text-emerald-700" : c.level === "medium" ? "border-emerald-500/30 text-emerald-400" : "border-amber-200 text-amber-700"
                             }`} title={`${c.matches} category keyword match${c.matches === 1 ? "" : "es"} in the text`}>
                               {CONFIDENCE_LABEL[c.level]}
                             </span>
@@ -507,7 +507,7 @@ export default function OpportunityPage() {
                   ))}
                 </tbody>
               </table>
-              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-slate-100 p-3">
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-slate-100 p-3">
                 <span className="text-sm text-slate-500">{selected.size} selected</span>
                 <select
                   aria-label="Bulk response section"
@@ -525,7 +525,7 @@ export default function OpportunityPage() {
                 </button>
               </div>
               <p className="mt-4 text-sm text-slate-500">
-                Coverage: <span className="font-sans text-lg text-slate-900">{mappedCount}</span> of {reqs.length} requirements mapped
+                Coverage: <span className="font-serif text-lg text-slate-900">{mappedCount}</span> of {reqs.length} requirements mapped
               </p>
             </div>
           )}
@@ -535,11 +535,11 @@ export default function OpportunityPage() {
       <div>
         <div className="card space-y-4">
           <p className="label-mono">Bulk import</p>
-          <h2 className="font-sans text-2xl">Paste requirements as CSV</h2>
+          <h2 className="font-serif text-2xl">Paste requirements as CSV</h2>
           <p className="text-sm text-slate-500">One per line: number,description,category (category: Technical, Commercial, Compliance, Delivery, Other). Header row optional.</p>
           <textarea
             aria-label="CSV of requirements"
-            className="input min-h-[120px] font-mono text-xs"
+            className="input min-h-[120px] font-sans text-xs"
             placeholder={"1,Provide ISO 9001 certificate,Compliance\n2,Deliver within 12 weeks,Delivery"}
             value={csvText}
             onChange={(e) => setCsvText(e.target.value)}
@@ -557,7 +557,7 @@ export default function OpportunityPage() {
             <select
               value={companyId}
               onChange={(e) => setCompanyId(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
+              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
             >
               <option value="">No contractor (generic voice)</option>
               {companies.map((c) => (
@@ -570,7 +570,7 @@ export default function OpportunityPage() {
             <select
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
+              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
             >
               <option value="">Plain document (no template)</option>
               {templates.map((t) => (
@@ -581,7 +581,7 @@ export default function OpportunityPage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label-mono mb-3">Drafting</p>
-              <h2 className="font-sans text-3xl tracking-tight">Response sections</h2>
+              <h2 className="font-serif text-3xl tracking-tight">Response sections</h2>
               <p className="mt-2 text-sm text-slate-500">{draftedCount} of {SECTIONS.length} sections drafted</p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -598,7 +598,7 @@ export default function OpportunityPage() {
           </div>
 
           {generating && (
-            <div className=" flex items-center gap-4 rounded-2xl border border-blue-200 bg-blue-600/[0.03] p-5">
+            <div className=" flex items-center gap-4 rounded-xl border border-emerald-500/30 bg-emerald-500/[0.03] p-5">
               <p className="text-sm text-slate-600">Drafting each section from its mapped requirements…</p>
             </div>
           )}
@@ -610,9 +610,9 @@ export default function OpportunityPage() {
               const d = drafts.find((x) => x.section === s);
               const mapped = reqs.filter((r) => r.section === s).length;
               return (
-                <div key={s} className=" glass rounded-3xl p-6">
+                <div key={s} className=" glass rounded-xl p-6">
                   <div className="flex items-baseline justify-between gap-3">
-                    <h3 className="font-sans text-xl">{s}</h3>
+                    <h3 className="font-serif text-xl">{s}</h3>
                     <span className="label-mono !text-[9px]">{mapped} mapped</span>
                   </div>
                   {d?.draft?.trim() ? (

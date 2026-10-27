@@ -18,9 +18,9 @@ export function Pipeline({ current, disabled, onChange }: PipelineProps) {
         const isActive = i === currentIndex;
         const isDone = i < currentIndex;
         const tone = isActive
-          ? "border-slate-200 bg-blue-600 text-white "
+          ? "border-slate-200 bg-emerald-500 text-white "
           : isDone
-          ? "border-blue-200 bg-blue-600/[0.06] text-blue-700"
+          ? "border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-400"
           : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-200 hover:text-slate-900";
         return (
           <li key={stage}>

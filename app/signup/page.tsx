@@ -36,12 +36,12 @@ export default function SignupPage() {
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center justify-center gap-2.5">
-          <LogoMark size={36} />
-          <span className="text-xl font-semibold text-slate-900">Vantorflow</span>
+          <LogoMark size={36} wordmark />
+          <span className="text-xl font-semibold text-ink">Vantorflow</span>
         </div>
         <div className="card">
-        <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
-        <p className="mt-1 text-sm text-slate-600">Start your bid workspace.</p>
+        <h1 className="text-2xl font-bold text-ink">Create your account</h1>
+        <p className="mt-1 text-sm text-muted">Start your bid workspace.</p>
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <label className="block text-sm">
             <span className="mb-1.5 block font-medium text-slate-700">Email</span>
@@ -51,14 +51,14 @@ export default function SignupPage() {
             <span className="mb-1.5 block font-medium text-slate-700">Password (6+ characters)</span>
             <input className="input" type="password" autoComplete="new-password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
           </label>
-          {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+          {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
           <button type="submit" disabled={busy} className="btn-primary w-full">
             {busy ? <BreathingLoader label="Creating account" /> : "Sign up"}
           </button>
         </form>
         </div>
-        <p className="mt-6 text-center text-sm text-slate-600">
-          Already have an account? <Link href="/login" className="font-medium text-blue-700 hover:underline">Log in</Link>
+        <p className="mt-6 text-center text-sm text-muted">
+          Already have an account? <Link href="/login" className="font-medium text-emerald-400 hover:underline">Log in</Link>
         </p>
       </div>
     </main>

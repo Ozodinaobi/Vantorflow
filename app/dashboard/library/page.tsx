@@ -70,19 +70,20 @@ export default function LibraryPage() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Reusable</p>
-        <h1 className="font-sans text-4xl font-medium tracking-tighter sm:text-5xl">Answer library</h1>
+        <p className="label-mono">Reusable</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Answer library</h1>
         <p className="mt-3 max-w-2xl text-sm text-slate-500">
           Save answers you have already approved. When a draft is written, matching answers are passed as context.
         </p>
       </div>
 
       {setupRequired && (
-        <p role="status" className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+        <p role="status" className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
           The answer library is coming online after setup. Run the FEATURES MIGRATION SQL once in Supabase, then reload.
         </p>
       )}
-      {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
-      {ok && <p role="status" className="rounded-2xl border border-blue-200 bg-blue-600/[0.06] p-4 text-sm text-blue-700">{ok}</p>}
+      {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
+      {ok && <p role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4 text-sm text-emerald-400">{ok}</p>}
 
       <Reveal>
         <form onSubmit={save} className="card space-y-4">
@@ -95,7 +96,7 @@ export default function LibraryPage() {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="e.g. Describe your quality management system"
-              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
+              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
             />
           </label>
           <label className="block text-sm">
@@ -106,7 +107,7 @@ export default function LibraryPage() {
               rows={5}
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
+              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
             />
           </label>
           <button type="submit" disabled={saving || setupRequired} className="btn-primary">
@@ -116,8 +117,8 @@ export default function LibraryPage() {
       </Reveal>
 
       {entries.length === 0 && !setupRequired && (
-        <div className="glass rounded-3xl border-dashed p-10 text-center">
-          <p className="font-sans text-2xl">No saved answers yet</p>
+        <div className="glass rounded-xl border-dashed p-10 text-center">
+          <p className="font-serif text-2xl">No saved answers yet</p>
           <p className="mt-2 text-sm text-slate-500">Save the answers you reuse most, like certifications or insurance.</p>
         </div>
       )}
@@ -125,9 +126,9 @@ export default function LibraryPage() {
       <div className="space-y-4">
         {entries.map((x) => (
           <Reveal key={x.id}>
-            <article className="glass rounded-3xl p-5 sm:p-6">
+            <article className="glass rounded-xl p-5 sm:p-6">
               <div className="flex items-start justify-between gap-4">
-                <h2 className="font-sans text-lg leading-snug">{x.question}</h2>
+                <h2 className="font-serif text-lg leading-snug">{x.question}</h2>
                 <button type="button" onClick={() => remove(x.id)} className="link-u shrink-0 text-xs text-slate-500">
                   Delete
                 </button>

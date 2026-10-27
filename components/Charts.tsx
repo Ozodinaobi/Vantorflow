@@ -10,7 +10,7 @@ export function BarChart({ bars }: { bars: { label: string; value: number }[] })
             <span className="tabular-nums text-slate-500">{b.value}</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-            <div className="h-full rounded-full bg-blue-600" style={{ width: `${(b.value / max) * 100}%` }} />
+            <div className="h-full rounded-full bg-emerald-500" style={{ width: `${(b.value / max) * 100}%` }} />
           </div>
         </li>
       ))}

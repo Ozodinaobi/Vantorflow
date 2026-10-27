@@ -31,11 +31,11 @@ export default async function SharePage({ params }: { params: { token: string } 
   if (error || !proposal) {
     return (
       <main className="min-h-screen bg-slate-50 px-6 py-24 text-slate-900">
-        <div className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-slate-50 p-8 text-center backdrop-blur-xl">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-700">Vantorflow</p>
-          <h1 className="mt-4 font-sans text-3xl">Link not available</h1>
+        <div className="mx-auto max-w-xl rounded-xl border border-slate-200 bg-slate-50 p-8 text-center backdrop-blur-xl">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-400">Vantorflow</p>
+          <h1 className="mt-4 font-serif text-3xl">Link not available</h1>
           <p className="mt-3 text-sm text-slate-500">{error}</p>
-          <Link href="/" className="mt-6 inline-block text-sm text-blue-700 underline">Back to Vantorflow</Link>
+          <Link href="/" className="mt-6 inline-block text-sm text-emerald-400 underline">Back to Vantorflow</Link>
         </div>
       </main>
     );
@@ -46,9 +46,9 @@ export default async function SharePage({ params }: { params: { token: string } 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-50 px-4 py-10 text-slate-900 sm:px-6">
       <div className="mx-auto max-w-3xl space-y-8">
-        <header className="rounded-3xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-700">Proposal, read only</p>
-          <h1 className="mt-3 font-sans text-3xl leading-tight sm:text-4xl">{proposal.title}</h1>
+        <header className="rounded-xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-400">Proposal, read only</p>
+          <h1 className="mt-3 font-serif text-3xl leading-tight sm:text-4xl">{proposal.title}</h1>
           <p className="mt-2 text-sm text-slate-500">Buyer: {proposal.buyer}</p>
           {proposal.deadline && <p className="text-sm text-slate-500">Deadline: {proposal.deadline}</p>}
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -63,8 +63,8 @@ export default async function SharePage({ params }: { params: { token: string } 
         <section className="space-y-4">
           <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sections</p>
           {proposal.sections.map((s) => (
-            <article key={s.section} className="rounded-3xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl">
-              <h2 className="font-sans text-2xl">{s.section}</h2>
+            <article key={s.section} className="rounded-xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl">
+              <h2 className="font-serif text-2xl">{s.section}</h2>
               {s.draft.trim() ? (
                 <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-700">
                   {s.draft.split(/\n\s*\n/).map((p, i) => (
@@ -78,7 +78,7 @@ export default async function SharePage({ params }: { params: { token: string } 
           ))}
         </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl">
+        <section className="rounded-xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl">
           <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Requirements</p>
           {proposal.requirements.length === 0 ? (
             <p className="mt-3 text-sm text-slate-500">No requirements yet.</p>
@@ -86,7 +86,7 @@ export default async function SharePage({ params }: { params: { token: string } 
             <ul className="mt-3 space-y-2 text-sm">
               {proposal.requirements.map((q) => (
                 <li key={q.number} className="break-words border-b border-slate-200 pb-2">
-                  <span className="text-blue-700">{q.number}.</span> {q.text}{" "}
+                  <span className="text-emerald-400">{q.number}.</span> {q.text}{" "}
                   <span className="text-slate-500">({q.category}{q.section ? `, ${q.section}` : ", not mapped"})</span>
                 </li>
               ))}
@@ -102,9 +102,9 @@ export default async function SharePage({ params }: { params: { token: string } 
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-100 p-4">
+    <div className="rounded-xl border border-slate-200 bg-slate-100 p-4">
       <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">{label}</p>
-      <p className="mt-1 font-sans text-xl">{value}</p>
+      <p className="mt-1 font-serif text-xl">{value}</p>
     </div>
   );
 }

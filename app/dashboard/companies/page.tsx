@@ -71,19 +71,20 @@ export default function CompaniesPage() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Registry</p>
-        <h1 className="font-sans text-4xl font-medium tracking-tighter sm:text-5xl">Companies</h1>
+        <p className="label-mono">Directory</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Companies</h1>
         <p className="mt-3 max-w-2xl text-sm text-slate-500">
           Companies and contractors you bid with. The generation dropdown on each opportunity uses this list.
         </p>
       </div>
 
       {setupRequired && (
-        <p role="status" className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+        <p role="status" className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
           The companies registry is coming online after setup. Run the FEATURES MIGRATION SQL once in Supabase, then reload.
         </p>
       )}
-      {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
-      {ok && <p role="status" className="rounded-2xl border border-blue-200 bg-blue-600/[0.06] p-4 text-sm text-blue-700">{ok}</p>}
+      {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
+      {ok && <p role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4 text-sm text-emerald-400">{ok}</p>}
 
       <Reveal>
         <form onSubmit={add} className="card grid gap-4 sm:grid-cols-2">
@@ -94,7 +95,7 @@ export default function CompaniesPage() {
               maxLength={200}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
+              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
             />
           </label>
           <label className="block text-sm">
@@ -102,7 +103,7 @@ export default function CompaniesPage() {
             <select
               value={form.kind}
               onChange={(e) => setForm({ ...form, kind: e.target.value })}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
+              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
             >
               {KINDS.map((k) => (
                 <option key={k}>{k}</option>
@@ -115,7 +116,7 @@ export default function CompaniesPage() {
               maxLength={300}
               value={form.contact}
               onChange={(e) => setForm({ ...form, contact: e.target.value })}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
+              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
             />
           </label>
           <label className="block text-sm">
@@ -124,7 +125,7 @@ export default function CompaniesPage() {
               maxLength={2000}
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-blue-200"
+              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
             />
           </label>
           <div className="sm:col-span-2">
@@ -136,8 +137,8 @@ export default function CompaniesPage() {
       </Reveal>
 
       {rows.length === 0 && !setupRequired && (
-        <div className="glass rounded-3xl border-dashed p-10 text-center">
-          <p className="font-sans text-2xl">No companies yet</p>
+        <div className="glass rounded-xl border-dashed p-10 text-center">
+          <p className="font-serif text-2xl">No companies yet</p>
           <p className="mt-2 text-sm text-slate-500">Add the companies and contractors you bid with.</p>
         </div>
       )}
@@ -145,9 +146,9 @@ export default function CompaniesPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {rows.map((c) => (
           <Reveal key={c.id}>
-            <article className="glass rounded-3xl p-5">
+            <article className="glass rounded-xl p-5">
               <div className="flex items-start justify-between gap-3">
-                <h2 className="font-sans text-lg leading-snug">{c.name}</h2>
+                <h2 className="font-serif text-lg leading-snug">{c.name}</h2>
                 <span className="label-mono shrink-0 rounded-full border border-slate-200 px-2.5 py-1 !text-[9px]">{c.kind}</span>
               </div>
               {c.contact && <p className="mt-2 break-words text-sm text-slate-500">{c.contact}</p>}

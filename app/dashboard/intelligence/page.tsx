@@ -38,11 +38,12 @@ export default function IntelligencePage() {
     <section className="space-y-6">
       <div>
         <p className="label-mono mb-1">Intelligence</p>
-        <h1 className="text-2xl font-semibold sm:text-3xl">Pipeline intelligence</h1>
+        <p className="label-mono">Analytics</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Pipeline intelligence</h1>
         <p className="mt-2 text-sm text-slate-500">Computed from your saved opportunities and requirements.</p>
       </div>
 
-      {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
+      {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
 
       {data && data.totals.opportunities === 0 && (
         <div className="card text-center">

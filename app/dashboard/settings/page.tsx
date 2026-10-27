@@ -79,7 +79,8 @@ export default function SettingsPage() {
     <section className="space-y-6">
       <div>
         <p className="label-mono mb-1">Settings</p>
-        <h1 className="text-2xl font-semibold sm:text-3xl">Settings</h1>
+        <p className="label-mono">Account</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Settings</h1>
       </div>
 
       <div className="card">
@@ -140,7 +141,7 @@ export default function SettingsPage() {
           Setup steps are in EMAIL_IN_SETUP.md in the repo.
         </p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-          <code className="min-w-0 flex-1 break-all rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
+          <code className="min-w-0 flex-1 break-all rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
             {ingestUrl}
           </code>
           <button type="button" className="btn-secondary" onClick={copy}>

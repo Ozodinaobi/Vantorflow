@@ -48,7 +48,8 @@ export default function NotificationsPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label-mono mb-3">Notifications</p>
-          <h1 className="font-sans text-4xl tracking-tight">Notification center</h1>
+          <p className="label-mono">Inbox</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Notification center</h1>
           <p className="mt-2 text-sm text-slate-500">{unread} unread. Email digests are coming; they are not sent yet.</p>
         </div>
         {unread > 0 && (
@@ -61,14 +62,14 @@ export default function NotificationsPage() {
       {notes === null ? (
         <BreathingLoader label="Loading notifications" />
       ) : notes.length === 0 ? (
-        <div className="glass rounded-3xl p-8 text-center text-sm text-slate-500">
+        <div className="glass rounded-xl p-8 text-center text-sm text-slate-500">
           Nothing yet. Deadlines, stage changes and approvals will appear here.
         </div>
       ) : (
         <ul className="space-y-3">
           {notes.map((n, i) => (
             <Reveal key={n.id} delay={Math.min(i, 8) * 40}>
-              <li className={`glass flex flex-col gap-2 rounded-2xl p-5 sm:flex-row sm:items-start ${n.read ? "opacity-60" : ""}`}>
+              <li className={`glass flex flex-col gap-2 rounded-xl p-5 sm:flex-row sm:items-start ${n.read ? "opacity-60" : ""}`}>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{n.title}</p>
                   {n.body && <p className="mt-1 text-sm text-slate-500">{n.body}</p>}
@@ -76,7 +77,7 @@ export default function NotificationsPage() {
                 </div>
                 <div className="flex gap-3 self-start">
                   {!n.read && (
-                    <button type="button" className="min-h-[44px] text-sm text-blue-700" onClick={() => markOne(n.id)}>
+                    <button type="button" className="min-h-[44px] text-sm text-emerald-400" onClick={() => markOne(n.id)}>
                       Mark read
                     </button>
                   )}

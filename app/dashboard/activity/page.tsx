@@ -32,16 +32,17 @@ export default function ActivityPage() {
 
   return (
     <section>
-      <h1 className="font-sans text-3xl text-slate-900">Activity</h1>
+      <p className="label-mono">Audit</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Activity</h1>
       <p className="mt-2 text-sm text-slate-500">Everything that changed across your opportunities, newest first.</p>
       {error && <p className="mt-6 text-sm text-red-700">{error}</p>}
       {!error && events.length === 0 && (
-        <p className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">No activity yet. Create an opportunity to start the feed.</p>
+        <p className="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">No activity yet. Create an opportunity to start the feed.</p>
       )}
       <div className="mt-8 space-y-8">
         {Object.entries(groups).map(([day, evs]) => (
           <Reveal key={day}>
-            <h2 className="mb-3 text-xs uppercase tracking-[0.2em] text-blue-700/80">{day}</h2>
+            <h2 className="mb-3 text-xs uppercase tracking-[0.2em] text-emerald-400/80">{day}</h2>
             <ul className="space-y-2">
               {evs.map((ev) => (
                 <li key={ev.id} className="glass rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">

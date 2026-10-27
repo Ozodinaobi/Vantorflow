@@ -31,8 +31,9 @@ export default function OverviewPage() {
   if (error) {
     return (
       <section>
-        <h1 className="text-2xl font-semibold">Overview</h1>
-        <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>
+        <p className="label-mono">Overview</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Overview</h1>
+        <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>
       </section>
     );
   }
@@ -115,7 +116,7 @@ export default function OverviewPage() {
           <div className="card">
             <div className="mb-4 flex items-center justify-between">
               <p className="label-mono">Closing this week</p>
-              <Link href="/dashboard/opportunities" className="text-sm text-blue-700 hover:underline">All opportunities</Link>
+              <Link href="/dashboard/opportunities" className="text-sm text-emerald-400 hover:underline">All opportunities</Link>
             </div>
             {closing.length === 0 ? (
               <p className="text-sm text-slate-500">Nothing closes in the next 7 days.</p>

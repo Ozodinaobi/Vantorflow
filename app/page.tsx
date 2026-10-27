@@ -15,17 +15,16 @@ const FEATURES = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <div className="min-h-screen text-ink">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050505]/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2.5 font-semibold text-slate-900">
-            <LogoMark size={30} />
-            <span>Vantorflow</span>
+          <Link href="/" aria-label="Vantorflow home">
+            <LogoMark size={26} wordmark />
           </Link>
           <nav aria-label="Main" className="hidden items-center gap-6 text-sm md:flex">
-            <a href="#features" className="text-slate-600 hover:text-slate-900">Features</a>
-            <a href="#workflow" className="text-slate-600 hover:text-slate-900">Workflow</a>
-            <Link href="/login" className="text-slate-600 hover:text-slate-900">Log in</Link>
+            <a href="#features" className="text-muted hover:text-ink">Features</a>
+            <a href="#workflow" className="text-muted hover:text-ink">Workflow</a>
+            <Link href="/login" className="text-muted hover:text-ink">Log in</Link>
             <Link href="/signup" className="btn-primary">Get started</Link>
           </nav>
           <div className="flex items-center gap-2 md:hidden">
@@ -52,7 +51,7 @@ export default function LandingPage() {
           </div>
 
           {/* Product mockup: static screenshot-style panel built from real UI parts. */}
-          <div aria-hidden="true" className="rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
+          <div aria-hidden="true" className="rounded-xl border border-slate-200 bg-white/[0.02] p-4">
             <div className="flex items-center gap-1.5 border-b border-slate-100 pb-3">
               <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
               <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
@@ -64,7 +63,7 @@ export default function LandingPage() {
                 ["Due in 7 days", "4"],
                 ["Win rate", "38%"],
               ].map(([k, v]) => (
-                <div key={k} className="rounded-lg border border-slate-200 p-3">
+                <div key={k} className="rounded-xl border border-slate-200 p-3">
                   <p className="text-xs text-slate-500">{k}</p>
                   <p className="mt-1 text-xl font-semibold text-slate-900">{v}</p>
                 </div>
@@ -73,10 +72,10 @@ export default function LandingPage() {
             <div className="space-y-2">
               {[
                 ["Ministry of Health supply tender", "Response", "in 3 days", "bg-amber-100 text-amber-800"],
-                ["Regional road maintenance RFQ", "Requirements", "in 12 days", "bg-blue-100 text-blue-800"],
+                ["Regional road maintenance RFQ", "Requirements", "in 12 days", "bg-emerald-500/15 text-emerald-400"],
                 ["IT managed services bid", "Approval", "Overdue 1d", "bg-red-100 text-red-800"],
               ].map(([t, s, d, c]) => (
-                <div key={t} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2.5">
+                <div key={t} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2.5">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-slate-900">{t}</p>
                     <p className="text-xs text-slate-500">{s}</p>
@@ -107,7 +106,7 @@ export default function LandingPage() {
           <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">From RFQ to outcome in seven stages</h2>
           <ol className="mt-10 grid gap-3 text-sm sm:grid-cols-4 lg:grid-cols-7">
             {["Intake", "Analysis", "Requirements", "Response", "Approval", "Submission", "Outcome"].map((s, i) => (
-              <li key={s} className="rounded-lg border border-slate-200 bg-white px-3 py-3">
+              <li key={s} className="rounded-xl border border-slate-200 bg-white/[0.02] px-3 py-3">
                 <span className="text-xs text-slate-500">Step {i + 1}</span>
                 <p className="font-medium text-slate-900">{s}</p>
               </li>

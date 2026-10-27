@@ -8,7 +8,7 @@ export function DeadlineBadge({ deadline }: { deadline: string | null }) {
     tone === "overdue" || tone === "urgent"
       ? "border-red-200 bg-red-50 text-red-700"
       : tone === "soon"
-      ? "border-blue-200 bg-blue-50 text-blue-700"
+      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
       : "border-slate-200 text-slate-600";
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${cls}`}>

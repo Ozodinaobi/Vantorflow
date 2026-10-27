@@ -12,8 +12,8 @@ const SETUP_NOTE = "Coming online after setup. Run the features migration to tur
 function Shell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Reveal>
-      <div className="glass mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
-        <h2 className="font-sans text-xl text-slate-900">{title}</h2>
+      <div className="glass mt-8 rounded-xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+        <h2 className="font-serif text-xl text-slate-900">{title}</h2>
         <div className="mt-4">{children}</div>
       </div>
     </Reveal>
@@ -49,7 +49,7 @@ export function HistoryTab({ oppId }: { oppId: string }) {
       ) : (
         <ol className="space-y-3">
           {events.map((ev) => (
-            <li key={ev.id} className="flex flex-col gap-1 border-l border-blue-200 pl-4 text-sm">
+            <li key={ev.id} className="flex flex-col gap-1 border-l border-emerald-500/30 pl-4 text-sm">
               <span className="text-slate-900">{String(ev.action).replace(/_/g, " ")}</span>
               <span className="text-xs text-slate-500">{formatDateTime(ev.created_at)}</span>
               {ev.detail && Object.keys(ev.detail).length > 0 && (
@@ -91,26 +91,26 @@ export function PerformanceCard() {
       ) : !data ? (
         <BreathingLoader label="Loading performance" />
       ) : (
-        <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-600/[0.10] to-transparent p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-blue-700/80">Vantorflow Performance</p>
+        <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.10] to-transparent p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">Vantorflow Performance</p>
           <div className="mt-3 grid grid-cols-3 gap-3 text-center">
             <div>
-              <p className="font-sans text-3xl text-slate-900">{data.winRate ?? 0}%</p>
+              <p className="font-serif text-3xl text-slate-900">{data.winRate ?? 0}%</p>
               <p className="text-xs text-slate-500">win rate</p>
             </div>
             <div>
-              <p className="font-sans text-3xl text-slate-900">{data.bidsRun ?? 0}</p>
+              <p className="font-serif text-3xl text-slate-900">{data.bidsRun ?? 0}</p>
               <p className="text-xs text-slate-500">bids run</p>
             </div>
             <div>
-              <p className="font-sans text-3xl text-slate-900">{data.avgReadiness ?? 0}%</p>
+              <p className="font-serif text-3xl text-slate-900">{data.avgReadiness ?? 0}%</p>
               <p className="text-xs text-slate-500">avg readiness</p>
             </div>
           </div>
           <button
             type="button"
             onClick={copyText}
-            className="mt-4 min-h-11 rounded-lg border border-blue-200 px-4 text-sm text-blue-700 hover:bg-blue-50"
+            className="mt-4 min-h-11 rounded-xl border border-emerald-500/30 px-4 text-sm text-emerald-400 hover:bg-emerald-500/10"
           >
             {copied ? "Copied" : "Copy summary"}
           </button>
@@ -186,7 +186,7 @@ export function AttachmentsPanel({ oppId, onMessage }: { oppId: string; onMessag
         <p className="text-sm text-slate-500">Storage pending. {SETUP_NOTE}</p>
       ) : (
         <>
-          <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-blue-200 px-4 text-sm text-blue-700 hover:bg-blue-50">
+          <label className="inline-flex min-h-11 cursor-pointer items-center rounded-xl border border-emerald-500/30 px-4 text-sm text-emerald-400 hover:bg-emerald-500/10">
             {busy ? "Uploading..." : "Upload file (max 10MB)"}
             <input type="file" className="hidden" onChange={upload} disabled={busy} />
           </label>
@@ -195,11 +195,11 @@ export function AttachmentsPanel({ oppId, onMessage }: { oppId: string; onMessag
           ) : (
             <ul className="mt-4 space-y-2">
               {rows.map((r) => (
-                <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm">
                   <span className="break-all text-slate-900">{r.name}</span>
                   <span className="flex items-center gap-3 text-xs text-slate-500">
                     {Math.round((r.size ?? 0) / 1024)} KB
-                    <button type="button" onClick={() => download(r.id, r.name)} className="text-blue-700 hover:underline">
+                    <button type="button" onClick={() => download(r.id, r.name)} className="text-emerald-400 hover:underline">
                       Download
                     </button>
                   </span>
@@ -270,7 +270,7 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
               <span className="text-sm text-slate-900">{c.label}</span>
               <label className="flex items-center gap-2 text-xs text-slate-500">
                 Score
-                <select value={c.score} onChange={(e) => update(c.key, "score", Number(e.target.value))} className="min-h-11 rounded-lg border border-slate-200 bg-slate-100 px-2 text-slate-900">
+                <select value={c.score} onChange={(e) => update(c.key, "score", Number(e.target.value))} className="min-h-11 rounded-xl border border-slate-200 bg-slate-100 px-2 text-slate-900">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <option key={n} value={n}>{n}</option>
                   ))}
@@ -278,7 +278,7 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
               </label>
               <label className="flex items-center gap-2 text-xs text-slate-500">
                 Weight
-                <select value={c.weight} onChange={(e) => update(c.key, "weight", Number(e.target.value))} className="min-h-11 rounded-lg border border-slate-200 bg-slate-100 px-2 text-slate-900">
+                <select value={c.weight} onChange={(e) => update(c.key, "weight", Number(e.target.value))} className="min-h-11 rounded-xl border border-slate-200 bg-slate-100 px-2 text-slate-900">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <option key={n} value={n}>{n}</option>
                   ))}
@@ -287,11 +287,11 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
             </div>
           ))}
           <div className="flex flex-wrap items-center gap-4">
-            <button type="submit" disabled={saving} className="min-h-11 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:opacity-50">
+            <button type="submit" disabled={saving} className="min-h-11 rounded-xl bg-emerald-500 px-5 text-sm font-medium text-[#050505] disabled:opacity-50">
               {saving ? "Saving..." : "Score it"}
             </button>
             {result && (
-              <span className={`rounded-full border px-3 py-1 text-sm ${result.suggestion === "GO" ? "border-blue-200 text-blue-700" : "border-red-200 text-red-700"}`}>
+              <span className={`rounded-full border px-3 py-1 text-sm ${result.suggestion === "GO" ? "border-emerald-500/30 text-emerald-400" : "border-red-200 text-red-700"}`}>
                 {result.percent}% {result.suggestion === "GO" ? "suggests GO" : "suggests NO-GO"}
               </span>
             )}
@@ -306,7 +306,7 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
 function renderBody(body: string) {
   return body.split(/(@[\w.+-]+@[\w-]+\.[\w.-]+)/g).map((part, i) =>
     part.startsWith("@") ? (
-      <span key={i} className="rounded bg-blue-50 px-1 text-blue-700">
+      <span key={i} className="rounded bg-emerald-500/10 px-1 text-emerald-400">
         {part}
       </span>
     ) : (
@@ -354,9 +354,9 @@ export function CommentsPanel({ oppId, onMessage }: { oppId: string; onMessage: 
           onChange={(e) => setText(e.target.value)}
           placeholder="Write a comment. Mention a teammate as @name@example.com"
           maxLength={2000}
-          className="min-h-11 flex-1 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm text-slate-900 placeholder:text-slate-500"
+          className="min-h-11 flex-1 rounded-xl border border-slate-200 bg-slate-100 px-3 text-sm text-slate-900 placeholder:text-slate-500"
         />
-        <button type="submit" disabled={posting || !text.trim()} className="min-h-11 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white disabled:opacity-40">
+        <button type="submit" disabled={posting || !text.trim()} className="min-h-11 rounded-xl bg-emerald-500 px-5 text-sm font-medium text-[#050505] disabled:opacity-40">
           {posting ? "Posting..." : "Post"}
         </button>
       </form>
@@ -367,7 +367,7 @@ export function CommentsPanel({ oppId, onMessage }: { oppId: string; onMessage: 
       ) : (
         <ul className="mt-4 space-y-3">
           {rows.map((c) => (
-            <li key={c.id} className="rounded-lg border border-slate-200 px-3 py-2">
+            <li key={c.id} className="rounded-xl border border-slate-200 px-3 py-2">
               <p className="whitespace-pre-wrap break-words text-sm text-slate-700">{renderBody(c.body)}</p>
               <p className="mt-1 text-xs text-slate-500">{formatDateTime(c.created_at)}</p>
             </li>

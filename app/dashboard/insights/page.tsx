@@ -46,15 +46,16 @@ export default function InsightsPage() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Analysis</p>
-        <h1 className="font-sans text-4xl font-medium tracking-tighter sm:text-5xl">Insights</h1>
+        <p className="label-mono">Analytics</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Insights</h1>
         <p className="mt-3 text-sm text-slate-500">Won and lost opportunities, with the reasons recorded at close.</p>
       </div>
 
-      {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
+      {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
 
       {decided.length === 0 ? (
-        <div className="glass rounded-3xl border-dashed p-10 text-center">
-          <p className="font-sans text-2xl">No outcomes recorded yet</p>
+        <div className="glass rounded-xl border-dashed p-10 text-center">
+          <p className="font-serif text-2xl">No outcomes recorded yet</p>
           <p className="mt-2 text-sm text-slate-500">
             Mark an opportunity as Won or Lost on its page and the breakdown will appear here.
           </p>
@@ -66,15 +67,15 @@ export default function InsightsPage() {
             <div className="grid grid-cols-3 gap-4">
               <div className="card text-center">
                 <p className="label-mono !text-[9px]">Won</p>
-                <p className="mt-2 font-sans text-3xl tabular-nums text-blue-700">{won}</p>
+                <p className="mt-2 font-serif text-3xl tabular-nums text-emerald-400">{won}</p>
               </div>
               <div className="card text-center">
                 <p className="label-mono !text-[9px]">Lost</p>
-                <p className="mt-2 font-sans text-3xl tabular-nums">{lost}</p>
+                <p className="mt-2 font-serif text-3xl tabular-nums">{lost}</p>
               </div>
               <div className="card text-center">
                 <p className="label-mono !text-[9px]">Win rate</p>
-                <p className="mt-2 font-sans text-3xl tabular-nums">{rate === null ? "n/a" : `${rate}%`}</p>
+                <p className="mt-2 font-serif text-3xl tabular-nums">{rate === null ? "n/a" : `${rate}%`}</p>
               </div>
             </div>
           </Reveal>
@@ -93,7 +94,7 @@ export default function InsightsPage() {
                       </span>
                     </div>
                     <div className="flex h-2 overflow-hidden rounded-full bg-slate-50">
-                      <div className="bg-blue-600" style={{ width: `${(c.won / total) * 100}%` }} />
+                      <div className="bg-emerald-500" style={{ width: `${(c.won / total) * 100}%` }} />
                       <div className="bg-slate-50" style={{ width: `${(c.lost / total) * 100}%` }} />
                     </div>
                   </div>
@@ -109,7 +110,7 @@ export default function InsightsPage() {
                 {decided.map((r) => (
                   <li key={r.id} className="flex items-center justify-between gap-4 py-3 text-sm">
                     <Link href={`/dashboard/${r.id}`} className="min-w-0 truncate hover:underline">{r.title}</Link>
-                    <span className={`shrink-0 ${r.outcome_result === "Won" ? "text-blue-700" : "text-slate-500"}`}>
+                    <span className={`shrink-0 ${r.outcome_result === "Won" ? "text-emerald-400" : "text-slate-500"}`}>
                       {r.outcome_result}
                     </span>
                   </li>

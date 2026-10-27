@@ -43,7 +43,7 @@ export default function CommandSearch() {
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center bg-slate-900/40 p-4 pt-24 sm:p-6" onClick={() => setOpen(false)}>
+    <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 p-4 pt-24 sm:p-6" onClick={() => setOpen(false)}>
       <div className="card w-full max-w-xl p-4" role="dialog" aria-label="Search" onClick={(e) => e.stopPropagation()}>
         <input autoFocus className="input w-full" placeholder="Search opportunities, requirements, answers, companies" value={q} onChange={(e) => setQ(e.target.value)} />
         <ul className="mt-3 max-h-[50vh] space-y-1 overflow-y-auto">

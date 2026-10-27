@@ -2,20 +2,20 @@
 
 import { ReactNode } from "react";
 
-// Shared UI primitives. Static, enterprise-style: no pulsing, no count-up, no cursor effects.
+// Shared UI primitives for the Cyber Serif theme.
 
-// Simple spinner (CSS rotation only, no pulsing or breathing).
+// Shimmer loader: a muted bar with a moving highlight, plus an optional label.
 export function BreathingLoader({ label, className = "" }: { label?: string; className?: string }) {
   return (
-    <div role="status" aria-live="polite" className={`inline-flex items-center gap-2.5 text-sm text-slate-500 ${className}`}>
-      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" aria-hidden="true" />
+    <div role="status" aria-live="polite" className={`inline-flex flex-col gap-2 text-sm ${className}`} style={{ color: "#949494" }}>
       {label && <span>{label}</span>}
+      <span className="shimmer block h-1 w-40 rounded-full" aria-hidden="true" />
       <span className="sr-only">{label ?? "Loading"}</span>
     </div>
   );
 }
 
-// Page-level loading state: a centred spinner.
+// Page-level loading state: a centred shimmer.
 export function LoadingBlock({ label }: { label: string }) {
   return (
     <div className="flex min-h-[40vh] items-center justify-center">
@@ -26,7 +26,7 @@ export function LoadingBlock({ label }: { label: string }) {
 
 // Skeleton block for lists and cards while data loads.
 export function Skeleton({ className = "h-4 w-full" }: { className?: string }) {
-  return <div aria-hidden="true" className={`rounded bg-slate-200 ${className}`} />;
+  return <div aria-hidden="true" className={`shimmer rounded ${className}`} />;
 }
 
 // Number display. Renders the value directly.
@@ -44,27 +44,36 @@ export function Reveal({ children, className = "" }: { children: ReactNode; dela
   return <div className={className}>{children}</div>;
 }
 
-// Plain white card (formerly the cursor-spotlight card).
+// Glass card: 2% fill, 1px 10% white border, backdrop blur.
 export function SpotlightCard({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={`card ${className}`}>{children}</div>;
 }
 
-// Decorative glow removed. Kept as an empty element so existing call sites still compile.
+// Kept as an empty element so existing call sites still compile.
 export function GlowOrbs({ className = "" }: { className?: string }) {
   return <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${className}`} />;
 }
 
-// Logo: a blue rounded square with the same command glyph, no spin.
-export function LogoMark({ size = 32 }: { size?: number }) {
+// Vantorflow mark: an open ring in #EBEBEB, with an emerald arc and terminal dot.
+// With wordmark=true it also renders the "Vantorflow" name in Newsreader.
+export function LogoMark({ size = 32, wordmark = false, className = "" }: { size?: number; wordmark?: boolean; className?: string }) {
+  const mark = (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
+      {/* Open ring in #EBEBEB, leaving the upper-right gap. */}
+      <path d="M19.794 7.5 A9 9 0 1 1 3 12" stroke="#EBEBEB" strokeWidth="2.2" strokeLinecap="round" />
+      {/* Emerald accent arc closing the upper-left quadrant. */}
+      <path d="M3 12 A9 9 0 0 1 12 3" stroke="#10B981" strokeWidth="2.2" strokeLinecap="round" />
+      {/* Emerald terminal dot at the open end. */}
+      <circle cx="19.794" cy="7.5" r="1.9" fill="#10B981" />
+    </svg>
+  );
+  if (!wordmark) return <span className={`inline-flex ${className}`}>{mark}</span>;
   return (
-    <span
-      aria-hidden="true"
-      className="inline-flex items-center justify-center rounded-lg bg-blue-600 text-white"
-      style={{ width: size, height: size }}
-    >
-      <svg width={size * 0.5} height={size * 0.5} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 9V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V9z" />
-      </svg>
+    <span className={`inline-flex items-center gap-2.5 ${className}`}>
+      {mark}
+      <span className="font-serif font-medium leading-none tracking-tight" style={{ fontSize: size * 0.82, color: "#EBEBEB" }}>
+        Vantorflow
+      </span>
     </span>
   );
 }

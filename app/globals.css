@@ -2,53 +2,98 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---------- Base: enterprise light theme ---------- */
+/* ---------- Cyber Serif (dark) ---------- */
 @layer base {
   html {
-    background: #f8fafc;
-    color-scheme: light;
+    background: #050505;
+    color-scheme: dark;
     -webkit-text-size-adjust: 100%;
     overflow-x: hidden;
   }
   body {
-    @apply min-h-screen bg-slate-50 font-sans text-slate-900 antialiased;
+    min-height: 100vh;
+    background: #050505;
+    color: #EBEBEB;
+    font-family: var(--font-inter), Inter, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
   ::selection {
-    background: #bfdbfe;
-    color: #0f172a;
+    background: rgba(16, 185, 129, 0.35);
+    color: #EBEBEB;
   }
-  /* Visible keyboard focus everywhere. */
   :focus-visible {
-    outline: 2px solid #2563eb;
+    outline: 2px solid #10B981;
     outline-offset: 2px;
     border-radius: 6px;
   }
   h1, h2, h3 {
-    @apply font-semibold tracking-tight text-slate-900;
+    font-family: var(--font-newsreader), Newsreader, Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: #EBEBEB;
   }
+  /* Nav and controls: 13px / 600. Shared motion curve. */
+  a, button, input, select, textarea, [role="button"] {
+    transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+    transition-duration: 0.15s;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* ---------- Background: slow aurora breathing behind everything ---------- */
+.aurora {
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 40% at 20% 15%, rgba(16, 185, 129, 0.12), transparent 70%),
+    radial-gradient(35% 35% at 85% 80%, rgba(16, 185, 129, 0.07), transparent 70%);
+  animation: aurora-breathe 14s ease-in-out infinite;
+}
+@keyframes aurora-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
 }
 
 /* ---------- Components ---------- */
 @layer components {
-  /* Card: white surface, 1px slate border, small shadow. */
+  /* Glass card: 2% white fill, 1px 10% white border, soft blur, 12px radius. */
   .card,
   .glass {
-    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }
   .card {
     @apply p-6 sm:p-8;
   }
 
   .btn-primary {
-    @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700;
+    @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl px-4 py-2 text-[13px] font-semibold;
+    background: #10B981;
+    color: #050505;
+  }
+  .btn-primary:hover {
+    background: #34d399;
   }
   .btn-primary:disabled {
     @apply cursor-not-allowed opacity-50;
   }
 
   .btn-secondary {
-    @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50;
+    @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl border px-4 py-2 text-[13px] font-semibold;
+    background: #171717;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #EBEBEB;
+  }
+  .btn-secondary:hover {
+    background: #1F1F1F;
   }
   .btn-secondary:disabled {
     @apply cursor-not-allowed opacity-50;
@@ -56,19 +101,32 @@
 
   /* Form inputs: 40px height, 16px on mobile to stop iOS zoom. */
   .input {
-    @apply min-h-[40px] w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 sm:text-sm;
+    @apply min-h-[40px] w-full rounded-xl px-3 py-2 text-base sm:text-sm;
+    background: #171717;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #EBEBEB;
+  }
+  .input::placeholder {
+    color: #6b6b6b;
   }
   .input:focus {
-    @apply border-blue-500 outline-none ring-2 ring-blue-100;
+    border-color: #10B981;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
   }
 
-  /* Small uppercase section label. */
+  /* Eyebrow: uppercase label above page titles. */
   .label-mono {
-    @apply text-xs font-semibold uppercase tracking-wide text-slate-500;
+    @apply text-xs font-semibold uppercase tracking-[0.12em];
+    color: #949494;
   }
 
   .link-u {
-    @apply relative inline-flex min-h-[40px] items-center text-slate-600 hover:text-slate-900;
+    @apply relative inline-flex min-h-[40px] items-center;
+    color: #949494;
+  }
+  .link-u:hover {
+    color: #EBEBEB;
   }
 
   .reveal {
@@ -79,14 +137,31 @@
     @apply w-full min-w-[560px] border-separate border-spacing-0 text-left text-sm;
   }
   .tbl th {
-    @apply border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500;
+    @apply px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.12em];
+    color: #949494;
+    background: #0b0b0b;
+    border-bottom: 1px solid #262626;
   }
   .tbl td {
-    @apply border-b border-slate-100 px-3 py-3 align-top text-slate-700;
+    @apply px-3 py-3 align-top;
+    color: #cfcfcf;
+    border-bottom: 1px solid #262626;
   }
   .tbl tr:last-child td {
-    @apply border-b-0;
+    border-bottom: 0;
   }
+
+  /* Shimmer loader: a moving highlight across a muted bar. */
+  .shimmer {
+    background: linear-gradient(90deg, #171717 0%, #262626 50%, #171717 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @layer utilities {
@@ -95,7 +170,6 @@
   }
 }
 
-/* Only the standard transitions remain (hover colours, drawer slide). Reduced motion turns them off. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

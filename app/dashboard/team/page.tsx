@@ -62,12 +62,13 @@ export default function TeamPage() {
     <section className="space-y-8">
       <div>
         <p className="label-mono mb-3">Team</p>
-        <h1 className="font-sans text-4xl tracking-tight">Your team</h1>
+        <p className="label-mono">Workspace</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Your team</h1>
         <p className="mt-2 text-sm text-slate-500">Invite bidders and approvers. Roles: owner, bidder, approver.</p>
       </div>
 
       <Reveal>
-        <form onSubmit={invite} className="glass rounded-3xl p-6 sm:p-8">
+        <form onSubmit={invite} className="glass rounded-xl p-6 sm:p-8">
           <p className="label-mono mb-3">Invite by email</p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <input
@@ -90,7 +91,7 @@ export default function TeamPage() {
           </div>
           <p className="mt-3 text-xs text-slate-500">Invite emails ship with notifications. For now the invite is saved as pending.</p>
           {message && (
-            <p className={`mt-3 text-sm ${message.kind === "ok" ? "text-blue-700" : "text-red-700"}`}>{message.text}</p>
+            <p className={`mt-3 text-sm ${message.kind === "ok" ? "text-emerald-400" : "text-red-700"}`}>{message.text}</p>
           )}
         </form>
       </Reveal>
@@ -98,11 +99,11 @@ export default function TeamPage() {
       {members === null ? (
         <BreathingLoader label="Loading team" />
       ) : members.length === 0 ? (
-        <div className="glass rounded-3xl p-8 text-center text-sm text-slate-500">No team members yet. Invite someone above.</div>
+        <div className="glass rounded-xl p-8 text-center text-sm text-slate-500">No team members yet. Invite someone above.</div>
       ) : (
         <ul className="space-y-3">
           {members.map((m) => (
-            <li key={m.id} className="glass flex flex-col gap-3 rounded-2xl p-5 sm:flex-row sm:items-center">
+            <li key={m.id} className="glass flex flex-col gap-3 rounded-xl p-5 sm:flex-row sm:items-center">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{m.member_email}</p>
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{m.role} · {m.status}</p>
