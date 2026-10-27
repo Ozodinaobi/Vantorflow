@@ -262,10 +262,12 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
   const [price, setPrice] = useState({ bidPrice: "", competitorAverage: "", marginPct: "", minMarginPct: "15" });
   const [priceResult, setPriceResult] = useState<{ score: number; reasons: string[] } | null>(null);
   const [pricing, setPricing] = useState(false);
+  const [priceError, setPriceError] = useState<string | null>(null);
 
   async function checkPrice(e: FormEvent) {
     e.preventDefault();
     setPricing(true);
+    setPriceError(null);
     try {
       const d = await api<any>(`/api/opportunities/${oppId}/price-check`, {
         method: "POST",
@@ -280,6 +282,7 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
       setCriteria((prev) => (prev ? prev.map((c) => (c.key === "pricing" ? { ...c, score: d.score } : c)) : prev));
       onMessage({ kind: "ok", text: `Pricing scored ${d.score} of 5 from your numbers. Save the matrix to apply it.` });
     } catch (err) {
+      setPriceError(errorText(err));
       onMessage({ kind: "error", text: errorText(err) });
     } finally {
       setPricing(false);
@@ -318,11 +321,17 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
             <button type="button" onClick={checkPrice} disabled={pricing} className="mt-3 min-h-11 rounded-xl border border-emerald-500/40 px-4 text-sm text-emerald-600 disabled:opacity-50">
               {pricing ? "Checking..." : "Check price"}
             </button>
-            {priceResult && (
-              <ul className="mt-2 list-disc pl-5 text-xs text-slate-600">
-                {priceResult.reasons.map((r) => <li key={r}>{r}</li>)}
-              </ul>
-            )}
+            <div role="status" aria-live="polite" className="mt-2 min-h-[1px]">
+              {priceError && <p className="text-xs text-red-700">{priceError}</p>}
+              {priceResult && !priceError && (
+                <div>
+                  <p className="text-xs font-medium text-emerald-600">Pricing score: {priceResult.score} of 5</p>
+                  <ul className="mt-1 list-disc pl-5 text-xs text-slate-600">
+                    {priceResult.reasons.map((r, i) => <li key={`${i}-${r}`}>{r}</li>)}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <button type="submit" disabled={saving} className="min-h-11 rounded-xl bg-emerald-500 px-5 text-sm font-medium text-[#050505] disabled:opacity-50">
