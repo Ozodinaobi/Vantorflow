@@ -1,6 +1,6 @@
 // SERVER ONLY. Branded transactional email template (HTML + plain-text alternative).
 export const APP_URL = "https://vantorflow.com.ng";
-export const LOGO_URL = `${APP_URL}/logo.png`;
+export const LOGO_URL = `${APP_URL}/logo-email.png`;
 
 export type EmailContent = {
   subject: string;

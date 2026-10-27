@@ -67,6 +67,10 @@ export default function OverviewPage() {
     })
     .sort((a, b) => (daysUntil(a.deadline) ?? 0) - (daysUntil(b.deadline) ?? 0));
 
+  const needs = open
+    .filter((r) => r.status === "Intake" || r.status === "Analysis")
+    .slice(0, 6);
+
   const stageBars = STAGES.map((s) => ({ label: s, value: rows.filter((r) => r.status === s).length }));
   const catBars = (intel?.categories ?? []).map((c) => ({ label: c.category, value: c.count }));
   const hasReqs = catBars.some((c) => c.value > 0);
@@ -74,11 +78,12 @@ export default function OverviewPage() {
   return (
     <section className="space-y-6 animate-enter">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="eyebrow mb-2">Overview</p>
-          <h1 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">Your pipeline</h1>
+        <div className="min-w-0">
+          <p className="eyebrow mb-2">Command center</p>
+          <h1 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">Pipeline overview</h1>
+          <p className="mt-2 text-sm text-muted">What needs a decision, what is due, and where the value sits.</p>
         </div>
-        <Link href="/dashboard/new" className="btn-primary">New RFQ</Link>
+        <Link href="/dashboard/new" className="btn-primary shrink-0">New RFQ</Link>
       </div>
 
       {rows.length === 0 ? (
@@ -94,6 +99,41 @@ export default function OverviewPage() {
             <Kpi label="Open value" value={pipelineValue.toLocaleString("en-GB")} note="sum of estimated values" />
             <Kpi label="Win rate" value={winRate === null ? "n/a" : `${winRate}%`} note={decided.length ? `${decided.length} decided` : "no outcomes yet"} />
             <Kpi label="Overdue" value={String(overdue)} note={overdue ? "past deadline, still open" : "nothing overdue"} danger={overdue > 0} />
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="card glass-interactive animate-enter lg:col-span-2">
+              <p className="eyebrow mb-4">Needs a decision</p>
+              {needs.length === 0 ? (
+                <p className="text-sm text-muted">Nothing waiting on a Go/No-Go call right now.</p>
+              ) : (
+                <ul className="divide-y divide-white/10">
+                  {needs.map((opp) => (
+                    <li key={opp.id} className="row-hover flex flex-wrap items-center justify-between gap-3 px-2 py-3">
+                      <Link href={`/dashboard/${opp.id}`} className="ghost-link min-w-0 truncate font-medium text-ink hover:text-emerald-400">{opp.title}</Link>
+                      <span className="text-xs text-muted">{opp.status}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="card glass-interactive animate-enter">
+              <p className="eyebrow mb-4">Value by stage</p>
+              <p className="num font-serif text-3xl text-ink">{pipelineValue.toLocaleString("en-GB")}</p>
+              <p className="mt-1 text-xs text-muted">{open.length} active across {STAGES.length} stages</p>
+              <div className="mt-4 space-y-2">
+                {STAGES.map((s) => {
+                  const v = open.filter((r) => r.status === s).reduce((sum, r) => sum + (Number(r.value) || 0), 0);
+                  const pct = pipelineValue ? Math.round((v / pipelineValue) * 100) : 0;
+                  return (
+                    <div key={s}>
+                      <div className="flex justify-between text-xs text-muted"><span>{s}</span><span className="num">{pct}%</span></div>
+                      <div className="mt-1 h-1.5 overflow-hidden rounded bg-white/10"><div className="h-full rounded bg-emerald-500" style={{ width: `${pct}%` }} /></div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
@@ -114,7 +154,7 @@ export default function OverviewPage() {
           </div>
 
           <div className="card glass-interactive animate-enter">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
               <p className="eyebrow">Closing this week</p>
               <Link href="/dashboard/opportunities" className="text-sm text-emerald-400 hover:underline">All opportunities</Link>
             </div>
