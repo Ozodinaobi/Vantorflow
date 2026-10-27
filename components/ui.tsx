@@ -86,11 +86,11 @@ export function LogoMark({ size = 32, wordmark = false, className = "" }: { size
   const mark = (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
       {/* Open ring in #EBEBEB, leaving the upper-right gap. */}
-      <path d="M19.794 7.5 A9 9 0 1 1 3 12" stroke="#EBEBEB" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M15.316 6.256 A6.633 6.633 0 1 1 6.567 15.804" stroke="#EBEBEB" strokeWidth="1.254" strokeLinecap="round" />
       {/* Emerald accent arc closing the upper-left quadrant. */}
-      <path d="M3 12 A9 9 0 0 1 12 3" stroke="#10B981" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M6.256 15.316 A6.633 6.633 0 0 1 14.269 5.767" stroke="#10B981" strokeWidth="1.254" strokeLinecap="round" />
       {/* Emerald terminal dot at the open end. */}
-      <circle cx="19.794" cy="7.5" r="1.9" fill="#10B981" />
+      <circle cx="18.340" cy="7.383" r="0.539" fill="#10B981" />
     </svg>
   );
   if (!wordmark) return <span className={`inline-flex ${className}`}>{mark}</span>;

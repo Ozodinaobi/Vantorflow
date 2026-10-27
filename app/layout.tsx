@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
+  openGraph: { title: "Vantorflow", description: "Bid and tender operations platform", images: [{ url: "/og-image.png", width: 1200, height: 630 }] },
   manifest: undefined,
   themeColor: "#050505",
 };
