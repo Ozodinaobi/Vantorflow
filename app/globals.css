@@ -309,3 +309,15 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Design system v2 additions (design/DESIGN_SYSTEM.md) */
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #949494; }
+.glass-interactive { background: rgba(255,255,255,0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; transition: border-color 200ms cubic-bezier(0.16,1,0.3,1), background 200ms cubic-bezier(0.16,1,0.3,1), transform 200ms cubic-bezier(0.16,1,0.3,1); }
+.glass-interactive:hover { border-color: rgba(16,185,129,0.35); background: rgba(255,255,255,0.035); transform: translateY(-1px); }
+.ghost-link { position: relative; transition: color 150ms cubic-bezier(0.16,1,0.3,1); }
+.ghost-link::after { content: ""; position: absolute; left: 0; bottom: -4px; height: 1px; width: 0; background: #10B981; transition: width 200ms cubic-bezier(0.16,1,0.3,1); }
+.ghost-link:hover::after { width: 100%; }
+.focus-ring:focus-visible { outline: 2px solid #10B981; outline-offset: 2px; }
+@keyframes vf-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.animate-enter { animation: vf-enter 520ms cubic-bezier(0.16,1,0.3,1) both; }
+@media (prefers-reduced-motion: reduce) { .animate-enter, .glass-interactive, .ghost-link::after { animation: none !important; transition: none !important; } }
