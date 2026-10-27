@@ -41,9 +41,8 @@ export default function OpportunitiesPage() {
     <section>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="label-mono mb-1">Pipeline</p>
-          <p className="label-mono">Pipeline</p>
-          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Opportunities</h1>
+          <p className="eyebrow mb-2">Pipeline</p>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-6xl">Opportunities</h1>
         </div>
         <Link href="/dashboard/new" className="btn-primary">New RFQ</Link>
       </div>
@@ -51,7 +50,7 @@ export default function OpportunitiesPage() {
       {error && <p role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
 
       {!error && rows.length === 0 && (
-        <div className="card text-center">
+        <div className="card glass-interactive animate-enter text-center">
           <p className="text-lg font-semibold">No opportunities yet</p>
           <p className="mt-2 text-sm text-slate-500">Paste an RFQ to start your first opportunity.</p>
           <Link href="/dashboard/new" className="btn-primary mt-6">Add your first RFQ</Link>
@@ -60,7 +59,7 @@ export default function OpportunitiesPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {sorted.map((opp) => (
-          <Link key={opp.id} href={`/dashboard/${opp.id}`} className="card block h-full p-5 transition-colors hover:border-emerald-500/30">
+          <Link key={opp.id} href={`/dashboard/${opp.id}`} className="card-interactive card block h-full p-5 animate-enter">
             <div className="flex items-start justify-between gap-3">
               <h2 className="text-base font-semibold leading-snug text-slate-900">{opp.title}</h2>
               <span className="shrink-0 rounded-full border border-slate-200 px-2.5 py-0.5 text-xs text-slate-600">{opp.status}</span>

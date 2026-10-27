@@ -48,7 +48,7 @@ export default async function SharePage({ params }: { params: { token: string } 
       <div className="mx-auto max-w-3xl space-y-8">
         <header className="rounded-xl border border-slate-200 bg-slate-50 p-6 backdrop-blur-xl sm:p-8">
           <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-400">Proposal, read only</p>
-          <h1 className="mt-3 font-serif text-3xl leading-tight sm:text-4xl">{proposal.title}</h1>
+          <h1 className="mt-3 font-serif text-3xl leading-tight sm:text-5xl animate-enter">{proposal.title}</h1>
           <p className="mt-2 text-sm text-slate-500">Buyer: {proposal.buyer}</p>
           {proposal.deadline && <p className="text-sm text-slate-500">Deadline: {proposal.deadline}</p>}
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
