@@ -136,6 +136,34 @@ export default function OverviewPage() {
             </div>
           </div>
 
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="card glass-interactive animate-enter p-4">
+              <p className="eyebrow">Win rate, all decided</p>
+              <p className="num mt-2 font-serif text-2xl text-ink">{winRate === null ? "n/a" : `${winRate}%`}</p>
+              <p className="mt-1 text-xs text-muted">Based on Won and Lost outcomes only.</p>
+            </div>
+            <div className="card glass-interactive animate-enter p-4">
+              <p className="eyebrow">Next deadline</p>
+              {(() => {
+                const next = open.filter((r) => daysUntil(r.deadline) !== null && (daysUntil(r.deadline) ?? -1) >= 0).sort((a, b) => (daysUntil(a.deadline) ?? 0) - (daysUntil(b.deadline) ?? 0))[0];
+                return next ? (
+                  <>
+                    <Link href={`/dashboard/${next.id}`} className="mt-2 block truncate font-medium text-ink hover:text-emerald-400">{next.title}</Link>
+                    <div className="mt-1"><DeadlineBadge deadline={next.deadline} /></div>
+                  </>
+                ) : <p className="mt-2 text-sm text-muted">No open deadlines.</p>;
+              })()}
+            </div>
+            <div className="card glass-interactive animate-enter p-4">
+              <p className="eyebrow">Shortcuts</p>
+              <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                <Link href="/dashboard/opportunities" className="rounded-lg border border-white/10 px-3 py-1.5 text-ink hover:border-emerald-500/50">Opportunities</Link>
+                <Link href="/dashboard/library" className="rounded-lg border border-white/10 px-3 py-1.5 text-ink hover:border-emerald-500/50">Library</Link>
+                <Link href="/dashboard/templates" className="rounded-lg border border-white/10 px-3 py-1.5 text-ink hover:border-emerald-500/50">Templates</Link>
+              </div>
+            </div>
+          </div>
+
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="card glass-interactive animate-enter">
               <p className="eyebrow mb-4">Opportunities per stage</p>
