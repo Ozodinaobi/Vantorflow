@@ -4,18 +4,44 @@ import { ReactNode } from "react";
 
 // Shared UI primitives for the Cyber Serif theme.
 
-// Shimmer loader: a muted bar with a moving highlight, plus an optional label.
+// Breathing loader: three emerald dots with a staggered pulse, plus an sr-only label.
 export function BreathingLoader({ label, className = "" }: { label?: string; className?: string }) {
   return (
-    <div role="status" aria-live="polite" className={`inline-flex flex-col gap-2 text-sm ${className}`} style={{ color: "#949494" }}>
+    <div role="status" aria-live="polite" className={`inline-flex flex-col items-center gap-3 text-sm ${className}`} style={{ color: "#949494" }}>
+      <span className="flex items-center gap-1.5" aria-hidden="true">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="breathe-dot h-1.5 w-1.5 rounded-full bg-emerald-500" style={{ animationDelay: `${i * 0.18}s` }} />
+        ))}
+      </span>
       {label && <span>{label}</span>}
-      <span className="shimmer block h-1 w-40 rounded-full" aria-hidden="true" />
       <span className="sr-only">{label ?? "Loading"}</span>
     </div>
   );
 }
 
-// Page-level loading state: a centred shimmer.
+// Premium empty state: glass card, breathing ring, serif headline, one action.
+export function EmptyState({
+  icon,
+  title,
+  body,
+  action,
+}: {
+  icon?: ReactNode;
+  title: string;
+  body: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="empty-state enter">
+      <div className="empty-ring">{icon ?? <span className="breathe-dot h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />}</div>
+      <h3 className="text-ink">{title}</h3>
+      <p>{body}</p>
+      {action && <div className="mt-6">{action}</div>}
+    </div>
+  );
+}
+
+// Page-level loading state: a centred breathing loader.
 export function LoadingBlock({ label }: { label: string }) {
   return (
     <div className="flex min-h-[40vh] items-center justify-center">
