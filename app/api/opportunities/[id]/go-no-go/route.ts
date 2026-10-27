@@ -8,19 +8,14 @@ import { audit } from "@/lib/audit";
 
 type Ctx = { params: { id: string } };
 
-const GO_CRITERIA = [
-  { key: "fit", label: "Strategic fit" },
-  { key: "capability", label: "Capability match" },
-  { key: "margin", label: "Margin potential" },
-  { key: "competition", label: "Competitive position" },
-  { key: "risk", label: "Risk level (5 = low risk)" },
-] as const;
+import { GO_FACTORS, scoreGo, type GoKey } from "@/lib/knowledge";
 
-function scoreMatrix(criteria: { key: string; score: number; weight: number }[]) {
-  const totalWeight = criteria.reduce((a, c) => a + c.weight, 0);
-  const weighted = criteria.reduce((a, c) => a + c.score * c.weight, 0);
-  const percent = totalWeight === 0 ? 0 : Math.round((weighted / (5 * totalWeight)) * 1000) / 10;
-  return { percent, suggestion: percent >= 60 ? "GO" : "NO-GO" as "GO" | "NO-GO" };
+const GO_CRITERIA = GO_FACTORS.map((f) => ({ key: f.key, label: f.label, weight: f.weight, hint: f.hint }));
+
+function scoreMatrix(criteria: { key: string; score: number }[]) {
+  const scores = Object.fromEntries(criteria.map((c) => [c.key, c.score])) as Record<GoKey, number>;
+  const r = scoreGo(scores);
+  return { percent: r.percent, suggestion: r.band, recommendation: r.recommendation, weakest: r.weakest };
 }
 
 export async function GET(_req: Request, { params }: Ctx) {
@@ -34,7 +29,7 @@ export async function GET(_req: Request, { params }: Ctx) {
     const q = rows[0];
     if (!q || q.go_no_go_score === null || q.go_no_go_score === undefined) return NextResponse.json({ goNoGo: null, criteria: GO_CRITERIA });
     return NextResponse.json({
-      goNoGo: { percent: Number(q.go_no_go_score), suggestion: Number(q.go_no_go_score) >= 60 ? "GO" : "NO-GO", criteria: q.criterion_scores ?? [], updated_at: q.updated_at },
+      goNoGo: { percent: Number(q.go_no_go_score), suggestion: scoreGo(Object.fromEntries((q.criterion_scores ?? []).map((c: any) => [c.key, c.score])) as Record<GoKey, number>).band, criteria: q.criterion_scores ?? [], updated_at: q.updated_at },
       criteria: GO_CRITERIA,
     });
   } catch (e) {
@@ -56,10 +51,8 @@ export async function PUT(req: Request, { params }: Ctx) {
   for (const def of GO_CRITERIA) {
     const found = Array.isArray(body?.criteria) ? body.criteria.find((c: any) => c?.key === def.key) : null;
     const score = Number(found?.score);
-    const weight = Number(found?.weight);
     if (!Number.isInteger(score) || score < 1 || score > 5) return NextResponse.json({ error: `Score for ${def.label} must be 1 to 5.` }, { status: 400 });
-    if (!Number.isInteger(weight) || weight < 1 || weight > 5) return NextResponse.json({ error: `Weight for ${def.label} must be 1 to 5.` }, { status: 400 });
-    criteria.push({ key: def.key, score, weight });
+    criteria.push({ key: def.key, score, weight: def.weight });
   }
   const result = scoreMatrix(criteria);
   try {

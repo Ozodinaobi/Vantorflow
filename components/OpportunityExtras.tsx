@@ -226,7 +226,7 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
         setCriteria(
           d.criteria.map((c: any) => {
             const s = saved.find((x) => x.key === c.key);
-            return { key: c.key, label: c.label, score: s?.score ?? 3, weight: s?.weight ?? 3 };
+            return { key: c.key, label: c.label, score: s?.score ?? 3, weight: c.weight ?? s?.weight ?? 1 };
           }),
         );
         setResult(d.goNoGo ?? null);
@@ -251,7 +251,7 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
         body: { criteria: criteria.map(({ key, score, weight }) => ({ key, score, weight })) },
       });
       setResult(d.goNoGo);
-      onMessage({ kind: "ok", text: "Go/no-go saved." });
+      onMessage({ kind: "ok", text: `Go/no-go saved: ${d.goNoGo?.suggestion} (${d.goNoGo?.percent}%).` });
     } catch (err) {
       onMessage({ kind: "error", text: errorText(err) });
     } finally {
@@ -267,18 +267,10 @@ export function GoNoGoPanel({ oppId, onMessage }: { oppId: string; onMessage: (m
         <form onSubmit={save} className="space-y-4">
           {criteria.map((c) => (
             <div key={c.key} className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-center">
-              <span className="text-sm text-slate-900">{c.label}</span>
+              <span className="text-sm text-slate-900">{c.label} <span className="text-xs text-slate-500">(weight {c.weight})</span></span>
               <label className="flex items-center gap-2 text-xs text-slate-500">
                 Score
                 <select value={c.score} onChange={(e) => update(c.key, "score", Number(e.target.value))} className="min-h-11 rounded-xl border border-slate-200 bg-slate-100 px-2 text-slate-900">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex items-center gap-2 text-xs text-slate-500">
-                Weight
-                <select value={c.weight} onChange={(e) => update(c.key, "weight", Number(e.target.value))} className="min-h-11 rounded-xl border border-slate-200 bg-slate-100 px-2 text-slate-900">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <option key={n} value={n}>{n}</option>
                   ))}
