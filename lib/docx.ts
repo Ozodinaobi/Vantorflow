@@ -71,14 +71,20 @@ export async function buildDocx(
   return Packer.toBlob(doc);
 }
 
-// Triggers a browser download of a Blob.
+// Triggers a browser download of a Blob. Throws if the file is empty or the browser blocks the download,
+// so callers can show an error instead of failing silently.
 export function downloadBlob(blob: Blob, filename: string): void {
+  if (!blob || blob.size === 0) throw new Error("the file came out empty");
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  try {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
 }

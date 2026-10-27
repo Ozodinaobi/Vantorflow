@@ -254,6 +254,7 @@ export default function OpportunityPage() {
       const blob = await buildDocx(opp, drafts, reqs, activeTemplate, presetId || null, activeCompany ? { name: activeCompany.name, profile: activeCompany.profile } : null);
       const safeName = opp.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "response";
       downloadBlob(blob, `${safeName}-response.docx`);
+      setMessage({ kind: "ok", text: `Downloaded ${safeName}-response.docx.` });
     } catch (e) {
       setMessage({ kind: "error", text: `Could not build the document: ${errorText(e)}` });
     }
@@ -300,6 +301,7 @@ export default function OpportunityPage() {
       const blob = await buildPdf(opp, drafts, reqs, activeTemplate, presetId || null, activeCompany ? { name: activeCompany.name, profile: activeCompany.profile } : null);
       const safeName = opp.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "response";
       downloadBlob(blob, `${safeName}-response.pdf`);
+      setMessage({ kind: "ok", text: `Downloaded ${safeName}-response.pdf.` });
     } catch (e) {
       setMessage({ kind: "error", text: `Could not build the PDF: ${errorText(e)}` });
     }
