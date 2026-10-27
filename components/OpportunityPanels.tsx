@@ -66,11 +66,11 @@ export function QualificationPanel({ oppId, onMessage }: { oppId: string; onMess
 
   return (
     <Reveal>
-      <div className="card space-y-6">
+      <div className="card glass-interactive animate-enter space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="label-mono mb-3">Bid / no-bid</p>
-            <h2 className="font-serif text-3xl tracking-tight">Qualification</h2>
+            <p className="eyebrow mb-3">Bid / no-bid</p>
+            <h2 className="font-serif text-3xl tracking-tight sm:text-4xl">Qualification</h2>
             <p className="mt-2 text-sm text-slate-500">Score each factor 1 (weak) to 5 (strong). The verdict is worked out from your scores.</p>
           </div>
           {verdict && (
@@ -169,10 +169,10 @@ export function OutcomePanel({ opp, onSaved, onMessage }: { opp: Opportunity; on
 
   return (
     <Reveal>
-      <form onSubmit={save} className="card space-y-5">
+      <form onSubmit={save} className="card glass-interactive animate-enter space-y-5">
         <div>
-          <p className="label-mono mb-3">Outcome</p>
-          <h2 className="font-serif text-3xl tracking-tight">Won or lost?</h2>
+          <p className="eyebrow mb-3">Outcome</p>
+          <h2 className="font-serif text-3xl tracking-tight sm:text-4xl">Won or lost?</h2>
           {opp.outcome_result && (
             <p className="mt-2 text-sm text-slate-500">
               Recorded as {opp.outcome_result} {opp.outcome_at ? `on ${formatDateTime(opp.outcome_at)}` : ""}
@@ -274,11 +274,11 @@ export function ApprovalPanel({ oppId, onMessage }: { oppId: string; onMessage: 
 
   return (
     <Reveal>
-      <div className="card space-y-5">
+      <div className="card glass-interactive animate-enter space-y-5">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="label-mono mb-3">Sign-off</p>
-            <h2 className="font-serif text-3xl tracking-tight">Approvals</h2>
+            <p className="eyebrow mb-3">Sign-off</p>
+            <h2 className="font-serif text-3xl tracking-tight sm:text-4xl">Approvals</h2>
           </div>
           <span className={`rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-wider ${statusClass}`}>{status === "None" ? "Not requested" : status}</span>
         </div>
@@ -406,7 +406,7 @@ export function AssistantPanel({ oppId }: { oppId: string }) {
               {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
               {answer && (
                 <div className="space-y-3">
-                  <p className="label-mono">{answer.q}</p>
+                  <p className="eyebrow">{answer.q}</p>
                   <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{answer.text}</p>
                 </div>
               )}

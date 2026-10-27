@@ -8,7 +8,7 @@ export function ReadinessBadge({ readiness }: { readiness: Readiness }) {
   const mid = readiness.score >= 40 && !high;
   return (
     <div className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-slate-50 py-1.5 pl-4 pr-2">
-      <span className="label-mono">Readiness</span>
+      <span className="eyebrow">Readiness</span>
       <span className={`font-serif text-2xl leading-none ${mid ? "text-slate-700" : "text-emerald-400"}`}>
         <CountUp value={readiness.score} suffix="%" />
       </span>
