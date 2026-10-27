@@ -9,6 +9,8 @@ import { computeReadiness } from "@/lib/readiness";
 import { formatDate, formatDateTime } from "@/lib/time";
 import { buildDocx, downloadBlob } from "@/lib/docx";
 import { buildPdf } from "@/lib/pdf";
+import { PRESET_IDS, PRESETS, PresetId } from "@/lib/documentPresets";
+import type { CompanyProfile } from "@/lib/companyProfile";
 import SharePanel from "@/components/SharePanel";
 import { Pipeline } from "@/components/Pipeline";
 import { ReadinessBadge } from "@/components/ReadinessBadge";
@@ -44,10 +46,12 @@ export default function OpportunityPage() {
   const [review, setReview] = useState<ExtractResult | null>(null);
   const [savingReqs, setSavingReqs] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [companies, setCompanies] = useState<{ id: string; name: string; kind: string }[]>([]);
+  const [companies, setCompanies] = useState<{ id: string; name: string; kind: string; profile: CompanyProfile }[]>([]);
   const [companyId, setCompanyId] = useState("");
   const [templates, setTemplates] = useState<{ id: string; name: string; kind: string; content: string }[]>([]);
   const [templateId, setTemplateId] = useState("");
+  const [presetId, setPresetId] = useState<PresetId | "">("");
+  const activeCompany = companies.find((c) => c.id === companyId) ?? null;
   const activeTemplate = templates.find((t) => t.id === templateId) ?? null;
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkSection, setBulkSection] = useState("");
@@ -82,7 +86,7 @@ export default function OpportunityPage() {
   }, []);
 
   useEffect(() => {
-    api<{ companies: { id: string; name: string; kind: string }[] }>("/api/companies")
+    api<{ companies: { id: string; name: string; kind: string; profile: CompanyProfile }[] }>("/api/companies")
       .then((r) => setCompanies(r.companies ?? []))
       .catch(() => setCompanies([]));
   }, []);
@@ -228,7 +232,7 @@ export default function OpportunityPage() {
       }));
       const gen = await api<{ drafts: { section: string; draft: string }[] }>("/api/generate", {
         method: "POST",
-        body: { title: opp.title, buyer: opp.buyer, sections, companyId: companyId || undefined },
+        body: { title: opp.title, buyer: opp.buyer, sections, companyId: companyId || undefined, templateId: presetId || undefined },
       });
       const saved = await api<{ drafts: ResponseSection[] }>(`/api/opportunities/${opp.id}/drafts`, {
         method: "PUT",
@@ -247,7 +251,7 @@ export default function OpportunityPage() {
   async function downloadDocument() {
     if (!opp) return;
     try {
-      const blob = await buildDocx(opp, drafts, reqs, activeTemplate);
+      const blob = await buildDocx(opp, drafts, reqs, activeTemplate, presetId || null, activeCompany ? { name: activeCompany.name, profile: activeCompany.profile } : null);
       const safeName = opp.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "response";
       downloadBlob(blob, `${safeName}-response.docx`);
     } catch (e) {
@@ -293,7 +297,7 @@ export default function OpportunityPage() {
   async function downloadPdf() {
     if (!opp) return;
     try {
-      const blob = await buildPdf(opp, drafts, reqs, activeTemplate);
+      const blob = await buildPdf(opp, drafts, reqs, activeTemplate, presetId || null, activeCompany ? { name: activeCompany.name, profile: activeCompany.profile } : null);
       const safeName = opp.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "response";
       downloadBlob(blob, `${safeName}-response.pdf`);
     } catch (e) {
@@ -577,6 +581,20 @@ export default function OpportunityPage() {
                 <option key={t.id} value={t.id}>{t.name} ({t.kind})</option>
               ))}
             </select>
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1.5 block text-slate-500">Response style</span>
+            <select
+              value={presetId}
+              onChange={(e) => setPresetId(e.target.value as PresetId | "")}
+              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
+            >
+              <option value="">Plain (no preset)</option>
+              {PRESET_IDS.map((id) => (
+                <option key={id} value={id}>{PRESETS[id].name}</option>
+              ))}
+            </select>
+            {presetId && <span className="mt-1.5 block text-xs text-slate-500">{PRESETS[presetId].blurb}</span>}
           </label>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>

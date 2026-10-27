@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { api, errorText } from "@/lib/api";
 import { LoadingBlock, Reveal } from "@/components/ui";
+import { CompanyProfile, EMPTY_PROFILE, hasProfile } from "@/lib/companyProfile";
 
 interface Company {
   id: string;
@@ -10,6 +11,13 @@ interface Company {
   kind: string;
   contact: string | null;
   notes: string | null;
+  profile: CompanyProfile;
+}
+
+const inputCls = "w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30";
+
+function emptyForm() {
+  return { name: "", kind: "Company", contact: "", notes: "", profile: structuredClone(EMPTY_PROFILE) };
 }
 
 const KINDS = ["Company", "Contractor", "Subcontractor", "Partner"];
@@ -20,8 +28,10 @@ export default function CompaniesPage() {
   const [setupRequired, setSetupRequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", kind: "Company", contact: "", notes: "" });
+  const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState(emptyForm);
 
   async function load() {
     try {
@@ -45,11 +55,34 @@ export default function CompaniesPage() {
     setSaving(true);
     try {
       await api("/api/companies", { method: "POST", body: form });
-      setForm({ name: "", kind: "Company", contact: "", notes: "" });
+      setForm(emptyForm());
       setOk("Added to the registry.");
       await load();
     } catch (err) {
       setError(`Not added: ${errorText(err)}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function startEdit(c: Company) {
+    setEditingId(c.id);
+    setEditForm({ name: c.name, kind: c.kind, contact: c.contact ?? "", notes: c.notes ?? "", profile: structuredClone(c.profile ?? EMPTY_PROFILE) });
+    setError(null);
+    setOk(null);
+  }
+
+  async function saveEdit(id: string) {
+    setError(null);
+    setOk(null);
+    setSaving(true);
+    try {
+      await api(`/api/companies/${id}`, { method: "PATCH", body: editForm });
+      setEditingId(null);
+      setOk("Company saved.");
+      await load();
+    } catch (err) {
+      setError(`Not saved: ${errorText(err)}`);
     } finally {
       setSaving(false);
     }
@@ -119,15 +152,7 @@ export default function CompaniesPage() {
               className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
             />
           </label>
-          <label className="block text-sm">
-            <span className="mb-1.5 block text-slate-500">Notes (optional)</span>
-            <input
-              maxLength={2000}
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm outline-none focus:border-emerald-500/30"
-            />
-          </label>
+          <ProfileEditor value={form} onChange={setForm} />
           <div className="sm:col-span-2">
             <button type="submit" disabled={saving || setupRequired} className="btn-primary">
               {saving ? "Adding" : "Add company"}
@@ -153,13 +178,114 @@ export default function CompaniesPage() {
               </div>
               {c.contact && <p className="mt-2 break-words text-sm text-slate-500">{c.contact}</p>}
               {c.notes && <p className="mt-2 whitespace-pre-wrap text-sm text-slate-500">{c.notes}</p>}
-              <button type="button" onClick={() => remove(c.id)} className="link-u mt-4 text-xs text-slate-500">
-                Remove
-              </button>
+              {editingId === c.id ? (
+                <div className="mt-4 space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="block text-sm">
+                      <span className="mb-1.5 block text-slate-500">Name</span>
+                      <input required maxLength={200} value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className={inputCls} />
+                    </label>
+                    <label className="block text-sm">
+                      <span className="mb-1.5 block text-slate-500">Type</span>
+                      <select value={editForm.kind} onChange={(e) => setEditForm({ ...editForm, kind: e.target.value })} className={inputCls}>
+                        {KINDS.map((k) => <option key={k}>{k}</option>)}
+                      </select>
+                    </label>
+                  </div>
+                  <ProfileEditor value={editForm} onChange={setEditForm} />
+                  <div className="flex gap-3">
+                    <button type="button" disabled={saving} onClick={() => saveEdit(c.id)} className="btn-primary">
+                      {saving ? "Saving" : "Save"}
+                    </button>
+                    <button type="button" onClick={() => setEditingId(null)} className="link-u text-xs text-slate-500">Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {hasProfile(c.profile ?? EMPTY_PROFILE) && (
+                    <div className="mt-3 space-y-1 text-xs text-slate-500">
+                      {c.profile.legalName && <p>Legal name: {c.profile.legalName}</p>}
+                      {c.profile.certifications.length > 0 && <p>Certifications: {c.profile.certifications.join("; ")}</p>}
+                      {c.profile.caseStudies.length > 0 && <p>Case studies: {c.profile.caseStudies.length}</p>}
+                    </div>
+                  )}
+                  <div className="mt-4 flex gap-4">
+                    <button type="button" onClick={() => startEdit(c)} className="link-u text-xs text-slate-500">Edit profile</button>
+                    <button type="button" onClick={() => remove(c.id)} className="link-u text-xs text-slate-500">Remove</button>
+                  </div>
+                </>
+              )}
             </article>
           </Reveal>
         ))}
       </div>
     </section>
+  );
+}
+
+// The structured profile fields. Lists are one item per line in the textarea.
+function ProfileEditor({
+  value,
+  onChange,
+}: {
+  value: { name: string; kind: string; contact: string; notes: string; profile: CompanyProfile };
+  onChange: (v: any) => void;
+}) {
+  const p = value.profile;
+  const setP = (next: Partial<CompanyProfile>) => onChange({ ...value, profile: { ...p, ...next } });
+  const lines = (arr: string[]) => arr.join("\n");
+  // Keep blank lines while typing; the server trims and drops empty items.
+  const parseLines = (text: string) => text.split("\n");
+
+  return (
+    <div className="space-y-4 sm:col-span-2">
+      <p className="label-mono">Company profile</p>
+      <label className="block text-sm">
+        <span className="mb-1.5 block text-slate-500">Legal name</span>
+        <input maxLength={200} value={p.legalName} onChange={(e) => setP({ legalName: e.target.value })} className={inputCls} />
+      </label>
+      <label className="block text-sm">
+        <span className="mb-1.5 block text-slate-500">About the company (summary)</span>
+        <textarea rows={4} maxLength={2000} value={p.summary} onChange={(e) => setP({ summary: e.target.value })} className={inputCls} />
+      </label>
+      <label className="block text-sm">
+        <span className="mb-1.5 block text-slate-500">Certifications (one per line, e.g. ISO 9001:2015, cert no., valid to)</span>
+        <textarea rows={3} value={lines(p.certifications)} onChange={(e) => setP({ certifications: parseLines(e.target.value) })} className={inputCls} />
+      </label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block text-sm">
+          <span className="mb-1.5 block text-slate-500">Public liability</span>
+          <input maxLength={200} value={p.insurance.publicLiability} onChange={(e) => setP({ insurance: { ...p.insurance, publicLiability: e.target.value } })} className={inputCls} />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1.5 block text-slate-500">Employers liability</span>
+          <input maxLength={200} value={p.insurance.employersLiability} onChange={(e) => setP({ insurance: { ...p.insurance, employersLiability: e.target.value } })} className={inputCls} />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1.5 block text-slate-500">Professional indemnity</span>
+          <input maxLength={200} value={p.insurance.professionalIndemnity} onChange={(e) => setP({ insurance: { ...p.insurance, professionalIndemnity: e.target.value } })} className={inputCls} />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1.5 block text-slate-500">Other insurance</span>
+          <input maxLength={200} value={p.insurance.other} onChange={(e) => setP({ insurance: { ...p.insurance, other: e.target.value } })} className={inputCls} />
+        </label>
+      </div>
+      <div className="space-y-3">
+        <p className="text-sm text-slate-500">Key case studies</p>
+        {p.caseStudies.map((cs, i) => (
+          <div key={i} className="glass space-y-3 rounded-xl p-4">
+            <input placeholder="Title" maxLength={200} value={cs.title} onChange={(e) => setP({ caseStudies: p.caseStudies.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)) })} className={inputCls} />
+            <input placeholder="Client" maxLength={200} value={cs.client} onChange={(e) => setP({ caseStudies: p.caseStudies.map((x, j) => (j === i ? { ...x, client: e.target.value } : x)) })} className={inputCls} />
+            <textarea placeholder="What was delivered and the result" rows={3} maxLength={1000} value={cs.summary} onChange={(e) => setP({ caseStudies: p.caseStudies.map((x, j) => (j === i ? { ...x, summary: e.target.value } : x)) })} className={inputCls} />
+            <button type="button" onClick={() => setP({ caseStudies: p.caseStudies.filter((_, j) => j !== i) })} className="link-u text-xs text-slate-500">Remove case study</button>
+          </div>
+        ))}
+        {p.caseStudies.length < 20 && (
+          <button type="button" onClick={() => setP({ caseStudies: [...p.caseStudies, { title: "", client: "", summary: "" }] })} className="link-u text-xs text-slate-500">
+            Add case study
+          </button>
+        )}
+      </div>
+    </div>
   );
 }

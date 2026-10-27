@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/serverAuth";
 import { errorResponse, rest, UUID_RE } from "@/lib/db";
+import { decodeNotes, encodeNotes, sanitizeProfile } from "@/lib/companyProfile";
 
 const KINDS = ["Company", "Contractor", "Subcontractor", "Partner"];
 
@@ -19,16 +20,29 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (typeof body?.name === "string") patch.name = body.name.trim().slice(0, 200);
   if (KINDS.includes(body?.kind)) patch.kind = body.kind;
   if (typeof body?.contact === "string") patch.contact = body.contact.trim().slice(0, 300) || null;
-  if (typeof body?.notes === "string") patch.notes = body.notes.trim().slice(0, 2000) || null;
   if (patch.name === "") return NextResponse.json({ error: "A name is required." }, { status: 400 });
+  // The profile and the free notes share one stored column. Read the current row first so a partial update keeps the other half.
+  const wantsProfile = body?.profile !== undefined;
+  const wantsNotes = typeof body?.notes === "string";
   try {
+    if (wantsProfile || wantsNotes) {
+      const current = await rest<any[]>("GET", "vf_companies", {
+        query: `?id=eq.${params.id}&user_id=eq.${auth.userId}&select=notes&limit=1`,
+      });
+      if (!current.length) return NextResponse.json({ error: "Not found." }, { status: 404 });
+      const prev = decodeNotes(current[0].notes);
+      const profile = wantsProfile ? sanitizeProfile(body.profile) : prev.profile;
+      const text = wantsNotes ? body.notes.trim().slice(0, 2000) : prev.text;
+      patch.notes = encodeNotes(profile, text);
+    }
     const rows = await rest<any[]>("PATCH", "vf_companies", {
       query: `?id=eq.${params.id}&user_id=eq.${auth.userId}`,
       body: patch,
       prefer: "return=representation",
     });
     if (!rows.length) return NextResponse.json({ error: "Not found." }, { status: 404 });
-    return NextResponse.json({ company: rows[0] });
+    const d = decodeNotes(rows[0].notes);
+    return NextResponse.json({ company: { ...rows[0], notes: d.text || null, profile: d.profile } });
   } catch (e) {
     return errorResponse(e);
   }

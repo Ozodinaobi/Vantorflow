@@ -1,6 +1,9 @@
 // Builds the response document as a PDF in the browser, using pdf-lib (same content as the .docx).
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import { SECTIONS, Opportunity, Requirement, ResponseSection } from "./types";
+import { Opportunity, Requirement, ResponseSection } from "./types";
+import { buildPlan } from "./documentPlan";
+import { PresetId } from "./documentPresets";
+import { CompanyProfile } from "./companyProfile";
 import { formatDate } from "./time";
 import { splitWrapper } from "./templates";
 import { cleanForClient } from "./clean";
@@ -30,7 +33,16 @@ function wrap(text: string, font: { widthOfTextAtSize: (t: string, s: number) =>
   return out;
 }
 
-export async function buildPdf(opp: Opportunity, drafts: ResponseSection[], reqs: Requirement[], template?: { content: string } | null): Promise<Blob> {
+export async function buildPdf(
+  opp: Opportunity,
+  drafts: ResponseSection[],
+  reqs: Requirement[],
+  template?: { content: string } | null,
+  preset: PresetId | null = null,
+  company: { name: string; profile: CompanyProfile | null } | null = null
+): Promise<Blob> {
+  const plan = buildPlan(opp, drafts, reqs, preset, company);
+  const accent = rgb(plan.accentRgb[0], plan.accentRgb[1], plan.accentRgb[2]);
   const pdf = await PDFDocument.create();
   const serif = await pdf.embedFont(StandardFonts.TimesRoman);
   const serifBold = await pdf.embedFont(StandardFonts.TimesRomanBold);
@@ -39,6 +51,10 @@ export async function buildPdf(opp: Opportunity, drafts: ResponseSection[], reqs
 
   let page = pdf.addPage([PAGE_W, PAGE_H]);
   let y = PAGE_H - MARGIN;
+  const newPage = () => {
+    page = pdf.addPage([PAGE_W, PAGE_H]);
+    y = PAGE_H - MARGIN;
+  };
 
   const ensure = (h: number) => {
     if (y - h < MARGIN) {
@@ -55,27 +71,49 @@ export async function buildPdf(opp: Opportunity, drafts: ResponseSection[], reqs
     y -= gap;
   };
 
-  write(opp.title, serifBold, 22, rgb(0.04, 0.04, 0.04), 8);
-  write(`Buyer: ${opp.buyer}`, sans, 11, rgb(0.2, 0.2, 0.2), 2);
-  write(`Deadline: ${formatDate(opp.deadline)}`, sans, 11, rgb(0.2, 0.2, 0.2), 14);
+  // Cover page, only when a preset is chosen.
+  if (plan.cover) {
+    const c = plan.cover;
+    y = PAGE_H - 220;
+    write(c.label.toUpperCase(), sans, 10, accent, 12);
+    write(c.title, serifBold, 26, rgb(0.04, 0.04, 0.04), 12);
+    write(`Buyer: ${c.buyer}`, sans, 12, rgb(0.2, 0.2, 0.2), 2);
+    write(`Deadline: ${c.deadline}`, sans, 12, rgb(0.2, 0.2, 0.2), 2);
+    if (c.company) write(`Submitted by: ${c.company}`, sans, 12, rgb(0.2, 0.2, 0.2), 14);
+    if (c.certifications.length) {
+      write("Certifications", serifBold, 12, accent, 4);
+      for (const cert of c.certifications) write(cert, serif, 11, rgb(0.1, 0.1, 0.1), 2);
+      y -= 10;
+    }
+    if (c.contents.length) {
+      write("Contents", serifBold, 12, accent, 4);
+      c.contents.forEach((t, i) => write(`${i + 1}. ${t}`, serif, 11, rgb(0.1, 0.1, 0.1), 2));
+    }
+    newPage();
+  } else {
+    write(plan.heading.title, serifBold, 22, rgb(0.04, 0.04, 0.04), 8);
+    write(`Buyer: ${plan.heading.buyer}`, sans, 11, rgb(0.2, 0.2, 0.2), 2);
+    write(`Deadline: ${plan.heading.deadline}`, sans, 11, rgb(0.2, 0.2, 0.2), 14);
+  }
 
-  for (const section of SECTIONS) {
-    write(section, serifBold, 15, rgb(0.06, 0.45, 0.32), 6);
-    const draft = cleanForClient(drafts.find((d) => d.section === section)?.draft ?? "");
-    if (!draft) {
+  for (const block of plan.blocks) {
+    if (block.kind === "credentials") {
+      write(block.title, serifBold, 15, accent, 6);
+      for (const line of block.lines) write(line, serif, 11, rgb(0.1, 0.1, 0.1), 4);
+      y -= 6;
+      continue;
+    }
+    write(block.title, serifBold, 15, accent, 6);
+    if (block.missing) {
       write("This section will be provided in the final submission.", serif, 11, rgb(0.4, 0.4, 0.4), 10);
       continue;
     }
-    for (const para of draft.split(/\n\s*\n/)) {
-      if (para.trim()) write(para.trim(), serif, 11, rgb(0.1, 0.1, 0.1), 8);
-    }
+    for (const para of block.paragraphs) write(para, serif, 11, rgb(0.1, 0.1, 0.1), 8);
     y -= 6;
   }
 
-  write("Appendix: Requirement traceability", serifBold, 15, rgb(0.06, 0.45, 0.32), 6);
-  for (const r of [...reqs].sort((a, b) => a.number - b.number)) {
-    write(`Requirement ${r.number} (${r.category}): ${r.text}.`, sans, 9.5, rgb(0.2, 0.2, 0.2), 4);
-  }
+  write("Appendix: Requirement traceability", serifBold, 15, accent, 6);
+  for (const line of plan.appendix) write(line, sans, 9.5, rgb(0.2, 0.2, 0.2), 4);
 
   const bytes = await pdf.save();
   const copy = new Uint8Array(bytes.byteLength);

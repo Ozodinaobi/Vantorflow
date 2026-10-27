@@ -1,6 +1,9 @@
 // Builds the response document as a .docx file in the browser, using the "docx" npm package.
-import { Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
-import { SECTIONS, Opportunity, Requirement, ResponseSection } from "./types";
+import { Document, HeadingLevel, Packer, PageBreak, Paragraph, TextRun } from "docx";
+import { Opportunity, Requirement, ResponseSection } from "./types";
+import { buildPlan } from "./documentPlan";
+import { PresetId } from "./documentPresets";
+import { CompanyProfile } from "./companyProfile";
 import { formatDate } from "./time";
 import { splitWrapper, TemplateVars } from "./templates";
 import { cleanForClient } from "./clean";
@@ -9,43 +12,59 @@ export async function buildDocx(
   opp: Opportunity,
   drafts: ResponseSection[],
   reqs: Requirement[],
-  template?: { content: string } | null
+  template?: { content: string } | null,
+  preset: PresetId | null = null,
+  company: { name: string; profile: CompanyProfile | null } | null = null
 ): Promise<Blob> {
+  const plan = buildPlan(opp, drafts, reqs, preset, company);
   const children: Paragraph[] = [];
 
   // Optional letterhead from a template: lines before {{content}} go at the top
-  const wrap = template ? splitWrapper(template.content, { title: opp.title, buyer: opp.buyer, deadline: formatDate(opp.deadline) }) : null;
+  const wrap = template ? splitWrapper(template.content, { title: opp.title, buyer: opp.buyer, deadline: plan.heading.deadline }) : null;
   for (const line of wrap?.header ?? []) children.push(new Paragraph({ text: line }));
 
-  // Cover details
-  children.push(new Paragraph({ text: opp.title, heading: HeadingLevel.TITLE }));
-  children.push(new Paragraph({ children: [new TextRun({ text: `Buyer: ${opp.buyer}`, bold: true })] }));
-  children.push(new Paragraph({ text: `Deadline: ${formatDate(opp.deadline)}` }));
+  const color = plan.accentHex;
+  if (plan.cover) {
+    const c = plan.cover;
+    children.push(new Paragraph({ children: [new TextRun({ text: c.label.toUpperCase(), bold: true, color, size: 20 })], spacing: { before: 2400, after: 240 } }));
+    children.push(new Paragraph({ text: c.title, heading: HeadingLevel.TITLE }));
+    children.push(new Paragraph({ children: [new TextRun({ text: `Buyer: ${c.buyer}`, bold: true })] }));
+    children.push(new Paragraph({ text: `Deadline: ${c.deadline}` }));
+    if (c.company) children.push(new Paragraph({ text: `Submitted by: ${c.company}` }));
+    if (c.certifications.length) {
+      children.push(new Paragraph({ children: [new TextRun({ text: "Certifications", bold: true, color })], spacing: { before: 240 } }));
+      for (const cert of c.certifications) children.push(new Paragraph({ text: cert }));
+    }
+    if (c.contents.length) {
+      children.push(new Paragraph({ children: [new TextRun({ text: "Contents", bold: true, color })], spacing: { before: 240 } }));
+      c.contents.forEach((t, i) => children.push(new Paragraph({ text: `${i + 1}. ${t}` })));
+    }
+    children.push(new Paragraph({ children: [new PageBreak()] }));
+  } else {
+    children.push(new Paragraph({ text: plan.heading.title, heading: HeadingLevel.TITLE }));
+    children.push(new Paragraph({ children: [new TextRun({ text: `Buyer: ${plan.heading.buyer}`, bold: true })] }));
+    children.push(new Paragraph({ text: `Deadline: ${plan.heading.deadline}` }));
+  }
 
-  // One heading per response section, then the draft text (split into paragraphs)
-  for (const section of SECTIONS) {
-    children.push(new Paragraph({ text: section, heading: HeadingLevel.HEADING_1 }));
-    const draft = cleanForClient(drafts.find((d) => d.section === section)?.draft ?? "");
-    if (!draft) {
-      children.push(
-        new Paragraph({ children: [new TextRun({ text: "This section will be provided in the final submission.", italics: true })] })
-      );
+  const heading = (text: string) =>
+    new Paragraph({ children: [new TextRun({ text, bold: true, color })], heading: HeadingLevel.HEADING_1 });
+
+  for (const block of plan.blocks) {
+    if (block.kind === "credentials") {
+      children.push(heading(block.title));
+      for (const line of block.lines) children.push(new Paragraph({ text: line }));
       continue;
     }
-    for (const para of draft.split(/\n\s*\n/)) {
-      if (para.trim()) children.push(new Paragraph({ text: para.trim() }));
+    children.push(heading(block.title));
+    if (block.missing) {
+      children.push(new Paragraph({ children: [new TextRun({ text: "This section will be provided in the final submission.", italics: true })] }));
+      continue;
     }
+    for (const para of block.paragraphs) children.push(new Paragraph({ text: para }));
   }
 
-  // Appendix: every requirement and the section it was mapped to
-  children.push(new Paragraph({ text: "Appendix: Requirement traceability", heading: HeadingLevel.HEADING_1 }));
-  for (const r of [...reqs].sort((a, b) => a.number - b.number)) {
-    children.push(
-      new Paragraph({
-        text: `Requirement ${r.number} (${r.category}): ${r.text}.`,
-      })
-    );
-  }
+  children.push(heading("Appendix: Requirement traceability"));
+  for (const line of plan.appendix) children.push(new Paragraph({ text: line }));
 
   for (const line of wrap?.footer ?? []) children.push(new Paragraph({ text: line }));
   const doc = new Document({ sections: [{ children }] });
