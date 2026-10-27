@@ -31,7 +31,7 @@ export default function OverviewPage() {
   if (error) {
     return (
       <section>
-        <p className="label-mono">Overview</p>
+        <p className="eyebrow mb-2">Overview</p>
           <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">Overview</h1>
         <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>
       </section>
@@ -72,11 +72,11 @@ export default function OverviewPage() {
   const hasReqs = catBars.some((c) => c.value > 0);
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6 animate-enter">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="label-mono mb-1">Overview</p>
-          <h1 className="text-2xl font-semibold sm:text-3xl">Your pipeline</h1>
+          <p className="eyebrow mb-2">Overview</p>
+          <h1 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">Your pipeline</h1>
         </div>
         <Link href="/dashboard/new" className="btn-primary">New RFQ</Link>
       </div>
@@ -84,7 +84,7 @@ export default function OverviewPage() {
       {rows.length === 0 ? (
         <div className="card text-center">
           <p className="text-lg font-semibold">No opportunities yet</p>
-          <p className="mt-2 text-sm text-slate-500">Paste an RFQ to start your first opportunity.</p>
+          <p className="mt-2 text-sm text-muted">Paste an RFQ to start your first opportunity.</p>
           <Link href="/dashboard/new" className="btn-primary mt-6">Add your first RFQ</Link>
         </div>
       ) : (
@@ -97,34 +97,34 @@ export default function OverviewPage() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <div className="card">
-              <p className="label-mono mb-4">Opportunities per stage</p>
+            <div className="card glass-interactive animate-enter">
+              <p className="eyebrow mb-4">Opportunities per stage</p>
               <BarChart bars={stageBars} />
             </div>
-            <div className="card">
-              <p className="label-mono mb-4">Requirements per category</p>
+            <div className="card glass-interactive animate-enter">
+              <p className="eyebrow mb-4">Requirements per category</p>
               {!intel ? (
                 <Skeleton className="h-32 w-full" />
               ) : hasReqs ? (
                 <BarChart bars={catBars} />
               ) : (
-                <p className="text-sm text-slate-500">No requirements saved yet. Extract them from an RFQ to see the split.</p>
+                <p className="text-sm text-muted">No requirements saved yet. Extract them from an RFQ to see the split.</p>
               )}
             </div>
           </div>
 
-          <div className="card">
+          <div className="card glass-interactive animate-enter">
             <div className="mb-4 flex items-center justify-between">
-              <p className="label-mono">Closing this week</p>
+              <p className="eyebrow">Closing this week</p>
               <Link href="/dashboard/opportunities" className="text-sm text-emerald-400 hover:underline">All opportunities</Link>
             </div>
             {closing.length === 0 ? (
-              <p className="text-sm text-slate-500">Nothing closes in the next 7 days.</p>
+              <p className="text-sm text-muted">Nothing closes in the next 7 days.</p>
             ) : (
-              <ul className="divide-y divide-slate-200">
+              <ul className="divide-y divide-white/10">
                 {closing.map((opp) => (
-                  <li key={opp.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                    <Link href={`/dashboard/${opp.id}`} className="font-medium text-slate-900 hover:underline">{opp.title}</Link>
+                  <li key={opp.id} className="row-hover flex flex-wrap items-center justify-between gap-3 px-2 py-3">
+                    <Link href={`/dashboard/${opp.id}`} className="ghost-link font-medium text-ink hover:text-emerald-400">{opp.title}</Link>
                     <DeadlineBadge deadline={opp.deadline} />
                   </li>
                 ))}
@@ -139,10 +139,10 @@ export default function OverviewPage() {
 
 function Kpi({ label, value, note, danger }: { label: string; value: string; note?: string; danger?: boolean }) {
   return (
-    <div className="card p-4 sm:p-5">
-      <p className="label-mono">{label}</p>
-      <p className={`mt-2 text-2xl font-semibold tabular-nums sm:text-3xl ${danger ? "text-red-700" : "text-slate-900"}`}>{value}</p>
-      {note && <p className="mt-1 text-xs text-slate-500">{note}</p>}
+    <div className="card glass-interactive p-4 sm:p-5 animate-enter">
+      <p className="eyebrow">{label}</p>
+      <p className={`num mt-2 font-serif text-3xl font-medium sm:text-4xl ${danger ? "text-red-400" : "text-ink"}`}>{value}</p>
+      {note && <p className="mt-1 text-xs text-muted">{note}</p>}
     </div>
   );
 }
