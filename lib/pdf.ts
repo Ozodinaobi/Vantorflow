@@ -3,6 +3,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { SECTIONS, Opportunity, Requirement, ResponseSection } from "./types";
 import { formatDate } from "./time";
 import { splitWrapper } from "./templates";
+import { cleanForClient } from "./clean";
 
 const PAGE_W = 595;
 const PAGE_H = 842;
@@ -60,9 +61,9 @@ export async function buildPdf(opp: Opportunity, drafts: ResponseSection[], reqs
 
   for (const section of SECTIONS) {
     write(section, serifBold, 15, rgb(0.06, 0.45, 0.32), 6);
-    const draft = drafts.find((d) => d.section === section)?.draft?.trim();
+    const draft = cleanForClient(drafts.find((d) => d.section === section)?.draft ?? "");
     if (!draft) {
-      write("[Draft not generated yet]", serif, 11, rgb(0.4, 0.4, 0.4), 10);
+      write("This section will be provided in the final submission.", serif, 11, rgb(0.4, 0.4, 0.4), 10);
       continue;
     }
     for (const para of draft.split(/\n\s*\n/)) {
@@ -73,7 +74,7 @@ export async function buildPdf(opp: Opportunity, drafts: ResponseSection[], reqs
 
   write("Appendix: Requirement traceability", serifBold, 15, rgb(0.06, 0.45, 0.32), 6);
   for (const r of [...reqs].sort((a, b) => a.number - b.number)) {
-    write(`Requirement ${r.number} (${r.category}): ${r.text}. Mapped to: ${r.section ?? "not mapped"}.`, sans, 9.5, rgb(0.2, 0.2, 0.2), 4);
+    write(`Requirement ${r.number} (${r.category}): ${r.text}.`, sans, 9.5, rgb(0.2, 0.2, 0.2), 4);
   }
 
   const bytes = await pdf.save();

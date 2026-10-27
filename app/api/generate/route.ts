@@ -120,7 +120,7 @@ function buildSectionPrompt(
     "Write in clear, professional English.",
     "Plain text only: no markdown, no bullet symbols, no headings. Separate paragraphs with one blank line.",
     "Return only the body text of this section, without repeating the section title.",
-    "Do not invent certifications, prices, past client names or figures. Where a specific fact is needed but not given, write [TO CONFIRM: what is needed].",
+    "Do not invent certifications, prices, past client names or figures. Where a specific fact is needed but not given, leave it out or phrase the claim in general terms. Never write placeholders, notes to the team, or meta commentary. The text must read as final client-facing copy.",
     "",
     "Requirements:",
     reqLines,

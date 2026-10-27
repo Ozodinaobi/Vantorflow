@@ -3,6 +3,7 @@ import { Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
 import { SECTIONS, Opportunity, Requirement, ResponseSection } from "./types";
 import { formatDate } from "./time";
 import { splitWrapper, TemplateVars } from "./templates";
+import { cleanForClient } from "./clean";
 
 export async function buildDocx(
   opp: Opportunity,
@@ -24,10 +25,10 @@ export async function buildDocx(
   // One heading per response section, then the draft text (split into paragraphs)
   for (const section of SECTIONS) {
     children.push(new Paragraph({ text: section, heading: HeadingLevel.HEADING_1 }));
-    const draft = drafts.find((d) => d.section === section)?.draft?.trim();
+    const draft = cleanForClient(drafts.find((d) => d.section === section)?.draft ?? "");
     if (!draft) {
       children.push(
-        new Paragraph({ children: [new TextRun({ text: "[Draft not generated yet]", italics: true })] })
+        new Paragraph({ children: [new TextRun({ text: "This section will be provided in the final submission.", italics: true })] })
       );
       continue;
     }
@@ -41,7 +42,7 @@ export async function buildDocx(
   for (const r of [...reqs].sort((a, b) => a.number - b.number)) {
     children.push(
       new Paragraph({
-        text: `Requirement ${r.number} (${r.category}): ${r.text}. Mapped to: ${r.section ?? "not mapped"}.`,
+        text: `Requirement ${r.number} (${r.category}): ${r.text}.`,
       })
     );
   }

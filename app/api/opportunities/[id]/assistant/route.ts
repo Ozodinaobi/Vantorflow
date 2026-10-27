@@ -15,7 +15,7 @@ type Ctx = { params: { id: string } };
 const QUESTIONS: Record<string, string> = {
   next: "What should I do next to move this opportunity forward? Give the top 3 concrete next actions, in order.",
   blocked: "Why is this opportunity blocked, or what is most likely to block it? Be specific, cite requirement numbers and sections where relevant.",
-  missing: "What is missing before this bid can be submitted? List the gaps: unmapped requirements, sections with no draft, and any [TO CONFIRM] items.",
+  missing: "What is missing before this bid can be submitted? List the gaps: unmapped requirements, sections with no draft, and any sections that still need final wording.",
 };
 
 export async function POST(req: Request, { params }: Ctx) {
