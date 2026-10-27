@@ -72,7 +72,7 @@ export default function LibraryPage() {
         <p className="label-mono mb-3">Reusable</p>
         <h1 className="font-sans text-4xl font-medium tracking-tighter sm:text-5xl">Answer library</h1>
         <p className="mt-3 max-w-2xl text-sm text-slate-500">
-          Save answers you have already approved. When a draft is written, matching answers are passed to Gemini as context.
+          Save answers you have already approved. When a draft is written, matching answers are passed as context.
         </p>
       </div>
 

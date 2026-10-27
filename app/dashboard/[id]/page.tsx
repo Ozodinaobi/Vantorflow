@@ -396,7 +396,7 @@ export default function OpportunityPage() {
               </p>
             </div>
             <button type="button" className="btn-primary" disabled={extracting || !rfq} onClick={runExtract}>
-              {busyLabel(extracting, reqs.length ? "Re-extract requirements" : "Extract requirements", "Extracting with Gemini")}
+              {busyLabel(extracting, reqs.length ? "Re-extract requirements" : "Extract requirements", "Extracting requirements")}
             </button>
           </div>
 
@@ -409,7 +409,7 @@ export default function OpportunityPage() {
           {review && (
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <p className="font-sans text-xl">
-                Review: Gemini found {review.requirements.length} requirements. Saving replaces the current list.
+                Review: {review.requirements.length} requirements found. Saving replaces the current list.
               </p>
               <div className="mt-3 space-y-1 text-sm text-slate-500">
                 <p>Buyer: {review.buyer ?? "not stated"}</p>
@@ -586,7 +586,7 @@ export default function OpportunityPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <button type="button" className="btn-primary" disabled={generating || mappedCount === 0} onClick={runGenerate}>
-                {busyLabel(generating, "Generate drafts", "Drafting with Gemini")}
+                {busyLabel(generating, "Generate drafts", "Drafting sections")}
               </button>
               <button type="button" className="btn-secondary" disabled={drafts.length === 0} onClick={downloadDocument}>
                 Download .docx

@@ -344,12 +344,14 @@ export function AssistantPanel({ oppId }: { oppId: string }) {
     { key: "missing", label: "What&apos;s missing?" },
   ];
 
-  async function ask(key: string, label: string) {
+  const [free, setFree] = useState("");
+
+  async function ask(key: string, label: string, text?: string) {
     setError(null);
     setBusy(key);
     setAnswer(null);
     try {
-      const r = await api<{ answer: string }>(`/api/opportunities/${oppId}/assistant`, { method: "POST", body: { prompt: key } });
+      const r = await api<{ answer: string }>(`/api/opportunities/${oppId}/assistant`, { method: "POST", body: text ? { text } : { prompt: key } });
       setAnswer({ q: label, text: r.answer });
     } catch (err) {
       setError(`The assistant could not answer: ${errorText(err)}`);
@@ -414,12 +416,20 @@ export function AssistantPanel({ oppId }: { oppId: string }) {
               <label className="block text-xs text-slate-500" htmlFor="assistant-free">Free text</label>
               <input
                 id="assistant-free"
-                disabled
-                aria-describedby="assistant-free-note"
-                placeholder="Unavailable"
-                className="mt-2 w-full cursor-not-allowed rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500"
+                value={free}
+                onChange={(e) => setFree(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && free.trim() && busy === null) ask("free", free.trim(), free.trim()); }}
+                placeholder="Ask anything about this bid"
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"
               />
-              <p id="assistant-free-note" className="mt-2 text-xs text-slate-500">Free text is unavailable. Use the guided questions above.</p>
+              <button
+                type="button"
+                disabled={busy !== null || !free.trim()}
+                onClick={() => ask("free", free.trim(), free.trim())}
+                className="btn-primary mt-2 w-full disabled:opacity-50"
+              >
+                Ask
+              </button>
             </div>
           </aside>
         </div>

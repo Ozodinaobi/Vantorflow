@@ -94,7 +94,7 @@ export default async function SharePage({ params }: { params: { token: string } 
           )}
         </section>
 
-        <p className="text-center text-xs text-slate-500">This link expires {new Date(proposal.expiresAt).toLocaleDateString("en-GB", { timeZone: "Africa/Lagos" })} (Lagos time).</p>
+        <p className="text-center text-xs text-slate-500">This link expires {new Date(proposal.expiresAt).toLocaleDateString("en-GB", { timeZone: "Africa/Lagos" })}.</p>
       </div>
     </main>
   );

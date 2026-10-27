@@ -29,8 +29,9 @@ export async function POST(req: Request, { params }: Ctx) {
   } catch {
     return NextResponse.json({ error: "Request body must be JSON." }, { status: 400 });
   }
-  const question = QUESTIONS[body?.prompt];
-  if (!question) return NextResponse.json({ error: "Pick one of the three guided questions." }, { status: 400 });
+  const freeText = typeof body?.text === "string" ? body.text.trim().slice(0, 500) : "";
+  const question = QUESTIONS[body?.prompt] ?? (freeText ? `Answer this question about the opportunity: ${freeText}` : null);
+  if (!question) return NextResponse.json({ error: "Ask a question or pick one of the guided questions." }, { status: 400 });
 
   try {
     const oppRows = await rest<any[]>("GET", "opportunities", {
@@ -63,7 +64,7 @@ export async function POST(req: Request, { params }: Ctx) {
       `Opportunity: ${opp.title}`,
       `Buyer: ${opp.buyer}`,
       `Current stage: ${opp.status} (stages in order: ${STAGES.join(", ")})`,
-      `Deadline: ${opp.deadline ?? "not set"}${days === null ? "" : ` (${days} day(s) from today, Lagos time)`}`,
+      `Deadline: ${opp.deadline ?? "not set"}${days === null ? "" : ` (${days} day(s) from today)`}`,
       `Readiness: ${readiness.score}% (${readiness.mapped}/${readiness.total} requirements mapped, ${readiness.drafted}/${readiness.sectionCount} sections drafted)`,
       `Requirements: ${requirements.length} total, ${unmapped.length} not yet mapped to a section`,
       "Sections:",
