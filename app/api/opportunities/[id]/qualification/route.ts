@@ -3,7 +3,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/serverAuth";
 import { errorResponse, ownsOpportunity, rest, UUID_RE } from "@/lib/db";
-import { QUAL_KEYS, computeVerdict } from "@/lib/qualification";
+import { QUAL_FIELDS, computeVerdict } from "@/lib/qualification";
 
 type Ctx = { params: { id: string } };
 
@@ -32,13 +32,24 @@ export async function PUT(req: Request, { params }: Ctx) {
   } catch {
     return NextResponse.json({ error: "Request body must be JSON." }, { status: 400 });
   }
+  // Accept scores either nested ({ scores: {...} }) or flat (top-level keys).
+  const source: Record<string, unknown> = body?.scores && typeof body.scores === "object" ? body.scores : body ?? {};
   const scores: Record<string, number> = {};
-  for (const k of QUAL_KEYS) {
-    const v = Number(body?.[k]);
-    if (!Number.isInteger(v) || v < 1 || v > 5) {
-      return NextResponse.json({ error: `Score for ${k.replace(/_/g, " ")} must be a whole number from 1 to 5.` }, { status: 400 });
+  for (const f of QUAL_FIELDS) {
+    const raw = source[f.key];
+    // A blank or missing factor is treated as neutral (3) so the save never fails on an unscored field.
+    if (raw === undefined || raw === null || raw === "") {
+      scores[f.key] = 3;
+      continue;
     }
-    scores[k] = v;
+    const v = typeof raw === "number" ? raw : Number(String(raw).trim());
+    if (!Number.isInteger(v) || v < 1 || v > 5) {
+      return NextResponse.json(
+        { error: `${f.label}: pick a whole-number score from 1 to 5 (got ${String(raw)}).`, field: f.key },
+        { status: 400 },
+      );
+    }
+    scores[f.key] = v;
   }
   const notes = typeof body?.notes === "string" ? body.notes.slice(0, 4000) : "";
   const verdict = computeVerdict(scores as any).verdict;

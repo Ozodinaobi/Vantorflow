@@ -31,7 +31,7 @@ export function QualificationPanel({ oppId, onMessage }: { oppId: string; onMess
         if (d.qualification) {
           const q = d.qualification;
           const s: Record<string, number> = {};
-          QUAL_FIELDS.forEach((f) => (s[f.key] = q[f.key]));
+          QUAL_FIELDS.forEach((f) => (s[f.key] = Number.isInteger(q[f.key]) ? q[f.key] : 3));
           setScores(s);
           setNotes(q.notes ?? "");
           setVerdict({ verdict: q.verdict, reason: q.reason ?? "", average: q.average });
@@ -44,16 +44,30 @@ export function QualificationPanel({ oppId, onMessage }: { oppId: string; onMess
       .finally(() => setLoading(false));
   }, [oppId, onMessage]);
 
-  const complete = QUAL_FIELDS.every((f) => scores[f.key] >= 1 && scores[f.key] <= 5);
-  const preview = complete ? computeVerdict(scores as any) : null;
+  // Every factor always has a whole-number score 1 to 5 (unscored ones default to a neutral 3).
+  const scoreFor = (key: string) => {
+    const v = Number(scores[key]);
+    return Number.isInteger(v) && v >= 1 && v <= 5 ? v : 3;
+  };
+  const complete = QUAL_FIELDS.every((f) => Number.isInteger(scoreFor(f.key)));
+  const preview = complete ? computeVerdict(Object.fromEntries(QUAL_FIELDS.map((f) => [f.key, scoreFor(f.key)])) as any) : null;
 
   async function save(e: FormEvent) {
     e.preventDefault();
+    const bad = QUAL_FIELDS.filter((f) => {
+      const v = scores[f.key];
+      return v !== undefined && v !== null && !(Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= 5);
+    });
+    if (bad.length) {
+      onMessage({ kind: "error", text: `Qualification was NOT saved: ${bad.map((f) => `${f.label} must be a whole number from 1 to 5`).join("; ")}.` });
+      return;
+    }
     setSaving(true);
     try {
+      const payload: Record<string, number> = Object.fromEntries(QUAL_FIELDS.map((f) => [f.key, scoreFor(f.key)]));
       const r = await api<{ qualification: any }>(`/api/opportunities/${oppId}/qualification`, {
         method: "PUT",
-        body: { scores, notes },
+        body: { scores: payload, notes },
       });
       setVerdict({ verdict: r.qualification.verdict, reason: r.qualification.reason ?? "", average: r.qualification.average });
       onMessage({ kind: "ok", text: `Qualification saved: ${r.qualification.verdict}.` });
@@ -92,10 +106,13 @@ export function QualificationPanel({ oppId, onMessage }: { oppId: string; onMess
             {QUAL_FIELDS.map((f) => (
               <fieldset key={f.key} className="space-y-2">
                 <legend className="text-sm">{f.label}</legend>
-                <p className="text-xs text-slate-500">{f.hint}</p>
+                <p className="text-xs text-slate-500">
+                  {f.hint}
+                  {scores[f.key] === undefined && <span className="text-slate-400"> Defaults to 3 (neutral) until you pick.</span>}
+                </p>
                 <div className="grid grid-cols-5 gap-2" role="radiogroup" aria-label={f.label}>
                   {[1, 2, 3, 4, 5].map((n) => {
-                    const on = scores[f.key] === n;
+                    const on = scoreFor(f.key) === n;
                     return (
                       <button
                         key={n}
