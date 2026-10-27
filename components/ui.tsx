@@ -85,12 +85,12 @@ export function GlowOrbs({ className = "" }: { className?: string }) {
 export function LogoMark({ size = 32, wordmark = false, className = "" }: { size?: number; wordmark?: boolean; className?: string }) {
   const mark = (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
-      {/* Open ring in #EBEBEB, leaving the upper-right gap. */}
-      <path d="M15.316 6.256 A6.633 6.633 0 1 1 6.567 15.804" stroke="#EBEBEB" strokeWidth="1.254" strokeLinecap="round" />
-      {/* Emerald accent arc closing the upper-left quadrant. */}
-      <path d="M6.256 15.316 A6.633 6.633 0 0 1 14.269 5.767" stroke="#10B981" strokeWidth="1.254" strokeLinecap="round" />
-      {/* Emerald terminal dot at the open end. */}
-      <circle cx="18.340" cy="7.383" r="0.539" fill="#10B981" />
+      {/* Open ring in #EBEBEB, black gap at the top (measured from the approved reference artwork). */}
+      <path d="M 16.408 8.339 A 5.752 5.752 0 1 1 7.408 8.574" stroke="#EBEBEB" strokeWidth="1.8" fill="none" />
+      {/* Emerald arc across the top of the gap, on the same radius. */}
+      <path d="M 10.035 6.631 A 5.752 5.752 0 0 1 15.699 7.630" stroke="#10B981" strokeWidth="1.8" fill="none" />
+      {/* Emerald dot, top-right. */}
+      <circle cx="19.031" cy="4.968" r="1.311" fill="#10B981" />
     </svg>
   );
   if (!wordmark) return <span className={`inline-flex ${className}`}>{mark}</span>;
