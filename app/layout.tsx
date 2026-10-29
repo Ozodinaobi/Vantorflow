@@ -6,8 +6,29 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader", weight: ["400", "500", "600"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Vantorflow",
-  description: "Bid and tender operations platform",
+  metadataBase: new URL("https://vantorflow.com.ng"),
+  title: {
+    default: "Vantorflow | Bid and Tender Operations Platform",
+    template: "%s | Vantorflow",
+  },
+  description: "Manage bids and tenders from RFQ to submission. Vantorflow turns requests into actionable requirements and keeps your pipeline, responses, approvals, and deadlines in one workspace.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://vantorflow.com.ng/",
+    siteName: "Vantorflow",
+    title: "Vantorflow | Bid and Tender Operations Platform",
+    description: "Manage bids and tenders from RFQ to submission. Keep requirements, responses, approvals, and deadlines in one workspace.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Vantorflow bid and tender operations platform" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vantorflow | Bid and Tender Operations Platform",
+    description: "Manage bids and tenders from RFQ to submission. Keep requirements, responses, approvals, and deadlines in one workspace.",
+    images: ["/og-image.png"],
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
@@ -17,7 +38,6 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
-  openGraph: { title: "Vantorflow", description: "Bid and tender operations platform", images: [{ url: "/og-image.png", width: 1200, height: 630 }] },
   manifest: undefined,
   themeColor: "#050505",
 };
