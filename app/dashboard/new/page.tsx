@@ -43,41 +43,41 @@ export default function NewRfqPage() {
   return (
     <section className="max-w-3xl">
       <div className="mb-10">
-        <p className="eyebrow mb-2">Intake</p>
-          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-6xl">New RFQ intake</h1>
+        <p className="label-mono mb-3">Intake</p>
+        <h1 className="font-serif text-4xl font-medium leading-[0.95] tracking-tighter sm:text-5xl">New RFQ intake</h1>
       </div>
       <Reveal>
-        <form onSubmit={onSubmit} className="card glass-interactive animate-enter space-y-6">
+        <form onSubmit={onSubmit} className="card space-y-6">
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm sm:col-span-2">
-              <span className="eyebrow mb-2 block">Opportunity title</span>
+              <span className="label-mono mb-2 block">Opportunity title</span>
               <input className="input" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Supply of office IT equipment 2027" />
             </label>
             <label className="block text-sm">
-              <span className="eyebrow mb-2 block">Buyer organisation</span>
+              <span className="label-mono mb-2 block">Buyer organisation</span>
               <input className="input" required value={buyer} onChange={(e) => setBuyer(e.target.value)} />
             </label>
             <label className="block text-sm">
-              <span className="eyebrow mb-2 block">Deadline</span>
+              <span className="label-mono mb-2 block">Deadline</span>
               <input className="input" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
             </label>
             <label className="block text-sm">
-              <span className="eyebrow mb-2 block">Estimated value (optional)</span>
+              <span className="label-mono mb-2 block">Estimated value (optional)</span>
               <input className="input" type="number" min="0" step="any" value={value} onChange={(e) => setValue(e.target.value)} />
             </label>
           </div>
           <label className="block text-sm">
-            <span className="eyebrow mb-2 block">RFQ text</span>
+            <span className="label-mono mb-2 block">RFQ text</span>
             <textarea
-              className="input min-h-[320px] rounded-xl font-sans text-xs leading-relaxed"
+              className="input min-h-[320px] rounded-3xl font-mono text-xs leading-relaxed"
               required
               value={rfqText}
               onChange={(e) => setRfqText(e.target.value)}
               placeholder="Paste the full RFQ or tender text here."
             />
-            <span className="mt-2 block text-xs text-slate-500">{rfqText.length.toLocaleString("en-GB")} characters</span>
+            <span className="mt-2 block text-xs text-white/35">{rfqText.length.toLocaleString("en-GB")} characters</span>
           </label>
-          {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
+          {error && <p role="alert" className="rounded-2xl border border-red-500/20 bg-red-500/[0.06] p-4 text-sm text-red-300">{error}</p>}
           <div className="flex gap-3">
             <button type="submit" disabled={busy} className="btn-primary">
               {busy ? <BreathingLoader label="Saving" /> : "Create opportunity"}

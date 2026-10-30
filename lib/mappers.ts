@@ -17,11 +17,6 @@ export function toOpportunity(row: any) {
     status: row.status,
     created_at: row.created_at,
     updated_at: row.updated_at,
-    // Outcome columns come from the FEATURES MIGRATION. Null until the owner runs it.
-    outcome_result: row.outcome_result ?? null,
-    outcome_reason: row.outcome_reason ?? null,
-    outcome_notes: row.outcome_notes ?? null,
-    outcome_at: row.outcome_at ?? null,
   };
 }
 

@@ -4,7 +4,6 @@ import { requireUser } from "@/lib/serverAuth";
 import { errorResponse, ownsOpportunity, rest, UUID_RE } from "@/lib/db";
 import { SECTIONS } from "@/lib/types";
 import { toDraft } from "@/lib/mappers";
-import { audit } from "@/lib/audit";
 
 type Ctx = { params: { id: string } };
 
@@ -63,7 +62,6 @@ export async function PUT(req: Request, { params }: Ctx) {
         saved.push(created);
       }
     }
-    await audit(auth.userId, params.id, "draft", { sections: saved.map((d: any) => d.section) });
     return NextResponse.json({ drafts: saved.map(toDraft) });
   } catch (e) {
     return errorResponse(e, "Drafts were NOT saved: ");

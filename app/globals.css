@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---------- Cyber Serif (dark) ---------- */
+/* ---------- Base ---------- */
 @layer base {
   html {
     background: #050505;
@@ -11,285 +11,202 @@
     overflow-x: hidden;
   }
   body {
-    min-height: 100vh;
-    background: #050505;
-    color: #EBEBEB;
-    font-family: var(--font-inter), Inter, system-ui, sans-serif;
-    font-size: 16px;
-    line-height: 24px;
+    @apply min-h-screen bg-ink font-sans text-bone antialiased;
     overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
   }
   ::selection {
     background: rgba(16, 185, 129, 0.35);
-    color: #EBEBEB;
+    color: #ffffff;
   }
+  /* Visible keyboard focus everywhere. Mouse clicks do not show it. */
   :focus-visible {
-    outline: 2px solid #10B981;
-    outline-offset: 2px;
-    border-radius: 6px;
+    outline: 2px solid #10b981;
+    outline-offset: 3px;
+    border-radius: 9999px;
   }
   h1, h2, h3 {
-    font-family: var(--font-newsreader), Newsreader, Georgia, serif;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: #EBEBEB;
+    @apply font-serif;
   }
-  /* Nav and controls: 13px / 600. Shared motion curve. */
-  a, button, input, select, textarea, [role="button"] {
-    transition-property: color, background-color, border-color, opacity, transform, box-shadow;
-    transition-duration: 0.15s;
-    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  }
-}
-
-/* ---------- Background: slow aurora breathing behind everything ---------- */
-.aurora {
-  position: fixed;
-  inset: -20%;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(40% 40% at 20% 15%, rgba(16, 185, 129, 0.12), transparent 70%),
-    radial-gradient(35% 35% at 85% 80%, rgba(16, 185, 129, 0.07), transparent 70%);
-  animation: aurora-breathe 14s ease-in-out infinite;
-}
-@keyframes aurora-breathe {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.06); }
 }
 
 /* ---------- Components ---------- */
 @layer components {
-  /* Glass card: 2% white fill, 1px 10% white border, soft blur, 12px radius. */
-  .card,
+  /* Glass surface: rgba(255,255,255,0.02), blur 12px, 1px border rgba(255,255,255,0.1). */
   .glass {
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
-  }
-  .card {
-    @apply p-6 sm:p-8;
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .btn-primary {
-    @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl px-4 py-2 text-[13px] font-semibold;
-    background: #10B981;
-    color: #050505;
+  /* Morphing and breathing background glow. Blur is large, so keep it inside an overflow-hidden parent. */
+  .glow-orb {
+    position: absolute;
+    border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%;
+    background: rgba(16, 185, 129, 0.1);
+    filter: blur(100px);
+    pointer-events: none;
+    animation: morph 8s ease-in-out infinite alternate, breathe 6s ease-in-out infinite;
+    will-change: transform, border-radius;
   }
-  .btn-primary:hover {
-    background: #34d399;
+
+  /* Shimmer border: a 1px gradient sweep behind the card edge. */
+  .shimmer-border {
+    position: relative;
+    isolation: isolate;
+  }
+  .shimmer-border::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(16, 185, 129, 0.3) 50%,
+      transparent 80%
+    );
+    background-size: 200% 100%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: shimmer 4s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Spotlight: radial glow follows the cursor. JS sets --mx and --my. */
+  .spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+  .spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      600px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(16, 185, 129, 0.15),
+      transparent 40%
+    );
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .spotlight:hover::before {
+    opacity: 1;
+  }
+
+  /* Pill buttons. Primary is solid white with a continuous emerald pulse glow. */
+  .btn-primary {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
+    animation: glow-pulse 4.8s ease-in-out infinite;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.02);
+    background: #f2fdf8;
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: scale(0.98);
   }
   .btn-primary:disabled {
     @apply cursor-not-allowed opacity-50;
+    animation: none;
   }
 
   .btn-secondary {
-    @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl border px-4 py-2 text-[13px] font-semibold;
-    background: #171717;
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #EBEBEB;
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-6 py-2.5 text-sm font-semibold text-bone backdrop-blur-md transition-colors duration-500;
   }
-  .btn-secondary:hover {
-    background: #1F1F1F;
+  .btn-secondary:hover:not(:disabled) {
+    @apply border-white/25 bg-white/[0.06];
   }
   .btn-secondary:disabled {
     @apply cursor-not-allowed opacity-50;
   }
 
-  /* Form inputs: 40px height, 16px on mobile to stop iOS zoom. */
+  /* Form inputs: dark glass, 44px touch height, 16px font on mobile to stop iOS zoom. */
   .input {
-    @apply min-h-[40px] w-full rounded-xl px-3 py-2 text-base sm:text-sm;
-    background: #171717;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #EBEBEB;
-  }
-  .input::placeholder {
-    color: #6b6b6b;
+    @apply min-h-[44px] w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-base text-bone placeholder:text-white/25 transition-colors duration-300 sm:text-sm;
   }
   .input:focus {
-    border-color: #10B981;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+    @apply border-emerald-500/50 bg-white/[0.05] outline-none;
+  }
+  .input option {
+    @apply bg-[#0b0b0b] text-bone;
   }
 
-  /* Eyebrow: uppercase label above page titles. */
+  .card {
+    @apply glass rounded-3xl p-6 sm:p-8;
+  }
+
+  /* Technical label: Space Grotesk, 10px, uppercase, 0.2em tracking. */
   .label-mono {
-    @apply text-xs font-semibold uppercase tracking-[0.12em];
-    color: #949494;
+    @apply font-grotesk text-[10px] font-medium uppercase tracking-[0.2em] text-white/40;
   }
 
+  /* Text link with a 1px emerald underline that grows from 0 to 100 percent on hover. */
   .link-u {
-    @apply relative inline-flex min-h-[40px] items-center;
-    color: #949494;
+    @apply relative inline-flex min-h-[44px] items-center text-bone/70 transition-colors duration-300 hover:text-bone;
   }
-  .link-u:hover {
-    color: #EBEBEB;
+  .link-u::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 10px;
+    height: 1px;
+    width: 100%;
+    background: #10b981;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .link-u:hover::after {
+    transform: scaleX(1);
   }
 
+  /* Gradient-text for the CTA headline: white shifts into emerald and back. */
+  .text-gradient-shift {
+    background: linear-gradient(90deg, #ffffff 0%, #10b981 50%, #ffffff 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-x 6s ease-in-out infinite;
+  }
+
+  /* Scroll reveal: fade and rise with the house curve. Toggled by the Reveal component. */
   .reveal {
-    @apply block;
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
   }
 
+  /* Breathing state for in-progress AI work (extraction, drafting). */
+  .breathing-panel {
+    animation: breathe 5s ease-in-out infinite;
+  }
+
+  /* Tables: 1px rgba(255,255,255,0.05) rows, label-mono headers. */
   .tbl {
     @apply w-full min-w-[560px] border-separate border-spacing-0 text-left text-sm;
   }
   .tbl th {
-    @apply px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.12em];
-    color: #949494;
-    background: #0b0b0b;
-    border-bottom: 1px solid #262626;
+    @apply label-mono border-b border-white/5 px-3 py-3 font-normal;
   }
   .tbl td {
-    @apply px-3 py-3 align-top;
-    color: #cfcfcf;
-    border-bottom: 1px solid #262626;
+    @apply border-b border-white/5 px-3 py-3 align-top text-bone/80;
   }
   .tbl tr:last-child td {
-    border-bottom: 0;
-  }
-
-  /* Shimmer loader: a moving highlight across a muted bar. */
-  .shimmer {
-    background: linear-gradient(90deg, #171717 0%, #262626 50%, #171717 100%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s linear infinite;
-  }
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* ---------- Design system v2 (see design/DESIGN_SYSTEM.md) ---------- */
-@layer components {
-  /* Breathing emerald dot for live status and empty-state rings. */
-  .breathe-dot {
-    animation: breathe-dot 2.4s ease-in-out infinite;
-  }
-  @keyframes breathe-dot {
-    0%, 100% { opacity: 0.45; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    50% { opacity: 1; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.12); }
-  }
-
-  /* Empty-state ring that breathes. */
-  .breathe-ring {
-    animation: breathe-ring 3.6s ease-in-out infinite;
-  }
-  @keyframes breathe-ring {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.18); }
-    50% { transform: scale(1.04); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-  }
-
-  /* Primary CTA glow pulse. */
-  .cta-glow {
-    transition: box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .cta-glow:hover {
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.14), 0 8px 24px -8px rgba(16, 185, 129, 0.45);
-    transform: translateY(-1px);
-  }
-  .cta-glow:active {
-    transform: scale(0.98);
-  }
-
-  /* Interactive glass card: emerald border + 1px lift on hover, scale on press. */
-  .card-interactive {
-    transition: border-color 200ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .card-interactive:hover {
-    border-color: rgba(16, 185, 129, 0.35);
-    background-color: rgba(255, 255, 255, 0.035);
-    transform: translateY(-1px);
-    box-shadow: 0 12px 32px -16px rgba(16, 185, 129, 0.35);
-  }
-  .card-interactive:active {
-    transform: scale(0.99);
-  }
-
-  /* Table / list row: emerald rule fades in on hover. */
-  .row-hover {
-    position: relative;
-    transition: background-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .row-hover::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #10B981;
-    opacity: 0;
-    transition: opacity 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .row-hover:hover {
-    background-color: rgba(255, 255, 255, 0.03);
-  }
-  .row-hover:hover::before {
-    opacity: 1;
-  }
-
-  /* Ghost link underline that grows 0 to 100%. */
-  .link-grow {
-    background-image: linear-gradient(#10B981, #10B981);
-    background-size: 0% 1px;
-    background-repeat: no-repeat;
-    background-position: 0 100%;
-    transition: background-size 200ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .link-grow:hover {
-    background-size: 100% 1px;
-  }
-
-  /* Entrance: fade and rise, 520ms, used with a stagger via inline animation-delay. */
-  .enter {
-    animation: enter 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  @keyframes enter {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Bar fill that animates from zero. */
-  .bar-grow {
-    transform-origin: left center;
-    animation: bar-grow 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  @keyframes bar-grow {
-    from { transform: scaleX(0); }
-    to { transform: scaleX(1); }
-  }
-
-  /* Premium empty state: centred glass card, breathing ring, serif headline. */
-  .empty-state {
-    @apply flex flex-col items-center justify-center rounded-xl px-6 py-12 text-center;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-  }
-  .empty-state .empty-ring {
-    @apply mb-6 flex h-14 w-14 items-center justify-center rounded-full;
-    border: 1px solid rgba(16, 185, 129, 0.35);
-    color: #10B981;
-    animation: breathe-ring 3.6s ease-in-out infinite;
-  }
-  .empty-state h3 {
-    @apply font-serif text-xl font-medium;
-  }
-  .empty-state p {
-    @apply mt-2 max-w-sm text-sm;
-    color: #949494;
-  }
-
-  /* Count-up numbers (rendered with tabular numerals to stop jitter). */
-  .num {
-    @apply tabular-nums;
-    font-variant-numeric: tabular-nums;
+    @apply border-b-0;
   }
 }
 
@@ -299,31 +216,46 @@
   }
 }
 
+/* Gradient keyframes used by .text-gradient-shift (kept here so the Tailwind config stays short). */
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+/* Guided onboarding spotlight targets the current app destination. */
+html[data-onboarding-target="settings"] .card:first-of-type,
+html[data-onboarding-target="new-rfq"] form.card {
+  border-color: rgba(16, 185, 129, 0.48);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.12), 0 0 42px rgba(16, 185, 129, 0.08);
+  animation: onboarding-spotlight 3.2s ease-in-out infinite;
+}
+@keyframes onboarding-spotlight {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.08), 0 0 24px rgba(16, 185, 129, 0.04); }
+  50% { box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2), 0 0 42px rgba(16, 185, 129, 0.12); }
+}
+
+/* ---------- Reduced motion: no breathing, morphing, shimmer, count-up or scroll motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
+  /* Keep the content visible: reveals and loaders still show a static state. */
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .glow-orb {
+    animation: none;
+  }
+  html[data-onboarding-target] .card,
+  html[data-onboarding-target] form.card {
+    animation: none;
+  }
 }
-
-/* Design system v2 additions (design/DESIGN_SYSTEM.md) */
-.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #949494; }
-/* Eyebrow to headline spacing: every page header is an eyebrow followed by an h1. Give the serif headline room below the label on all sizes. */
-.label-mono + h1, .eyebrow + h1 { margin-top: 0.875rem; line-height: 1.12; }
-.label-mono + h1.text-5xl, .eyebrow + h1.text-6xl { margin-top: 1rem; }
-@media (max-width: 640px) {
-  .label-mono + h1, .eyebrow + h1 { margin-top: 0.75rem; line-height: 1.15; }
-}
-.glass-interactive { background: rgba(255,255,255,0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; transition: border-color 200ms cubic-bezier(0.16,1,0.3,1), background 200ms cubic-bezier(0.16,1,0.3,1), transform 200ms cubic-bezier(0.16,1,0.3,1); }
-.glass-interactive:hover { border-color: rgba(16,185,129,0.35); background: rgba(255,255,255,0.035); transform: translateY(-1px); }
-.ghost-link { position: relative; transition: color 150ms cubic-bezier(0.16,1,0.3,1); }
-.ghost-link::after { content: ""; position: absolute; left: 0; bottom: -4px; height: 1px; width: 0; background: #10B981; transition: width 200ms cubic-bezier(0.16,1,0.3,1); }
-.ghost-link:hover::after { width: 100%; }
-.focus-ring:focus-visible { outline: 2px solid #10B981; outline-offset: 2px; }
-@keyframes vf-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.animate-enter { animation: vf-enter 520ms cubic-bezier(0.16,1,0.3,1) both; }
-@media (prefers-reduced-motion: reduce) { .animate-enter, .glass-interactive, .ghost-link::after { animation: none !important; transition: none !important; } }

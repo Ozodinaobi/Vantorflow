@@ -37,10 +37,6 @@ export interface Opportunity {
   status: Stage;
   created_at: string;
   updated_at: string;
-  outcome_result?: "Won" | "Lost" | null;
-  outcome_reason?: string | null;
-  outcome_notes?: string | null;
-  outcome_at?: string | null;
 }
 
 export interface RfqRecord {

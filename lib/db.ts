@@ -73,7 +73,7 @@ export async function rest<T = unknown>(
 
 // Auth admin calls (GoTrue) with the service key.
 export async function authCall(
-  method: "GET" | "POST" | "PUT",
+  method: "GET" | "POST" | "PATCH",
   path: string,
   body?: unknown
 ): Promise<{ ok: boolean; status: number; data: any }> {
@@ -82,7 +82,7 @@ export async function authCall(
   const res = await fetch(`${baseUrl()}/auth/v1${path}`, {
     method,
     headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: JSON.stringify(body),
     cache: "no-store",
   });
   const text = await res.text();
@@ -106,13 +106,7 @@ export async function ownsOpportunity(userId: string, oppId: string): Promise<bo
 // Turns any thrown error into a JSON response. Missing tables become a setup_required flag.
 export function errorResponse(e: unknown, prefix = "") {
   if (e instanceof DbError) {
-    // A table or column added by the FEATURES MIGRATION is missing until the owner runs it.
-    const missingTable =
-      e.code === "PGRST205" ||
-      e.code === "PGRST204" ||
-      e.code === "42703" ||
-      e.code === "42P01" ||
-      /Could not find the table|Could not find the '.*' column|column .* does not exist|relation .* does not exist/i.test(e.message);
+    const missingTable = e.code === "PGRST205" || /Could not find the table/i.test(e.message);
     if (missingTable) {
       return NextResponse.json(
         { error: "The database tables are not set up yet.", setupRequired: true },

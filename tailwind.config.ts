@@ -1,39 +1,69 @@
 import type { Config } from "tailwindcss";
 
-// Cyber Serif (dark). The palette is remapped so existing slate/blue/red classes render the spec colours.
+// Tailwind scans these folders for class names so they are included in the CSS.
+// Design tokens follow design/STYLE.md (Cyber Serif, adapted). Motion lives here so every
+// breathing, morphing and reveal effect is one class name.
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./lib/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        canvas: "#050505",
-        surface: "#070707",
-        ink: "#EBEBEB",
-        muted: "#949494",
-        emerald: { 500: "#10B981", 600: "#10B981", 700: "#34d399" },
-        slate: {
-          50: "#050505",
-          100: "#171717",
-          200: "rgba(255,255,255,0.1)",
-          300: "rgba(255,255,255,0.14)",
-          400: "#6b6b6b",
-          500: "#949494",
-          600: "#b5b5b5",
-          700: "#cfcfcf",
-          800: "#e0e0e0",
-          900: "#EBEBEB",
-        },
-        blue: { 50: "#062d20", 100: "#0a3d2b", 200: "#0f5a41", 300: "#0f5a41", 400: "#34d399", 500: "#10B981", 600: "#10B981", 700: "#34d399", 800: "#6ee7b7" },
-        red: { 50: "#2a0f0f", 100: "#3b1414", 200: "#5b1d1d", 300: "#fca5a5", 400: "#f87171", 500: "#ef4444", 600: "#dc2626", 700: "#f87171", 800: "#fecaca" },
-        amber: { 50: "#2a200b", 100: "#2a200b", 200: "#5c4511", 300: "#fcd34d", 400: "#fbbf24", 500: "#f59e0b", 600: "#d97706", 700: "#fcd34d", 800: "#fde68a" },
+        ink: "#050505",
+        bone: "#EBEBEB",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
-        serif: ["var(--font-newsreader)", "Newsreader", "Georgia", "serif"],
-        mono: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        serif: ["Newsreader", "Georgia", "'Times New Roman'", "serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "'Segoe UI'", "sans-serif"],
+        grotesk: ["'Space Grotesk'", "Inter", "system-ui", "sans-serif"],
       },
-      borderRadius: { xl: "12px", "2xl": "12px", "3xl": "12px" },
-      transitionTimingFunction: { snap: "cubic-bezier(0.16,1,0.3,1)" },
+      transitionTimingFunction: {
+        "out-expo": "cubic-bezier(0.16, 1, 0.3, 1)",
+      },
+      keyframes: {
+        breathe: {
+          "0%, 100%": { transform: "scale(1)", opacity: "0.55" },
+          "50%": { transform: "scale(1.06)", opacity: "0.9" },
+        },
+        morph: {
+          "0%": { borderRadius: "40% 60% 60% 40% / 70% 30% 70% 30%" },
+          "100%": { borderRadius: "60% 40% 40% 60% / 30% 70% 30% 70%" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
+        },
+        "fade-rise": {
+          "0%": { opacity: "0", transform: "translateY(24px)" },
+          "100%": { opacity: "1", transform: "none" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(16,185,129,0), 0 0 22px rgba(16,185,129,0.22)" },
+          "50%": { boxShadow: "0 0 0 6px rgba(16,185,129,0.06), 0 0 38px rgba(16,185,129,0.42)" },
+        },
+        "loader-ring": {
+          "0%, 100%": { transform: "scale(0.82)", opacity: "0.35" },
+          "50%": { transform: "scale(1.12)", opacity: "1" },
+        },
+        "dot-pulse": {
+          "0%, 100%": { opacity: "0.35", transform: "scale(0.9)" },
+          "50%": { opacity: "1", transform: "scale(1.1)" },
+        },
+        "rise-soft": {
+          "0%": { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "none" },
+        },
+      },
+      animation: {
+        breathe: "breathe 5s ease-in-out infinite",
+        "breathe-slow": "breathe 6s ease-in-out infinite",
+        morph: "morph 8s ease-in-out infinite alternate",
+        shimmer: "shimmer 4s linear infinite",
+        "fade-rise": "fade-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "glow-pulse": "glow-pulse 4.8s ease-in-out infinite",
+        "loader-ring": "loader-ring 1.8s ease-in-out infinite",
+        "dot-pulse": "dot-pulse 1.8s ease-in-out infinite",
+        "rise-soft": "rise-soft 0.6s cubic-bezier(0.16, 1, 0.3, 1) both",
+      },
     },
   },
   plugins: [],

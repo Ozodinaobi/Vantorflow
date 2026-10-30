@@ -7,4 +7,3 @@ next-env.d.ts
 # secrets: never commit real keys
 .env*.local
 .env
-*.tsbuildinfo

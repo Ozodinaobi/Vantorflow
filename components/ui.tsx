@@ -1,47 +1,22 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef, useState, MouseEvent } from "react";
 
-// Shared UI primitives for the Cyber Serif theme.
-
-// Breathing loader: three emerald dots with a staggered pulse, plus an sr-only label.
+// ---------- Breathing loader: a soft pulsing emerald ring with a dot. Replaces every spinner. ----------
 export function BreathingLoader({ label, className = "" }: { label?: string; className?: string }) {
   return (
-    <div role="status" aria-live="polite" className={`inline-flex flex-col items-center gap-3 text-sm ${className}`} style={{ color: "#949494" }}>
-      <span className="flex items-center gap-1.5" aria-hidden="true">
-        {[0, 1, 2].map((i) => (
-          <span key={i} className="breathe-dot h-1.5 w-1.5 rounded-full bg-emerald-500" style={{ animationDelay: `${i * 0.18}s` }} />
-        ))}
+    <div role="status" aria-live="polite" className={`inline-flex items-center gap-3 ${className}`}>
+      <span className="relative flex h-6 w-6 items-center justify-center" aria-hidden="true">
+        <span className="absolute inset-0 rounded-full border border-emerald-500/60 animate-loader-ring" />
+        <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-dot-pulse" />
       </span>
-      {label && <span>{label}</span>}
+      {label && <span className="text-sm text-white/50">{label}</span>}
       <span className="sr-only">{label ?? "Loading"}</span>
     </div>
   );
 }
 
-// Premium empty state: glass card, breathing ring, serif headline, one action.
-export function EmptyState({
-  icon,
-  title,
-  body,
-  action,
-}: {
-  icon?: ReactNode;
-  title: string;
-  body: string;
-  action?: ReactNode;
-}) {
-  return (
-    <div className="empty-state enter">
-      <div className="empty-ring">{icon ?? <span className="breathe-dot h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />}</div>
-      <h3 className="text-ink">{title}</h3>
-      <p>{body}</p>
-      {action && <div className="mt-6">{action}</div>}
-    </div>
-  );
-}
-
-// Page-level loading state: a centred breathing loader.
+// Full-width loading block for page-level states.
 export function LoadingBlock({ label }: { label: string }) {
   return (
     <div className="flex min-h-[40vh] items-center justify-center">
@@ -50,56 +25,126 @@ export function LoadingBlock({ label }: { label: string }) {
   );
 }
 
-// Skeleton block for lists and cards while data loads.
-export function Skeleton({ className = "h-4 w-full" }: { className?: string }) {
-  return <div aria-hidden="true" className={`shimmer rounded ${className}`} />;
-}
+// ---------- Count-up number. Animates once when it scrolls into view. Respects reduced motion. ----------
+export function CountUp({ value, suffix = "", duration = 1400 }: { value: number; suffix?: string; duration?: number }) {
+  const [shown, setShown] = useState(0);
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const started = useRef(false);
 
-// Number display. Renders the value directly.
-export function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const el = ref.current;
+    if (!el) return;
+    const run = () => {
+      if (started.current) return;
+      started.current = true;
+      if (reduce) {
+        setShown(value);
+        return;
+      }
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - t0) / duration);
+        const eased = 1 - Math.pow(1 - p, 4); // ease-out quart, close to the house curve
+        setShown(Math.round(value * eased));
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    if (!("IntersectionObserver" in window)) {
+      run();
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && run()),
+      { threshold: 0.4 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [value, duration]);
+
   return (
-    <span className="tabular-nums">
-      {value}
+    <span ref={ref} className="tabular-nums">
+      {shown}
       {suffix}
     </span>
   );
 }
 
-// Wrapper kept for layout consistency. Renders children immediately.
-export function Reveal({ children, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
-  return <div className={className}>{children}</div>;
-}
+// ---------- Scroll reveal: fades and rises when the element enters the viewport. ----------
+export function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [inView, setInView] = useState(false);
 
-// Glass card: 2% fill, 1px 10% white border, backdrop blur.
-export function SpotlightCard({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`card ${className}`}>{children}</div>;
-}
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!("IntersectionObserver" in window)) {
+      setInView(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
-// Kept as an empty element so existing call sites still compile.
-export function GlowOrbs({ className = "" }: { className?: string }) {
-  return <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${className}`} />;
-}
-
-// Vantorflow mark: an open ring in #EBEBEB, with an emerald arc and terminal dot.
-// With wordmark=true it also renders the "Vantorflow" name in Newsreader.
-export function LogoMark({ size = 32, wordmark = false, className = "" }: { size?: number; wordmark?: boolean; className?: string }) {
-  const mark = (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
-      {/* Open ring in #EBEBEB, black gap at the top (measured from the approved reference artwork). */}
-      <path d="M 16.408 8.339 A 5.752 5.752 0 1 1 7.408 8.574" stroke="#EBEBEB" strokeWidth="1.8" fill="none" />
-      {/* Emerald arc across the top of the gap, on the same radius. */}
-      <path d="M 10.035 6.631 A 5.752 5.752 0 0 1 15.699 7.630" stroke="#10B981" strokeWidth="1.8" fill="none" />
-      {/* Emerald dot, top-right. */}
-      <circle cx="19.031" cy="4.968" r="1.311" fill="#10B981" />
-    </svg>
-  );
-  if (!wordmark) return <span className={`inline-flex ${className}`}>{mark}</span>;
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      {mark}
-      <span className="font-serif font-medium leading-none tracking-tight" style={{ fontSize: size * 0.82, color: "#EBEBEB" }}>
-        Vantorflow
-      </span>
+    <div
+      ref={ref}
+      className={`reveal ${inView ? "is-in" : ""} ${className}`}
+      style={{ ["--reveal-delay" as string]: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ---------- Spotlight card: a radial emerald glow follows the cursor. ----------
+export function SpotlightCard({ children, className = "" }: { children: ReactNode; className?: string }) {
+  function onMove(e: MouseEvent<HTMLDivElement>) {
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+  }
+  return (
+    <div onMouseMove={onMove} className={`spotlight glass rounded-3xl ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+// ---------- Morphing glow orbs. Decorative, aria-hidden, clipped by the parent. ----------
+export function GlowOrbs({ className = "" }: { className?: string }) {
+  return (
+    <div aria-hidden="true" className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}>
+      <span className="glow-orb h-96 w-96 -left-24 top-10 opacity-60" />
+      <span
+        className="glow-orb h-80 w-80 right-[-60px] bottom-0 opacity-40"
+        style={{ animationDelay: "-3s, -2s", animationDuration: "8s, 6s" }}
+      />
+    </div>
+  );
+}
+
+// ---------- Logo: command glyph in a white rounded square, spins 360 degrees on hover. ----------
+export function LogoMark({ size = 32 }: { size?: number }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="group/logo inline-flex items-center justify-center rounded-xl bg-white text-black transition-transform duration-[900ms] hover:rotate-[360deg]"
+      style={{ width: size, height: size, transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)" }}
+    >
+      <svg width={size * 0.5} height={size * 0.5} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 9V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V9z" />
+      </svg>
     </span>
   );
 }

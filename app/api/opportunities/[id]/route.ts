@@ -1,5 +1,3 @@
-import { notify } from "@/lib/notify";
-import { audit } from "@/lib/audit";
 // GET /api/opportunities/[id]: one opportunity with its RFQ, requirements and drafts.
 // PATCH /api/opportunities/[id]: change the pipeline stage.
 import { NextResponse } from "next/server";
@@ -56,8 +54,6 @@ export async function PATCH(req: Request, { params }: Ctx) {
       prefer: "return=representation",
     });
     if (!rows.length) return NextResponse.json({ error: "Stage was NOT saved: opportunity not found." }, { status: 404 });
-    await notify({ userId: auth.userId, title: `Stage changed to ${body.status}`, body: String(rows[0].title ?? ""), kind: "stage", dedupeKey: `stage:${params.id}:${body.status}:${Date.now()}` });
-    await audit(auth.userId, params.id, "stage", { status: body.status });
     return NextResponse.json({ opportunity: toOpportunity(rows[0]) });
   } catch (e) {
     return errorResponse(e, "Stage was NOT saved: ");
