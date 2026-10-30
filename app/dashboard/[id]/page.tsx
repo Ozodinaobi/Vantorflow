@@ -7,7 +7,7 @@ import { api, errorText } from "@/lib/api";
 import { ExtractResult, Opportunity, Requirement, RfqRecord, ResponseSection, SECTIONS, Section, Stage } from "@/lib/types";
 import { computeReadiness } from "@/lib/readiness";
 import { formatDate, formatDateTime } from "@/lib/time";
-import { buildDocx, downloadBlob } from "@/lib/docx";
+import { buildDocx, buildPdf, downloadBlob } from "@/lib/docx";
 import { Pipeline } from "@/components/Pipeline";
 import { ReadinessBadge } from "@/components/ReadinessBadge";
 import { BreathingLoader, LoadingBlock, Reveal } from "@/components/ui";
@@ -35,6 +35,9 @@ export default function OpportunityPage() {
   const [review, setReview] = useState<ExtractResult | null>(null);
   const [savingReqs, setSavingReqs] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<"branded" | "plain">("branded");
+  const [templateStep, setTemplateStep] = useState(0);
+  const [savingTemplate, setSavingTemplate] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -54,6 +57,32 @@ export default function OpportunityPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    api<{ selectedTemplate?: "branded" | "plain" | null; currentStep?: number }>("/api/onboarding")
+      .then((state) => {
+        setSelectedTemplate(state.selectedTemplate === "plain" ? "plain" : "branded");
+        setTemplateStep(Number.isInteger(state.currentStep) ? state.currentStep! : 0);
+      })
+      .catch(() => setSelectedTemplate("branded"));
+  }, []);
+
+  async function saveTemplate(template: "branded" | "plain") {
+    setSelectedTemplate(template);
+    setSavingTemplate(true);
+    try {
+      const state = await api<{ currentStep?: number }>("/api/onboarding", {
+        method: "PATCH",
+        body: { action: "template", step: templateStep, template },
+      });
+      if (Number.isInteger(state.currentStep)) setTemplateStep(state.currentStep!);
+      setMessage({ kind: "ok", text: "Response template saved." });
+    } catch (e) {
+      setMessage({ kind: "error", text: `Template preference was not saved: ${errorText(e)}` });
+    } finally {
+      setSavingTemplate(false);
+    }
+  }
 
   const opp = data?.opportunity ?? null;
   const rfq = data?.rfq ?? null;
@@ -157,11 +186,22 @@ export default function OpportunityPage() {
   async function downloadDocument() {
     if (!opp) return;
     try {
-      const blob = await buildDocx(opp, drafts, reqs);
+      const blob = await buildDocx(opp, drafts, reqs, selectedTemplate);
       const safeName = opp.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "response";
       downloadBlob(blob, `${safeName}-response.docx`);
     } catch (e) {
       setMessage({ kind: "error", text: `Could not build the document: ${errorText(e)}` });
+    }
+  }
+
+  async function downloadPdf() {
+    if (!opp) return;
+    try {
+      const blob = await buildPdf(opp, drafts, reqs, selectedTemplate);
+      const safeName = opp.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "response";
+      downloadBlob(blob, `${safeName}-response.pdf`);
+    } catch (e) {
+      setMessage({ kind: "error", text: `Could not build the PDF: ${errorText(e)}` });
     }
   }
 
@@ -341,9 +381,19 @@ export default function OpportunityPage() {
               <button type="button" className="btn-primary" disabled={generating || mappedCount === 0} onClick={runGenerate}>
                 {busyLabel(generating, "Generate drafts", "Drafting with Gemini")}
               </button>
-              <button type="button" className="btn-secondary" disabled={drafts.length === 0} onClick={downloadDocument}>
-                Download .docx
-              </button>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.03] p-5">
+            <label htmlFor="response-template" className="label-mono mb-2 block">Response template</label>
+            <select id="response-template" aria-label="Response template" className="input !min-h-[44px] !py-2 !text-sm" value={selectedTemplate} disabled={savingTemplate} onChange={(e) => saveTemplate(e.target.value as "branded" | "plain")}>
+              <option value="branded">Vantorflow Branded Proposal</option>
+              <option value="plain">Plain response</option>
+            </select>
+            <p className="mt-2 text-xs text-white/45">This template is available for every RFQ. Branded is selected by default.</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button type="button" className="btn-secondary" disabled={drafts.length === 0} onClick={downloadDocument}>Download .docx</button>
+              <button type="button" className="btn-secondary" disabled={drafts.length === 0} onClick={downloadPdf}>Download .pdf</button>
             </div>
           </div>
 
