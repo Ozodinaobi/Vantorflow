@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@simplewebauthn/browser": "^11.0.0",
+    "@simplewebauthn/server": "^11.0.0",
     "@supabase/supabase-js": "^2.45.0",
     "docx": "^8.5.0",
     "lucide-react": "^0.460.0",

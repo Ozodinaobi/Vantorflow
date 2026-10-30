@@ -18,6 +18,10 @@ export default function SettingsPage() {
   const [confirm, setConfirm] = useState("");
   const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [savingPw, setSavingPw] = useState(false);
+  const [twoFactor, setTwoFactor] = useState(false);
+  const [securityMsg, setSecurityMsg] = useState<string | null>(null);
+  const [securityBusy, setSecurityBusy] = useState(false);
+  const [passkeys, setPasskeys] = useState<Array<{ credential_id: string; created_at: string }>>([]);
 
   const [copied, setCopied] = useState(false);
   const ingestUrl = typeof window !== "undefined" ? `${window.location.origin}/api/email-in` : "/api/email-in";
@@ -30,6 +34,36 @@ export default function SettingsPage() {
       })
       .catch((e) => setNameMsg({ ok: false, text: `Could not load your profile: ${errorText(e)}` }));
   }, []);
+
+  useEffect(() => {
+    api<{ twoFactorEnabled: boolean; passkeys: Array<{ credential_id: string; created_at: string }> }>("/api/account/security")
+      .then((s) => { setTwoFactor(s.twoFactorEnabled); setPasskeys(s.passkeys); })
+      .catch((e) => setSecurityMsg(errorText(e)));
+  }, []);
+
+  async function updateTwoFactor(enabled: boolean) {
+    setSecurityBusy(true); setSecurityMsg(null);
+    try { const result = await api<{ twoFactorEnabled: boolean }>("/api/account/security", { method: "PATCH", body: { twoFactorEnabled: enabled } }); setTwoFactor(result.twoFactorEnabled); setSecurityMsg(enabled ? "Email two-step verification is on." : "Email two-step verification is off."); }
+    catch (e) { setSecurityMsg(errorText(e)); } finally { setSecurityBusy(false); }
+  }
+
+  async function registerPasskey() {
+    setSecurityBusy(true); setSecurityMsg(null);
+    try {
+      const { startRegistration } = await import("@simplewebauthn/browser");
+      const options = await api<any>("/api/account/passkeys/register");
+      const response = await startRegistration({ optionsJSON: options });
+      await api("/api/account/passkeys/register", { method: "POST", body: response });
+      const security = await api<{ twoFactorEnabled: boolean; passkeys: Array<{ credential_id: string; created_at: string }> }>("/api/account/security");
+      setPasskeys(security.passkeys); setSecurityMsg("Passkey added to this device.");
+    } catch (e) { setSecurityMsg(errorText(e)); } finally { setSecurityBusy(false); }
+  }
+
+  async function removePasskey(id: string) {
+    setSecurityBusy(true); setSecurityMsg(null);
+    try { await api(`/api/account/passkeys/remove?id=${encodeURIComponent(id)}`, { method: "DELETE" }); setPasskeys((all) => all.filter((p) => p.credential_id !== id)); setSecurityMsg("Passkey removed."); }
+    catch (e) { setSecurityMsg(errorText(e)); } finally { setSecurityBusy(false); }
+  }
 
   async function saveName(e: FormEvent) {
     e.preventDefault();
@@ -109,6 +143,20 @@ export default function SettingsPage() {
             </button>
           </form>
         )}
+      </div>
+
+      <div className="card">
+        <h2 className="text-lg font-semibold">Sign-in security</h2>
+        <p className="mt-2 text-sm text-muted">Email codes add a second step after your password. Passkeys let you use your device biometrics or screen lock.</p>
+        <label className="mt-4 flex items-center gap-3 text-sm">
+          <input type="checkbox" checked={twoFactor} disabled={securityBusy} onChange={(e) => updateTwoFactor(e.target.checked)} className="h-4 w-4 accent-emerald-500" />
+          Require a code by email every time I sign in
+        </label>
+        <div className="mt-5 space-y-3">
+          <button type="button" className="btn-secondary" disabled={securityBusy} onClick={registerPasskey}>{securityBusy ? "Please wait..." : "Add a passkey"}</button>
+          {passkeys.map((p) => <div key={p.credential_id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 p-3 text-sm"><span>Passkey added {new Date(p.created_at).toLocaleDateString()}</span><button className="text-red-400 hover:underline" type="button" disabled={securityBusy} onClick={() => removePasskey(p.credential_id)}>Remove</button></div>)}
+        </div>
+        {securityMsg && <p role="status" className="mt-3 text-sm text-slate-500">{securityMsg}</p>}
       </div>
 
       <div className="card">
