@@ -1,7 +1,13 @@
 // Builds the response document as a .docx file in the browser, using the "docx" npm package.
-import { Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
-import { SECTIONS, Opportunity, Requirement, ResponseSection } from "./types";
+import { Document, Footer, Header, HeadingLevel, ImageRun, Packer, PageNumber, Paragraph, TextRun, AlignmentType, TabStopPosition, TabStopType } from "docx";
 import { formatDate } from "./time";
+import { SECTIONS, Opportunity, Requirement, ResponseSection } from "./types";
+
+async function loadLogo(): Promise<Uint8Array> {
+  const response = await fetch("/logo.png");
+  if (!response.ok) throw new Error("The Vantorflow logo could not be loaded.");
+  return new Uint8Array(await response.arrayBuffer());
+}
 
 export async function buildDocx(
   opp: Opportunity,
@@ -44,7 +50,26 @@ export async function buildDocx(
     );
   }
 
-  const doc = new Document({ sections: [{ children }] });
+  const logoBytes = template === "branded" ? await loadLogo() : undefined;
+  const header = template === "branded" && logoBytes ? new Header({
+    children: [new Paragraph({
+      alignment: AlignmentType.LEFT,
+      border: { bottom: { color: "10B981", size: 8, space: 6, style: "single" } },
+      children: [new ImageRun({ data: logoBytes, transformation: { width: 42, height: 42 } })],
+    })],
+  }) : undefined;
+  const footer = template === "branded" ? new Footer({
+    children: [new Paragraph({
+      border: { top: { color: "10B981", size: 4, space: 6, style: "single" } },
+      tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+      children: [
+        new TextRun({ text: "Vantorflow", color: "10B981", bold: true }),
+        new TextRun({ text: " Page " }),
+        new TextRun({ children: [PageNumber.CURRENT] }),
+      ],
+    })],
+  }) : undefined;
+  const doc = new Document({ sections: [{ headers: header ? { default: header } : undefined, footers: footer ? { default: footer } : undefined, children }] });
   // Packer resolves only after all ZIP entries are finalized. Convert the completed
   // Blob to bytes before returning so the download never races object-URL cleanup.
   const packed = await Packer.toBlob(doc);

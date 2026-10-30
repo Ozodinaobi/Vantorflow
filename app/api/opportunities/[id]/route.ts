@@ -59,3 +59,29 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return errorResponse(e, "Stage was NOT saved: ");
   }
 }
+
+// DELETE /api/opportunities/[id]: remove this user's opportunity and every linked row.
+export async function DELETE(_req: Request, { params }: Ctx) {
+  const auth = await requireUser();
+  if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: 401 });
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: "Not found." }, { status: 404 });
+  try {
+    const rows = await rest<any[]>("GET", "opportunities", {
+      query: `?id=eq.${params.id}&user_id=eq.${auth.userId}&select=id,rfq_id&limit=1`,
+    });
+    if (!rows.length) return NextResponse.json({ error: "Opportunity not found." }, { status: 404 });
+    await rest("DELETE", "requirements", { query: `?opportunity_id=eq.${params.id}&user_id=eq.${auth.userId}` });
+    await rest("DELETE", "response_sections", { query: `?opportunity_id=eq.${params.id}&user_id=eq.${auth.userId}` });
+    if (rows[0].rfq_id) {
+      await rest("DELETE", "rfqs", { query: `?id=eq.${rows[0].rfq_id}&user_id=eq.${auth.userId}` });
+    }
+    const removed = await rest<any[]>("DELETE", "opportunities", {
+      query: `?id=eq.${params.id}&user_id=eq.${auth.userId}&select=id`,
+      prefer: "return=representation",
+    });
+    if (!removed.length) return NextResponse.json({ error: "Opportunity was not deleted." }, { status: 409 });
+    return NextResponse.json({ deleted: true, id: params.id });
+  } catch (e) {
+    return errorResponse(e, "Could not delete the opportunity: ");
+  }
+}

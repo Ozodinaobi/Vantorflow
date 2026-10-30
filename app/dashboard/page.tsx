@@ -23,6 +23,21 @@ export default function DashboardPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  async function removeOpportunity(opp: Row) {
+    if (!window.confirm(`Delete “${opp.title}”? This permanently removes the opportunity, its RFQ, requirements, mappings and response sections.`)) return;
+    setDeleting(opp.id);
+    setError(null);
+    try {
+      await api(`/api/opportunities/${opp.id}`, { method: "DELETE" });
+      setRows((current) => current.filter((row) => row.id !== opp.id));
+    } catch (e) {
+      setError(`Could not delete opportunity: ${errorText(e)}`);
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   useEffect(() => {
     api<{ opportunities: Row[] }>("/api/opportunities")
@@ -66,13 +81,12 @@ export default function DashboardPage() {
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {rows.map((opp, i) => (
           <Reveal key={opp.id} delay={Math.min(i, 5) * 90}>
-            <Link
-              href={`/dashboard/${opp.id}`}
+            <div
               onMouseMove={track}
               className="spotlight shimmer-border glass group block h-full rounded-3xl p-6 transition-[transform,border-color] duration-700 ease-out-expo hover:-translate-y-1 hover:border-white/20"
             >
               <div className="flex items-start justify-between gap-3">
-                <h2 className="font-serif text-xl leading-snug">{opp.title}</h2>
+                <h2 className="font-serif text-xl leading-snug"><Link className="hover:text-emerald-200" href={`/dashboard/${opp.id}`}>{opp.title}</Link></h2>
                 <span className="label-mono shrink-0 rounded-full border border-white/10 px-2.5 py-1 !text-[9px]">{opp.status}</span>
               </div>
               <dl className="mt-5 space-y-2 text-sm">
@@ -94,7 +108,18 @@ export default function DashboardPage() {
               <div className="mt-6 border-t border-white/5 pt-5">
                 <ReadinessBadge readiness={opp.readiness} />
               </div>
-            </Link>
+              <div className="mt-5 flex justify-end">
+                <button
+                  type="button"
+                  disabled={deleting === opp.id}
+                  onClick={() => removeOpportunity(opp)}
+                  className="btn-secondary !min-h-[40px] !border-red-400/20 !text-red-200/80 hover:!border-red-300/50 hover:!text-red-100"
+                  aria-label={`Delete ${opp.title}`}
+                >
+                  {deleting === opp.id ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
           </Reveal>
         ))}
       </div>
