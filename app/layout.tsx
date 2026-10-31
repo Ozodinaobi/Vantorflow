@@ -23,22 +23,16 @@ export const metadata: Metadata = {
     title: "Vantorflow - Bid and Tender Response Platform",
     description:
       "Turn RFQs and tender documents into structured, branded bid responses.",
-    images: ["https://vantorflow.com.ng/og-image.png"],
+    images: ["/logo.png"],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Vantorflow - Bid and Tender Response Platform",
     description:
       "Turn RFQs and tender documents into structured, branded bid responses.",
-    images: ["/og-image.png"],
+    images: ["/logo.png"],
   },
-  icons: {
-    icon: [
-      { url: "/favicon.ico" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: "/apple-touch-icon.png",
-  },
+  icons: { icon: "/logo.png" },
 };
 
 // Root layout: wraps every page. Keep it simple.
