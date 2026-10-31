@@ -1,0 +1,1 @@
+import {redirect} from "next/navigation";import {adminFromRequest} from "@/lib/auth";import {Dashboard} from "@/components/Dashboard";export const dynamic="force-dynamic";export default function Home(){if(!adminFromRequest())redirect("/login");return <Dashboard/>}
