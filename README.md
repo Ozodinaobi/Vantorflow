@@ -27,3 +27,4 @@ Bid and tender operations platform. Next.js 14 (App Router, TypeScript), Tailwin
 
 
 No anon key is needed. The database tables are created once by pasting supabase-schema.sql into the Supabase SQL Editor (the app shows the SQL and a copy button when they are missing).
+
