@@ -64,7 +64,7 @@ function buildSectionPrompt(title: string, buyer: string, group: GroupIn): strin
     "Write in clear, professional English.",
     "Plain text only: no markdown, no bullet symbols, no headings. Separate paragraphs with one blank line.",
     "Return only the body text of this section, without repeating the section title.",
-    "Do not invent certifications, prices, past client names or figures. Where a specific fact is needed but not given, write [TO CONFIRM: what is needed].",
+    "Do not invent certifications, prices, past client names or figures. If a specific fact is missing, use clean neutral wording that identifies who will confirm it, such as 'the appointed Contract Manager will confirm this detail'. Never output bracketed placeholders or placeholder markers, including [TO CONFIRM].",
     "",
     "Requirements:",
     reqLines,
