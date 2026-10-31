@@ -29,8 +29,13 @@ function Icon({ name, className = "h-5 w-5" }: { name: keyof typeof ICONS; class
 }
 
 const NAV = [
-  { href: "/dashboard", label: "Opportunities", icon: "list" as const, match: (p: string) => p === "/dashboard" || (p.startsWith("/dashboard/") && p !== "/dashboard/new") },
-  { href: "/dashboard/new", label: "New RFQ", icon: "plus" as const, match: (p: string) => p === "/dashboard/new" },
+  { href: "/dashboard", label: "Dashboard", icon: "list" as const, match: (p: string) => p === "/dashboard" },
+  { href: "/dashboard", label: "Opportunities", icon: "list" as const, match: (p: string) => p === "/dashboard" || (p.startsWith("/dashboard/") && !["/dashboard/new", "/dashboard/deadlines", "/dashboard/calendar", "/dashboard/settings", "/dashboard/rfqs", "/dashboard/answer-library", "/dashboard/approvals"].some((path) => p === path || p.startsWith(`${path}/`))) },
+  { href: "/dashboard/new", label: "RFQs", icon: "plus" as const, match: (p: string) => p === "/dashboard/new" || p === "/dashboard/rfqs" },
+  { href: "/dashboard/deadlines", label: "Deadlines", icon: "list" as const, match: (p: string) => p === "/dashboard/deadlines" },
+  { href: "/dashboard/calendar", label: "Calendar", icon: "list" as const, match: (p: string) => p === "/dashboard/calendar" },
+  { href: "/dashboard", label: "Answer Library", icon: "list" as const, match: (p: string) => p.startsWith("/dashboard/answer-library") },
+  { href: "/dashboard", label: "Approvals", icon: "list" as const, match: (p: string) => p.startsWith("/dashboard/approvals") },
   { href: "/dashboard/settings", label: "Settings", icon: "settings" as const, match: (p: string) => p === "/dashboard/settings" },
 ];
 

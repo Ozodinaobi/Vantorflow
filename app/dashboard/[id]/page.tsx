@@ -11,6 +11,7 @@ import { buildDocx, buildPdf, downloadBlob } from "@/lib/docx";
 import { Pipeline } from "@/components/Pipeline";
 import { ReadinessBadge } from "@/components/ReadinessBadge";
 import { BreathingLoader, LoadingBlock, Reveal } from "@/components/ui";
+import { BidDecisionPanel, CompliancePanel } from "@/components/BidControls";
 
 interface Detail {
   opportunity: Opportunity;
@@ -249,6 +250,14 @@ export default function OpportunityPage() {
           {message.text}
         </p>
       )}
+
+      <Reveal>
+        <BidDecisionPanel opportunityId={opp.id} />
+      </Reveal>
+
+      <Reveal>
+        <CompliancePanel requirements={reqs} drafts={drafts} />
+      </Reveal>
 
       <Reveal>
         <div className="card">
