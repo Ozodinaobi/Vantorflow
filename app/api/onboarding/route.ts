@@ -95,16 +95,20 @@ export async function PATCH(request: Request) {
         vf_onboarding_skipped_steps: [],
         vf_onboarding_template: null,
       };
-      const saved = await authCall("PATCH", `/admin/users/${encodeURIComponent(auth.userId)}`, { user_metadata: reset });
-      if (!saved.ok) throw new DbError("Could not reopen onboarding.", saved.status, null);
+      let tableSaved = false;
       try {
         await rest("POST", "vf_onboarding", {
           query: "?on_conflict=user_id",
           body: { user_id: auth.userId, onboarding_completed: false, current_step: 0, completed_steps: [], skipped_steps: [], selected_template: null },
           prefer: "resolution=merge-duplicates,return=minimal",
         });
+        tableSaved = true;
       } catch (error) {
         if (!isMissingTable(error)) throw error;
+      }
+      if (!tableSaved) {
+        const saved = await authCall("PATCH", `/admin/users/${encodeURIComponent(auth.userId)}`, { user_metadata: reset });
+        if (!saved.ok) throw new DbError("Could not reopen onboarding.", saved.status, null);
       }
       return NextResponse.json({ completed: false, currentStep: 0, completedSteps: [], skippedSteps: [], selectedTemplate: null });
     } catch (error) {
@@ -170,18 +174,22 @@ export async function PATCH(request: Request) {
       if (!isMissingTable(error)) throw error;
     }
 
-    const metadata = await userMetadata(auth.userId);
-    const metaUpdate = await authCall("PATCH", `/admin/users/${encodeURIComponent(auth.userId)}`, {
-      user_metadata: {
-        ...metadata,
-        vf_onboarding_completed: next.completed,
-        vf_onboarding_step: next.currentStep,
-        vf_onboarding_completed_steps: next.completedSteps,
-        vf_onboarding_skipped_steps: next.skippedSteps,
-        vf_onboarding_template: next.selectedTemplate,
-      },
-    });
-    if (!tableSaved && !metaUpdate.ok) throw new DbError("Could not save onboarding progress.", metaUpdate.status, null);
+    // The table is the primary durable store. Use auth metadata only when the optional
+    // progress table has not been installed, so a metadata lookup cannot break a valid table write.
+    if (!tableSaved) {
+      const metadata = await userMetadata(auth.userId);
+      const metaUpdate = await authCall("PATCH", `/admin/users/${encodeURIComponent(auth.userId)}`, {
+        user_metadata: {
+          ...metadata,
+          vf_onboarding_completed: next.completed,
+          vf_onboarding_step: next.currentStep,
+          vf_onboarding_completed_steps: next.completedSteps,
+          vf_onboarding_skipped_steps: next.skippedSteps,
+          vf_onboarding_template: next.selectedTemplate,
+        },
+      });
+      if (!metaUpdate.ok) throw new DbError("Could not save onboarding progress.", metaUpdate.status, null);
+    }
     return NextResponse.json(next);
   } catch (error) {
     return errorResponse(error);
