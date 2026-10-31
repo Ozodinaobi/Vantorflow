@@ -134,17 +134,15 @@ export function GlowOrbs({ className = "" }: { className?: string }) {
   );
 }
 
-// ---------- Logo: command glyph in a white rounded square, spins 360 degrees on hover. ----------
+// ---------- Logo: approved mark on its dark background, spins 360 degrees on hover. ----------
 export function LogoMark({ size = 32 }: { size?: number }) {
   return (
-    <span
+    <img
+      src="/logo-mark.png"
+      alt=""
       aria-hidden="true"
-      className="group/logo inline-flex items-center justify-center rounded-xl bg-white text-black transition-transform duration-[900ms] hover:rotate-[360deg]"
+      className="group/logo inline-flex rounded-xl bg-[#050505] object-cover transition-transform duration-[900ms] hover:rotate-[360deg]"
       style={{ width: size, height: size, transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)" }}
-    >
-      <svg width={size * 0.5} height={size * 0.5} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 9V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V9z" />
-      </svg>
-    </span>
+    />
   );
 }
