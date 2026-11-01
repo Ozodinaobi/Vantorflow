@@ -2,7 +2,7 @@ import {NextResponse} from "next/server";
 import {adminApi} from "@/lib/auth";
 import {authAdmin,rest} from "@/lib/db";
 export const dynamic="force-dynamic";
-async function allRows(table:string,query:string,limit=100000){const out:any[]=[];for(let offset=0;offset<limit;offset+=1000){const join=query.includes("?")?"&":"?";const batch=await rest<any[]>("GET",table,`${query}${join}limit=1000&offset=${offset}`,{allowMissing:true});out.push(...batch);if(batch.length<1000)return {rows:out,partial:false};}return {rows:out,partial:true}}
+async function allRows(table:string,query:string,limit=100000){const out:any[]=[];for(let offset=0;offset<limit;offset+=1000){const join=query.includes("?")?"&":"?";const batch=await rest<any[]>("GET",table,`${query}${join}limit=1000&offset=${offset}`,undefined,{allowMissing:true});out.push(...batch);if(batch.length<1000)return {rows:out,partial:false};}return {rows:out,partial:true}}
 export async function GET(req:Request){
  const denied=await adminApi(req);if(denied)return denied;
  try{
