@@ -78,6 +78,7 @@ export default function OpportunityPage() {
       });
       if (Number.isInteger(state.currentStep)) setTemplateStep(state.currentStep!);
       setMessage({ kind: "ok", text: "Response template saved." });
+      if (templateStep === 2) window.dispatchEvent(new CustomEvent("vf:onboarding-step-complete", { detail: { step: 2 } }));
     } catch (e) {
       setMessage({ kind: "error", text: `Template preference was not saved: ${errorText(e)}` });
     } finally {
@@ -176,6 +177,7 @@ export default function OpportunityPage() {
       });
       setData((prev) => (prev ? { ...prev, drafts: saved.drafts } : prev));
       setMessage({ kind: "ok", text: "Drafts generated and saved." });
+      window.dispatchEvent(new CustomEvent("vf:onboarding-step-finish", { detail: { step: 3 } }));
     } catch (e) {
       setMessage({ kind: "error", text: errorText(e) });
     } finally {

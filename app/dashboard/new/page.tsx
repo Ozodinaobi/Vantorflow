@@ -33,6 +33,7 @@ export default function NewRfqPage() {
         method: "POST",
         body: { title, buyer, deadline, value, rfqText },
       });
+      window.dispatchEvent(new CustomEvent("vf:onboarding-step-complete", { detail: { step: 1 } }));
       router.push(`/dashboard/${d.opportunity.id}`);
     } catch (err) {
       setError(errorText(err));
