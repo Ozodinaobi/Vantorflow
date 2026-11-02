@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/serverAuth";
 import { callGemini } from "@/lib/gemini";
+import { aiAccessErrorResponse, withAiUsage } from "@/lib/aiUsage";
 import { CATEGORIES, ExtractResult } from "@/lib/types";
 
 export async function POST(req: Request) {
@@ -29,10 +30,17 @@ export async function POST(req: Request) {
   }
 
   try {
-    const raw = await callGemini(buildExtractPrompt(rfqText), true);
+    const raw = await withAiUsage({
+      userId: auth.userId,
+      feature: "extract",
+      req,
+      operation: (onUsage) => callGemini(buildExtractPrompt(rfqText), true, onUsage),
+    });
     const result = parseExtractJson(raw);
     return NextResponse.json(result);
   } catch (e) {
+    const blocked = aiAccessErrorResponse(e);
+    if (blocked) return blocked;
     const message = e instanceof Error ? e.message : "Extraction failed.";
     return NextResponse.json({ error: message }, { status: 502 });
   }

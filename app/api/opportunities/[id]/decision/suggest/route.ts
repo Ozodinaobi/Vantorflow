@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/serverAuth";
 import { callGemini } from "@/lib/gemini";
+import { aiAccessErrorResponse, withAiUsage } from "@/lib/aiUsage";
 import { rest, UUID_RE } from "@/lib/db";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
@@ -15,11 +16,18 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     if (!opportunities.length) return NextResponse.json({ error: "Opportunity not found." }, { status: 404 });
     const body = await req.json().catch(() => ({}));
     const prompt = `You are helping a bid team prepare a cautious, evidence-based go/no-go suggestion. Use only the supplied opportunity facts and checklist scores. Do not invent facts. Return JSON only with keys suggestion ("go", "review", or "no-go"), rationale (one short paragraph), watchouts (array of strings). This is decision support, not an automatic decision.\nOpportunity: ${JSON.stringify(opportunities[0])}\nScores: ${JSON.stringify(body.scores ?? decisionRows[0]?.decision?.scores ?? {})}`;
-    const text = await callGemini(prompt, true);
+    const text = await withAiUsage({
+      userId: auth.userId,
+      feature: "decision_suggest",
+      req,
+      operation: (onUsage) => callGemini(prompt, true, onUsage),
+    });
     const result = JSON.parse(text);
     if (!["go", "review", "no-go"].includes(result.suggestion) || typeof result.rationale !== "string" || !Array.isArray(result.watchouts)) throw new Error("The suggestion could not be validated. Try again.");
     return NextResponse.json({ suggestion: result });
   } catch (e) {
+    const blocked = aiAccessErrorResponse(e);
+    if (blocked) return blocked;
     return NextResponse.json({ error: e instanceof Error ? e.message : "Could not generate a suggestion." }, { status: 502 });
   }
 }

@@ -225,10 +225,10 @@ export default function OpportunityPage() {
   const busyLabel = (on: boolean, idle: string, active: string) => (on ? active : idle);
 
   return (
-    <section className="space-y-8">
+    <section className="max-w-5xl space-y-8">
       <div>
         <Link href="/dashboard" className="link-u !min-h-[44px] text-sm">Back to opportunities</Link>
-        <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-6 border-b border-white/[0.07] pb-7">
           <div className="min-w-0">
             <p className="label-mono mb-3">Opportunity</p>
             <h1 className="font-serif text-4xl font-medium leading-[0.95] tracking-tighter sm:text-5xl">{opp.title}</h1>

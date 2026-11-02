@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/serverAuth";
 import { callGemini } from "@/lib/gemini";
+import { aiAccessErrorResponse, withAiUsage } from "@/lib/aiUsage";
 import { SECTIONS } from "@/lib/types";
 
 interface GroupIn {
@@ -35,18 +36,25 @@ export async function POST(req: Request) {
 
   try {
     const drafts: { section: string; draft: string }[] = [];
-    // Run sections one after another to stay gentle on the Gemini rate limit.
+    const chargeableGroups = groups.filter((group) => Array.isArray(group.requirements) && group.requirements.length > 0).length;
+    if (chargeableGroups === 0) return NextResponse.json({ drafts: groups.map((group) => ({ section: group.section, draft: "" })) });
     for (const group of groups) {
       if (!Array.isArray(group.requirements) || group.requirements.length === 0) {
-        // Nothing mapped to this section, so there is nothing to draft.
         drafts.push({ section: group.section, draft: "" });
         continue;
       }
-      const draft = await callGemini(buildSectionPrompt(title, buyer, group));
+      const draft = await withAiUsage({
+        userId: auth.userId,
+        feature: "generate",
+        req,
+        operation: (onUsage) => callGemini(buildSectionPrompt(title, buyer, group), false, onUsage),
+      });
       drafts.push({ section: group.section, draft });
     }
     return NextResponse.json({ drafts });
   } catch (e) {
+    const blocked = aiAccessErrorResponse(e);
+    if (blocked) return blocked;
     const message = e instanceof Error ? e.message : "Draft generation failed.";
     return NextResponse.json({ error: message }, { status: 502 });
   }

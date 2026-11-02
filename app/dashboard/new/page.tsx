@@ -42,13 +42,14 @@ export default function NewRfqPage() {
   }
 
   return (
-    <section className="max-w-3xl">
+    <section className="max-w-4xl">
       <div className="mb-10">
         <p className="label-mono mb-3">Intake</p>
-        <h1 className="font-serif text-4xl font-medium leading-[0.95] tracking-tighter sm:text-5xl">New RFQ intake</h1>
+        <h1 className="font-serif text-4xl font-medium leading-[0.98] tracking-tight sm:text-6xl">Start a bid workspace</h1>
+        <p className="mt-4 max-w-2xl text-sm leading-6 text-white/45">Add the tender details and source text. Vantorflow will organize the requirements into a working response.</p>
       </div>
       <Reveal>
-        <form onSubmit={onSubmit} className="card space-y-6">
+        <form onSubmit={onSubmit} className="card space-y-7 border-white/[0.08] bg-[linear-gradient(145deg,rgba(255,255,255,0.035),rgba(255,255,255,0.012))] p-5 sm:p-8">
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm sm:col-span-2">
               <span className="label-mono mb-2 block">Opportunity title</span>

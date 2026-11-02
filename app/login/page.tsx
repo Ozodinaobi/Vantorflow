@@ -31,13 +31,14 @@ export default function LoginPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
       <GlowOrbs />
-      <div className="card animate-fade-rise relative w-full max-w-sm">
+      <div className="card animate-fade-rise relative w-full max-w-sm border-white/[0.08] bg-[linear-gradient(145deg,rgba(255,255,255,0.045),rgba(255,255,255,0.012))] shadow-[0_32px_100px_rgba(0,0,0,0.45)]">
         <div className="mb-8 flex items-center gap-3">
           <LogoMark size={36} />
           <span className="font-serif text-xl">Vantorflow</span>
         </div>
         <p className="label-mono mb-3">Sign in</p>
-        <h1 className="font-serif text-4xl font-medium leading-[0.95] tracking-tighter">Log in</h1>
+        <h1 className="font-serif text-5xl font-medium leading-[0.95] tracking-tight">Welcome back</h1>
+        <p className="mt-3 text-sm text-white/45">Sign in to pick up where your bids left off.</p>
         <form onSubmit={onSubmit} className="mt-8 space-y-5">
           <label className="block text-sm">
             <span className="label-mono mb-2 block">Email</span>

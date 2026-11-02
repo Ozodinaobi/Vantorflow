@@ -6,7 +6,7 @@
 - [ ] Add cookie-consent UI for any non-essential cookies; map cookie inventory and block optional trackers until consent.
 - [ ] Add `/sitemap.xml`, `robots.txt`, canonical metadata, page descriptions and social preview metadata; exclude authenticated routes.
 - [ ] Add authenticated, expiring user export for RFQs/opportunities/requirements/response drafts and a verified account deletion request with retention exceptions.
-- [ ] Add status/cap checks and atomic usage accounting to all AI endpoints; insert `ai_usage_events` and audit relevant actions.
+- [x] Add status/cap checks and atomic usage accounting to all AI endpoints; insert `ai_usage_events` and audit relevant actions. (Local routes and migration implemented; production migration still pending.)
 - [ ] Add plan/tier entitlement checks only when billing is introduced; no charge flow exists in this scaffold.
 - [ ] Link support@vantorflow.com.ng in Terms, Privacy and product support surfaces.
 

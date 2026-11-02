@@ -50,9 +50,9 @@ export default function DashboardPage() {
   if (loading) return <LoadingBlock label="Loading opportunities" />;
 
   return (
-    <section>
+    <section className="space-y-7">
       <DeadlinePanel compact />
-      <div className="mb-10 mt-8 flex flex-wrap items-end justify-between gap-4">
+      <div className="mb-8 mt-5 flex flex-wrap items-end justify-between gap-4 border-b border-white/[0.07] pb-7">
         <div>
           <p className="label-mono mb-3 flex items-center gap-2">
             <span className="relative flex h-1.5 w-1.5">
@@ -61,7 +61,8 @@ export default function DashboardPage() {
             </span>
             Pipeline
           </p>
-          <h1 className="font-serif text-4xl font-medium tracking-tighter sm:text-5xl">Opportunities</h1>
+          <h1 className="font-serif text-4xl font-medium tracking-tight sm:text-[3.5rem]">Your bid pipeline</h1>
+          <p className="mt-2 max-w-xl text-sm text-white/45">Keep every tender, decision and deadline in one clear workspace.</p>
         </div>
         <Link href="/dashboard/new" className="btn-primary">
           New RFQ
@@ -80,15 +81,15 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {rows.map((opp, i) => (
           <Reveal key={opp.id} delay={Math.min(i, 5) * 90}>
             <div
               onMouseMove={track}
-              className="spotlight shimmer-border glass group block h-full rounded-3xl p-6 transition-[transform,border-color] duration-700 ease-out-expo hover:-translate-y-1 hover:border-white/20"
+              className="spotlight glass group block h-full rounded-[1.65rem] border-white/[0.08] bg-[linear-gradient(145deg,rgba(255,255,255,0.035),rgba(255,255,255,0.012))] p-6 transition-[transform,border-color,background-color] duration-500 ease-out-expo hover:-translate-y-1 hover:border-emerald-400/25 hover:bg-white/[0.035]"
             >
               <div className="flex items-start justify-between gap-3">
-                <h2 className="font-serif text-xl leading-snug"><Link className="hover:text-emerald-200" href={`/dashboard/${opp.id}`}>{opp.title}</Link></h2>
+                <h2 className="font-serif text-[1.4rem] leading-snug tracking-tight"><Link className="hover:text-emerald-200" href={`/dashboard/${opp.id}`}>{opp.title}</Link></h2>
                 <span className="label-mono shrink-0 rounded-full border border-white/10 px-2.5 py-1 !text-[9px]">{opp.status}</span>
               </div>
               <dl className="mt-5 space-y-2 text-sm">

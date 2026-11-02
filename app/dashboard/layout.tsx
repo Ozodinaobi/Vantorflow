@@ -122,7 +122,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* ---------- Desktop / tablet sidebar ---------- */}
       <aside
         aria-label="Primary"
-        className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-white/5 bg-ink/70 backdrop-blur-xl transition-[width] duration-500 ease-out-expo md:flex ${
+        className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-white/[0.07] bg-[#080909]/90 shadow-[18px_0_50px_rgba(0,0,0,0.18)] backdrop-blur-2xl transition-[width] duration-500 ease-out-expo md:flex ${
           collapsed ? "md:w-20" : "md:w-20 lg:w-64"
         }`}
       >
@@ -187,7 +187,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* ---------- Mobile top bar ---------- */}
-      <header className="sticky top-0 z-30 border-b border-white/5 bg-ink/80 backdrop-blur-xl md:hidden">
+      <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[#080909]/90 backdrop-blur-2xl md:hidden">
         <div className="flex h-16 items-center justify-between px-4">
           <Link href="/dashboard" className="flex min-h-[44px] items-center gap-2.5" aria-label="Vantorflow home">
             <LogoMark size={28} />
@@ -261,7 +261,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* ---------- Mobile bottom tab bar ---------- */}
       <nav
         aria-label="Primary mobile"
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-white/5 bg-ink/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-white/[0.07] bg-[#080909]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl md:hidden"
       >
         <ul className="mx-auto grid max-w-md grid-cols-3 px-3">
           {NAV.map((item) => {
@@ -286,7 +286,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
       {/* ---------- Content ---------- */}
       <main
-        className={`relative z-10 mx-auto w-full max-w-6xl px-4 pb-28 pt-6 transition-[padding] duration-500 ease-out-expo sm:px-6 md:pb-12 md:pt-10 ${
+        className={`relative z-10 mx-auto w-full max-w-[1500px] px-4 pb-28 pt-6 transition-[padding] duration-500 ease-out-expo sm:px-8 md:pb-12 md:pt-10 ${
           collapsed ? "md:pl-28" : "md:pl-28 lg:pl-72"
         }`}
       >
