@@ -10,8 +10,8 @@ export async function GET(req:Request){
   for(let page=1;page<=100;page++){const batch=await authAdmin(`/admin/users?page=${page}&per_page=100`,"GET");const rows=batch.users||[];users.push(...rows);if(rows.length<100)break;if(page===100)usersPartial=true}
   const monthStart=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString();
   const [opps,rfqs,usage,flags,configs,controls,activity]=await Promise.all([
-   allRows("opportunity_records","?select=id,user_id,title,buyer,status,deadline,value,created_at,updated_at"),
-   allRows("rfq_records","?select=id,user_id,opportunity_id,title,buyer,deadline,estimated_value,created_at"),
+   allRows("opportunities","?select=id,user_id,title,buyer:buyer_organization,status,deadline:deadline_date,value:estimated_value,created_at,updated_at"),
+   allRows("rfqs","?select=id,user_id,title,buyer:buyer_organization,status,deadline:deadline_date,created_at,updated_at"),
    allRows("ai_usage_events",`?select=id,user_id,feature,outcome,tokens_total,created_at&created_at=gte.${encodeURIComponent(monthStart)}`),
    rest<any[]>("GET","abuse_flags","?select=*&order=created_at.desc&limit=100"),
    rest<any[]>("GET","admin_config","?config_key=eq.abuse_detection&select=*&limit=1"),
